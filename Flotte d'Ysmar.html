@@ -510,6 +510,104 @@ body.bigtext .hl, body.bigtext #camBar button, body.bigtext #actions button { fo
 /* ===== ma flotte ===== */
 #fleetMap { display: block; width: min(100%, 440px); height: auto; aspect-ratio: 900 / 820; margin-left: auto !important; margin-right: auto !important; border-radius: 8px; margin: 6px 0 8px; border: 1px solid var(--line); }
 .fleetmap .fmst { display: grid; grid-template-columns: minmax(90px, auto) 1fr 1fr; gap: 8px; align-items: center; } .fleetmap .fmst .gauge { margin: 0; }
+
+/* ---------- reflet du soleil ---------- */
+#flare { position: fixed; inset: 0; pointer-events: none; overflow: hidden; mix-blend-mode: screen; --warm: 0; }
+#flare i { position: absolute; left: 0; top: 0; border-radius: 50%; will-change: transform, opacity; }
+#flare .f0 { width: 46vmin; height: 46vmin; background: radial-gradient(circle, rgba(255, 250, 235, 0.55) 0, rgba(255, calc(236 - var(--warm) * 50), calc(200 - var(--warm) * 110), 0.22) 18%, rgba(255, 210, 150, 0.06) 45%, transparent 70%); }
+#flare .f1 { width: 7vmin; height: 7vmin; background: radial-gradient(circle, transparent 50%, rgba(160, 220, 255, 0.16) 70%, transparent 74%); }
+#flare .f2 { width: 3vmin; height: 3vmin; background: radial-gradient(circle, rgba(255, 220, 160, 0.28), transparent 70%); }
+#flare .f3 { width: 11vmin; height: 11vmin; background: radial-gradient(circle, rgba(140, 255, 210, 0.07) 40%, rgba(120, 200, 255, 0.12) 62%, transparent 70%); }
+#flare .f4 { width: 18vmin; height: 18vmin; background: radial-gradient(circle, transparent 55%, rgba(255, 170, 120, 0.1) 66%, rgba(170, 140, 255, 0.07) 72%, transparent 76%); }
+
+/* ---------- écran de chargement ---------- */
+#loading { background: radial-gradient(120% 90% at 50% 110%, #12324a 0, #0a1a27 45%, var(--night) 80%); }
+#loading .ld { text-align: center; padding: 0 16px; }
+#loading .eyebrow { font: 600 11px var(--mono); letter-spacing: .32em; text-transform: uppercase; color: var(--amber); margin: 0 0 10px; }
+#loading h1 { font: 400 clamp(40px, 9vw, 84px)/1 var(--fellsc); color: var(--fg); margin: 0; text-shadow: 0 2px 30px rgba(120, 180, 220, 0.25); }
+#loading p { margin: 12px 0 0; }
+#loading .ldbar { display: block; width: min(260px, 60vw); height: 2px; margin: 22px auto 0; background: rgba(255, 255, 255, 0.1); position: relative; overflow: hidden; border-radius: 1px; }
+#loading .ldbar::after { content: ""; position: absolute; inset: 0; width: 35%; background: linear-gradient(90deg, transparent, var(--amber), transparent); animation: ldrun 1.4s ease-in-out infinite; }
+@keyframes ldrun { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
+@media (prefers-reduced-motion: reduce) { #loading .ldbar::after { animation: none; width: 100%; opacity: .5; } }
+.trcard { margin: 10px 0; padding: 10px 12px; border: 1px solid var(--amber); border-radius: 8px; background: rgba(242, 179, 61, 0.07); display: grid; gap: 6px; }
+.trcard b { color: var(--amber2); } .trcard p { margin: 0; } .trcard .btn { justify-self: start; }
+
+/* ---------- mode histoire : scènes ---------- */
+#story { position: fixed; inset: 0; z-index: 64; display: grid; grid-template-rows: auto 1fr; cursor: pointer; }
+#story::before, #story::after { content: ""; position: fixed; left: 0; right: 0; height: 9vh; background: #000; z-index: -1; animation: scbar .6s ease-out both; }
+#story::before { top: 0; } #story::after { bottom: 0; }
+@keyframes scbar { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+#story .sctop { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: calc(9vh - 34px + env(safe-area-inset-top, 0px)) 16px 0; font: 600 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--amber2); }
+#story .sctop span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#story .scwrap { align-self: end; justify-self: center; width: min(780px, calc(100vw - 32px)); margin-bottom: calc(9vh + 14px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 6px; animation: scin .35s ease-out both; }
+@keyframes scin { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+#story .scbox { background: linear-gradient(180deg, rgba(8, 17, 25, .9), rgba(6, 12, 18, .96)); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px 16px; display: grid; gap: 10px; box-shadow: 0 18px 50px rgba(0, 0, 0, .45); cursor: default; }
+#story .scbox.nar { background: linear-gradient(180deg, rgba(20, 16, 10, .88), rgba(12, 10, 7, .95)); border-color: rgba(242, 179, 61, .25); }
+#story .scbox.nar .sctxt { font-style: italic; color: #eadfc8; }
+#story .scbox.phone { border-color: rgba(111, 211, 154, .45); }
+#story .scwho { display: flex; align-items: center; gap: 12px; }
+#story .scwho b { display: block; font: 600 16px var(--ui); color: var(--fg); } #story .scwho span { font-size: 12.5px; color: var(--mut); }
+#story .scwho .pill { margin-left: auto; font: 600 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: #0d1a12; background: var(--ok); border-radius: 999px; padding: 3px 8px; font-style: normal; }
+#story .sctxt { margin: 0; font: 19px/1.5 var(--fell); color: var(--fg); min-height: 1.5em; }
+#story .scnext { margin: 0; justify-self: end; font: 600 11px var(--mono); color: var(--mut); letter-spacing: .1em; animation: scblink 1.6s ease-in-out infinite; }
+@keyframes scblink { 50% { opacity: .35; } }
+#story .scfx { display: flex; flex-wrap: wrap; gap: 6px; }
+#story .scfx span { font: 600 11px var(--mono); border-radius: 999px; padding: 3px 9px; background: rgba(255, 255, 255, .07); }
+#story .scfx .up { color: var(--ok); } #story .scfx .down { color: var(--warn); }
+#story .scchoices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+#story .scchoices.two { grid-template-columns: 1fr 1fr; }
+#story .scch { text-align: left; display: grid; gap: 4px; align-content: start; position: relative; background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .12); border-left: 3px solid var(--tc); border-radius: 8px; padding: 10px 12px 10px 14px; }
+#story .scch:hover, #story .scch:focus-visible { background: rgba(255, 255, 255, .1); border-color: var(--tc); }
+#story .scch i { position: absolute; top: 8px; right: 10px; font: 600 10px var(--mono); color: var(--mut); font-style: normal; }
+#story .scch b { font: 600 13px var(--ui); color: var(--tc); letter-spacing: .02em; padding-right: 16px; }
+#story .scch span { font: 14px/1.35 var(--fell); color: var(--fg); }
+#story .scname { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+#story .scname label { display: grid; gap: 4px; font: 600 11px var(--mono); color: var(--mut); letter-spacing: .08em; text-transform: uppercase; flex: 1 1 160px; }
+#story .scname input { font: 20px var(--fell); color: var(--fg); background: rgba(255, 255, 255, .06); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; -webkit-user-select: text; user-select: text; }
+#story .scname input:focus { outline: 2px solid var(--amber); outline-offset: 1px; }
+#story .small { margin: 0; color: var(--mut); font-size: 12.5px; }
+#story .sccard { justify-self: center; text-align: center; padding: 0 16px; margin-bottom: 18vh; animation: sccard 3.4s ease-in-out both; }
+#story .sccard .eyebrow { font: 600 12px var(--mono); letter-spacing: .4em; text-transform: uppercase; color: var(--amber); margin: 0 0 10px; }
+#story .sccard h2 { margin: 0; font: 400 clamp(36px, 7vw, 72px)/1 var(--fellsc); color: #fff; text-shadow: 0 2px 30px rgba(0, 0, 0, .7); }
+@keyframes sccard { 0% { opacity: 0; transform: scale(.97); } 15%, 80% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+#story .scpress { background: var(--paper); color: var(--ink); border-radius: 4px; padding: 14px 18px 16px; display: grid; gap: 8px; box-shadow: 0 18px 50px rgba(0, 0, 0, .5); transform: rotate(-.6deg); cursor: default; }
+#story .scpress header { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-bottom: 3px double var(--ink); padding-bottom: 6px; flex-wrap: wrap; }
+#story .scpress header b { font: 400 30px/1 var(--fellsc); letter-spacing: .02em; } #story .scpress header span { font: 12px var(--fell); color: var(--inkm); }
+#story .scpress .kick { margin: 0; font: 600 11px var(--mono); letter-spacing: .2em; text-transform: uppercase; color: var(--rust); }
+#story .scpress h2 { margin: 0; font: 400 clamp(22px, 3.4vw, 32px)/1.12 var(--fell); }
+#story .scpress .cols { display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: start; }
+#story .scpress .ph { aspect-ratio: 4 / 3; background: linear-gradient(180deg, #8fa6b2 0 48%, #4d6573 48% 100%); position: relative; filter: grayscale(.7) contrast(1.1); border: 1px solid #0003; }
+#story .scpress .ph::after { content: ""; position: absolute; left: 18%; right: 14%; bottom: 40%; height: 16%; background: #263139; clip-path: polygon(0 60%, 8% 100%, 92% 100%, 100% 60%, 70% 60%, 66% 0, 52% 0, 48% 60%); }
+#story .scpress p { margin: 0; font: 15px/1.45 var(--fell); color: #3b3222; }
+#story .scpress footer { font: 600 12px var(--mono); color: var(--inkm); }
+#story .scsocial { background: rgba(10, 14, 20, .95); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; gap: 8px; cursor: default; }
+#story .scsocial header { display: flex; justify-content: space-between; font: 600 12px var(--mono); color: var(--amber2); }
+#story .scsocial .post { border-top: 1px solid var(--line); padding-top: 8px; display: grid; gap: 2px; }
+#story .scsocial .post b { font-size: 13px; color: #7fd3ff; } #story .scsocial .post p { margin: 0; font-size: 14.5px; } #story .scsocial .post span { font: 11px var(--mono); color: var(--bad); }
+body.storyon #hud, body.storyon #hub, body.storyon #pwUI, body.storyon #tuto, body.storyon #msgPop, body.storyon #pmap, body.storyon #toast, body.storyon #progChip, body.storyon #hqRoom { visibility: hidden !important; }
+@media (max-width: 760px) {
+  #story .scchoices { grid-template-columns: 1fr; } #story .sctxt { font-size: 17px; }
+  #story .sctop .k { display: none; } #story .sctop button { white-space: nowrap; flex: none; }
+  #story .scpress .cols { grid-template-columns: 1fr; } #story .scpress .ph { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { #story::before, #story::after, #story .scwrap, #story .sccard, #story .scnext { animation: none; } }
+/* ---------- carte « Histoire », journal ---------- */
+.stcard { margin: 10px 0; padding: 12px 14px; border-radius: 8px; background: linear-gradient(135deg, rgba(242, 179, 61, .14), rgba(195, 141, 255, .08)); border: 1px solid rgba(242, 179, 61, .5); display: grid; gap: 6px; }
+.stcard .eyebrow { margin: 0; font: 600 10.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--amber2); }
+.stcard b { font: 400 21px/1.15 var(--fell); } .stcard p { margin: 0; } .stcard .row2 { flex-wrap: wrap; gap: 6px; }
+.stcard.done { border-color: var(--ok); }
+.stmeters { display: grid; gap: 8px; margin: 8px 0 4px; }
+.stm { display: grid; grid-template-columns: 150px 1fr 120px; gap: 10px; align-items: center; font-size: 13px; }
+.stm span { color: var(--mut); } .stm b { text-align: right; font-weight: 600; } .stm b.big { font: 600 18px var(--mono); color: var(--amber2); grid-column: 2 / 4; }
+.stm .tb { position: relative; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #7fd3ff, #f2b33d 50%, #ff6b5b); }
+.stm .tb i { position: absolute; top: -4px; width: 4px; height: 14px; margin-left: -2px; border-radius: 2px; background: #fff; box-shadow: 0 0 0 2px #0008; }
+.stch { margin: 4px 0; padding-left: 0; list-style: none; display: grid; gap: 3px; font-size: 13.5px; }
+.stch li::before { content: "○ "; color: var(--mut); } .stch li.ok::before { content: "✓ "; color: var(--ok); } .stch li.cur::before { content: "▶ "; color: var(--amber); } .stch li.lock { opacity: .5; }
+.stch li span { color: var(--amber2); }
+.stlog { margin: 4px 0; padding-left: 16px; display: grid; gap: 4px; font-size: 13px; max-height: 180px; overflow: auto; }
+.stlog li.pose { color: #a9e2ff; } .stlog li.feu { color: #ffb0a6; }
+@media (max-width: 560px) { .stm { grid-template-columns: 1fr 1fr; } .stm .pb, .stm .tb { grid-column: 1 / 3; grid-row: 2; } }
 </style>
 <canvas id="gl" aria-label="Vue du bâtiment"></canvas>
 <div id="bridgeFrame" hidden></div>
@@ -543,7 +641,7 @@ body.bigtext .hl, body.bigtext #camBar button, body.bigtext #actions button { fo
 <div id="toast" hidden></div>
 <div id="chartFull" hidden><canvas id="chartFullC"></canvas><span class="leg">Méditerranée occidentale (échelle réduite) · molette pour zoomer, glisser pour déplacer · cliquez pour placer un point de route</span><button class="btn sm x" data-act="chart">Fermer (M)</button></div>
 <div id="screen"></div>
-<div id="loading">Chargement de la Méditerranée…</div>
+<div id="loading"><div class="ld"><p class="eyebrow">Marine nationale · Méditerranée</p><h1>Flotte d'Ysmar</h1><p>Chargement de la Méditerranée…</p><i class="ldbar"></i></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js" integrity="sha384-nhO9toQuMo5osCuA0l+YFpSqscZWxDu251Bnho2gD3kSPv1neEwHg0LyEmrA+mPj" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js" integrity="sha384-mY+ii969jnDCI2HjRHftH2NZVkIO5ZGUkcnGCg3oVJ3kVstWQXwerYWBg+nbUG4R" crossorigin="anonymous"></script>
@@ -4838,11 +4936,12 @@ function helpHTML() {
     <tr><td>Au port</td><td><kbd>E</kbd> devant la jeep de service pour la conduire (Z/S, Q/D, <kbd>Espace</kbd> frein à main, <kbd>H</kbd> klaxon, <kbd>E</kbd> pour descendre, directement dans un lieu si vous êtes devant). <kbd>M</kbd> plan du port, <kbd>F</kbd> « Ma flotte » : où sont stationnés vos bâtiments. Liaisons chronométrées à la capitainerie, entraînement de l'équipage au carré</td></tr>
     <tr><td>En mer</td><td>Événements imprévus (voilier en avarie, conteneurs à la dérive, rorqual, grain, ballots de contrebande) : objectifs facultatifs et primes. La carte (<kbd>M</kbd>) montre vos bases et leurs bâtiments, et les cargos du trafic commercial</td></tr>
     <tr><td>Bases</td><td>Toulon, Ajaccio, Cagliari, Bizerte, Alger : choisissez vos bases et répartissez la flotte au bureau des affectations (état-major ou capitainerie), puis rejoignez une autre base en traversée ou en naviguant vous-même</td></tr>
+    <tr><td>Histoire</td><td>Mode histoire « Sillage » (saison 1) : un prologue, dix chapitres et un épilogue, depuis la carte ★ de l'état-major. Pendant les scènes, <kbd>Espace</kbd> pour avancer, <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> pour répondre (posé, franc, fougueux), <kbd>Échap</kbd> pour passer. Vos choix changent la suite : bouton « ★ Histoire » pour votre parcours</td></tr>
+    <tr><td>Formation</td><td>Formation avancée à la capitainerie : une journée sur une frégate pour tout apprendre (temps, carte, transit, central opérations, hélicoptère, semi-rigide, visite du bord)</td></tr>
     <tr><td><kbd>Y</kbd></td><td>Groupe aérien du porte-avions (ordres depuis le PCA ou le Central Opérations)</td></tr>
     <tr><td><kbd>L</kbd></td><td>Journal de bord</td></tr>
     <tr><td><kbd>²</kbd></td><td>Codes de triche</td></tr>
     <tr><td><kbd>N</kbd> <kbd>G</kbd></td><td>Désigner la piste suivante (ou cliquer un navire) · tirer au canon sur la cible désignée</td></tr>
-    <tr><td><kbd>T</kbd></td><td>Accélérer le temps (×2, ×4, ×8) quand rien ne presse</td></tr>
     <tr><td><kbd>Espace</kbd> <kbd>Échap</kbd></td><td>Pause et menu</td></tr></table>
     <p class="small">Le navire a de l'inertie : il lui faut plus d'une minute pour s'arrêter depuis la pleine vitesse, et la barre n'agit que s'il y a de l'eau sur le safran. Pour accoster, arrivez lentement, utilisez le propulseur d'étrave et pensez au vent qui pousse la coque. Une frégate de 142 m a encore plus d'inertie que l'Albatros : anticipez.</p>
     <p class="small">Combat : chaque contact devient une piste (jaune inconnue, verte neutre, bleue amie, rouge hostile). Respectez les règles d'engagement affichées au Central Op. La défense aérienne automatique tire seule sur les drones et missiles ; les leurres trompent les missiles et les torpilles.</p></div></div>`;
@@ -7608,8 +7707,8 @@ function autoCareer() {
   if (CAREER && !CAREER.temp) return;
   if (loadCareer()) return;
   newCareer(); saveCareer();
-  postMsg('amirale', 'Bienvenue à Toulon, commandant. L\'Albatros est à vous, à quai devant la préfecture maritime. Passez à l\'état-major : j\'ai des ordres. Et écrivez-moi si quelque chose cloche, ma porte est ouverte.');
-  postMsg('second', 'Maëlle Kerbrat, votre seconde. L\'équipage est à bord et le café est chaud. La coupée de l\'Albatros est sur le quai, juste devant vous.');
+  postMsg('amirale', 'Bienvenue à Toulon, commandant. L\'Albatros est à vous, à quai devant la préfecture maritime. Je vous attends dans mon bureau, au fond du couloir de l\'état-major : j\'ai des ordres. Et écrivez-moi si quelque chose cloche, ma porte est ouverte.');
+  postMsg('second', 'Maëlle Kerbrat, votre seconde. L\'équipage est à bord et le café est chaud. La coupée de l\'Albatros est sur le quai, juste en face de l\'état-major.');
 }
 { const base = titleScene; titleScene = function () { if (UI.quickMode) { UI.quickMode = false; CAREER = UI.realCareer || null; UI.realCareer = null; } if (!CAREER || CAREER.temp) { CAREER = null; autoCareer(); } base(); }; }
 { const base = enterHub; enterHub = function (title) { if (!CAREER) autoCareer(); base(false); HUB.title = false; HUB.want = null; HUB.place = 'over'; hubRender(); const spot = UI.harborSpot; UI.harborSpot = null; harborEnter(spot); PW.snap = 1; }; }
@@ -11430,6 +11529,1015 @@ function smartReply(id, q) {
   return base(s.trim());
 }; }
 
+
+// ===== BEAUTÉ : personnages modelés, nuages en volume, reflet du soleil, étalonnage =====
+// ----- personnages : formes arrondies, visage (yeux, sourcils, nez, oreilles), mains et chaussures -----
+const HGEO = {};
+function hgeo() {
+  if (HGEO.leg) return HGEO;
+  Object.assign(HGEO, {
+    leg: new THREE.CylinderGeometry(0.074, 0.06, 0.86, 10), shoe: new THREE.SphereGeometry(1, 10, 6), torso: new THREE.CylinderGeometry(0.205, 0.17, 0.62, 16),
+    shoulder: new THREE.SphereGeometry(0.078, 10, 8), arm: new THREE.CylinderGeometry(0.058, 0.048, 0.6, 9), hand: new THREE.SphereGeometry(0.05, 9, 7),
+    head: new THREE.SphereGeometry(0.115, 18, 14), eye: new THREE.SphereGeometry(0.016, 8, 6), ear: new THREE.SphereGeometry(0.03, 8, 6),
+    hair: new THREE.SphereGeometry(0.123, 18, 10, 0, Math.PI * 2, 0, Math.PI * 0.56), hairLong: new THREE.SphereGeometry(0.128, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.82),
+    belt: new THREE.CylinderGeometry(0.178, 0.178, 0.05, 16), vest: new THREE.CylinderGeometry(0.222, 0.192, 0.4, 16), beard: new THREE.SphereGeometry(1, 12, 8, 0, Math.PI * 2, Math.PI * 0.45, Math.PI * 0.55)
+  });
+  return HGEO;
+}
+buildHuman = function (o) {
+  o = o || {}; const G = hgeo();
+  const g = new THREE.Group(), skin = o.skin || '#c9967a', uni = o.uni || '#22324d', pants = o.pants || uni, hairC = o.hair || '#2a1d14';
+  const M = (geo, col, emi) => new THREE.Mesh(geo, lam(col, emi));
+  const hip = new THREE.Group(); hip.position.y = 0.92; g.add(hip);
+  const leg = s => { const p = new THREE.Group(); p.position.set(0.1 * s, 0, 0); hip.add(p); const l = M(G.leg, pants); l.position.y = -0.43; p.add(l); const sh = M(G.shoe, o.shoes || '#111214'); sh.scale.set(0.075, 0.05, 0.14); sh.position.set(0, -0.875, -0.04); p.add(sh); return p; };
+  const legL = leg(-1), legR = leg(1);
+  const torso = M(G.torso, uni); torso.scale.z = 0.64; torso.position.y = 0.33; hip.add(torso);
+  for (const s of [-1, 1]) { const sh = M(G.shoulder, uni); sh.position.set(0.205 * s, 0.6, 0); sh.scale.set(1, 0.8, 0.9); hip.add(sh); }
+  const belt = M(G.belt, '#15181d'); belt.scale.z = 0.66; belt.position.y = 0.04; hip.add(belt);
+  if (o.shirt) { const sh = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.2), lam(o.shirt)); sh.position.set(0, 0.52, -0.133); sh.rotation.y = Math.PI; sh.rotation.x = 0.1; hip.add(sh); const tie = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.17, 0.012), lam('#121a2a')); tie.position.set(0, 0.5, -0.137); hip.add(tie); }
+  if (o.boards) for (const s of [-1, 1]) { const b = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.022, 0.19), lam('#14203a')); b.position.set(0.2 * s, 0.665, 0); hip.add(b); for (let i = 0; i < o.boards; i++) { const st = new THREE.Mesh(new THREE.BoxGeometry(0.125, 0.025, 0.018), lam('#e2b84a', '#5a4410')); st.position.set(0.2 * s, 0.67, 0.07 - i * 0.035); hip.add(st); } }
+  if (o.vest) { const v = M(G.vest, o.vest); v.scale.z = 0.68; v.position.y = 0.4; hip.add(v); for (const yy of [0.3, 0.48]) { const r = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.03, 0.29), lam('#d9dde2', '#3a3d40')); r.position.y = yy; hip.add(r); } }
+  const arm = s => { const p = new THREE.Group(); p.position.set(0.24 * s, 0.6, 0); hip.add(p); const a = M(G.arm, uni); a.position.y = -0.3; p.add(a); const h = M(G.hand, skin); h.scale.set(1, 1.25, 0.8); h.position.y = -0.64; p.add(h); return p; };
+  const armL = arm(-1), armR = arm(1);
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.062, 0.12, 10), lam(skin)); neck.position.y = 0.7; hip.add(neck);
+  const head = new THREE.Group(); head.position.y = 0.86; hip.add(head);
+  const face = M(G.head, skin); face.scale.set(0.93, 1.12, 1); head.add(face);
+  for (const s of [-1, 1]) {
+    const e = M(G.eye, '#f2f2ee'); e.position.set(0.04 * s, 0.025, -0.1); e.scale.set(1, 0.8, 0.6); head.add(e);
+    const pu = M(G.eye, '#1b1b1f'); pu.position.set(0.04 * s, 0.025, -0.108); pu.scale.setScalar(0.55); head.add(pu);
+    const br = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.009, 0.01), lam(hairC)); br.position.set(0.04 * s, 0.058, -0.106); br.rotation.z = -0.12 * s; head.add(br);
+    const ear = M(G.ear, skin); ear.position.set(0.106 * s, 0.01, 0); ear.scale.set(0.45, 1, 0.8); head.add(ear);
+  }
+  const nose = new THREE.Mesh(new THREE.ConeGeometry(0.018, 0.05, 6), lam(skin)); nose.rotation.x = -Math.PI / 2 + 0.25; nose.position.set(0, -0.005, -0.122); head.add(nose);
+  const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.008, 0.008), lam('#7a3b30')); mouth.position.set(0, -0.055, -0.106); head.add(mouth);
+  const hair = M(o.long ? G.hairLong : G.hair, hairC); hair.scale.set(0.95, o.long ? 1.12 : 1.06, 1.02); hair.position.set(0, o.long ? 0.0 : 0.02, 0.01); hair.rotation.x = o.long ? -0.35 : -0.2; head.add(hair);
+  if (o.long) { const back = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.06), lam(hairC)); back.position.set(0, -0.08, 0.085); head.add(back); }
+  if (o.beard) { const b = M(G.beard, hairC); b.scale.set(0.1, 0.12, 0.1); b.position.set(0, -0.005, -0.005); head.add(b); }
+  if (o.cap) {
+    const top = new THREE.Mesh(new THREE.CylinderGeometry(0.148, 0.128, 0.07, 18), lam(o.cap)); top.position.y = 0.165; head.add(top);
+    const band = new THREE.Mesh(new THREE.CylinderGeometry(0.124, 0.124, 0.05, 18), lam('#111522')); band.position.y = 0.122; head.add(band);
+    const vis = new THREE.Mesh(new THREE.BoxGeometry(0.19, 0.012, 0.09), lam('#0d0f14')); vis.position.set(0, 0.105, -0.125); vis.rotation.x = 0.28; head.add(vis);
+    const badge = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.038, 0.01), lam('#e2b84a', '#6a5014')); badge.position.set(0, 0.135, -0.125); head.add(badge);
+  }
+  if (o.beret) { const b = new THREE.Mesh(new THREE.CylinderGeometry(0.135, 0.12, 0.055, 16), lam(o.beret)); b.position.set(0.02, 0.135, 0.005); b.rotation.z = -0.15; head.add(b); }
+  g.userData = { legL, legR, armL, armR, hip, head };
+  if (o.sit) { legL.rotation.x = legR.rotation.x = 1.5; hip.position.y = 0.5; for (const l of [legL, legR]) { const sh = l.children[0]; sh.position.y = -0.24; sh.scale.y = 0.55; } }
+  return g;
+};
+// les géométries partagées des personnages ne sont jamais libérées (elles servent à tout le monde)
+{ const base = dropObj; dropObj = function (o) { if (o && o.traverse && HGEO.leg) { const keep = new Set(Object.values(HGEO)); o.traverse(c => { if (c.isMesh && keep.has(c.geometry)) c.geometry = c.geometry.clone(); }); } return base(o); }; }
+
+// ----- nuages en volume : des amas doux, éclairés par le soleil, qui dérivent avec le vent -----
+const CLOUDS = { list: [], tex: null };
+function cloudTexture() {
+  return canvasTex(256, 160, (g, w, h) => {
+    g.clearRect(0, 0, w, h); const R = mulberry(31);
+    for (let i = 0; i < 26; i++) { const x = w * (0.18 + R() * 0.64), y = h * (0.4 + R() * 0.32) - (Math.abs(x - w / 2) < w * 0.2 ? R() * h * 0.2 : 0), r = w * (0.08 + R() * 0.12); const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, 'rgba(255,255,255,0.55)'); gr.addColorStop(0.6, 'rgba(255,255,255,0.22)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill(); }
+    const sh = g.createLinearGradient(0, 0, 0, h); sh.addColorStop(0, 'rgba(0,0,0,0)'); sh.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = sh; g.fillRect(0, 0, w, h);
+  });
+}
+function cloudsInit() {
+  if (CLOUDS.list.length || GFX.quality === 'low') return;
+  CLOUDS.tex = cloudTexture(); const n = GFX.quality === 'med' ? 26 : 44;
+  for (let i = 0; i < n; i++) {
+    const m = new THREE.SpriteMaterial({ map: CLOUDS.tex, transparent: true, depthWrite: false, fog: true, opacity: 0 });
+    const s = new THREE.Sprite(m); const sc = rr(1400, 3200); s.scale.set(sc, sc * rr(0.42, 0.6), 1); s.renderOrder = -1;
+    const a = Math.random() * TAU, d = rr(2500, 16000); s.position.set(Math.cos(a) * d, rr(1100, 2300), Math.sin(a) * d); s.userData.k = rr(0.7, 1.1);
+    scene.add(s); CLOUDS.list.push(s);
+  }
+}
+function cloudsStep(dt) {
+  if (!CLOUDS.list.length) return;
+  const cp = camera.position, sd = sunDir(), day = smooth(-0.15, 0.25, sd.y), dusk = smooth(0.35, 0.02, sd.y) * day;
+  const hide = underwater() || (WALK.on && UI.screen === 'sea' && !(WALK.level === 'ext' || WALK.fly)) || (typeof HQ !== 'undefined' && HQ.on);
+  const cov = clamp((ENV.cloud - 0.15) * 1.3, 0, 1), storm = ENV.storm, wx = Math.cos(ENV.windDir) * ENV.wind * 0.6 * dt, wz = Math.sin(ENV.windDir) * ENV.wind * 0.6 * dt;
+  const col = new THREE.Color().setRGB(lerp(0.32, 1, day) * (1 - storm * 0.45) + dusk * 0.12, lerp(0.34, 0.98, day) * (1 - storm * 0.45) - dusk * 0.12, lerp(0.42, 0.97, day) * (1 - storm * 0.4) - dusk * 0.3);
+  CLOUDS.list.forEach((s, i) => {
+    s.position.x += wx; s.position.z += wz;
+    const dx = s.position.x - cp.x, dz = s.position.z - cp.z; if (Math.hypot(dx, dz) > 17000) { const a = Math.atan2(dz, dx) + Math.PI + rr(-0.6, 0.6), d = rr(9000, 15000); s.position.x = cp.x + Math.cos(a) * d; s.position.z = cp.z + Math.sin(a) * d; }
+    s.visible = !hide && cov > 0.02 && i < CLOUDS.list.length * (0.35 + cov * 0.65);
+    s.material.opacity = cov * 0.78 * s.userData.k; s.material.color.copy(col);
+  });
+}
+// ----- reflet du soleil (halo et fantômes d'objectif), atténué par les nuages, la brume et le relief -----
+function flareInit() {
+  if ($('flare')) return; const el = document.createElement('div'); el.id = 'flare'; el.innerHTML = '<i class="f0"></i><i class="f1"></i><i class="f2"></i><i class="f3"></i><i class="f4"></i>'; el.hidden = true; $('gl').after(el);
+}
+const _fs = new THREE.Vector3();
+function flareStep() {
+  const el = $('flare'); if (!el) return;
+  const sd = sunDir(), indoor = (WALK.on && UI.screen === 'sea' && !(WALK.level === 'ext' || WALK.fly)) || (typeof HQ !== 'undefined' && HQ.on) || underwater() || UI.cam === 'bino';
+  if (indoor || sd.y < -0.01 || GFX.quality === 'low') { el.hidden = true; return; }
+  _fs.copy(camera.position).addScaledVector(sd, 5000).project(camera);
+  if (_fs.z > 1 || Math.abs(_fs.x) > 1.25 || Math.abs(_fs.y) > 1.25) { el.hidden = true; return; }
+  // le relief cache le soleil bas sur l'horizon
+  const cp = camera.position; let occ = false; for (const d of [300, 900, 2000, 4000, 7000]) { const x = cp.x + sd.x * d, z = cp.z + sd.z * d, y = cp.y + sd.y * d; if (terrainH(x, z) > y) { occ = true; break; } }
+  const k = (1 - clamp(ENV.cloud * 1.05 - 0.15, 0, 1)) * (1 - ENV.fog) * (1 - ENV.rain) * smooth(-0.01, 0.06, sd.y) * (1 - Math.max(Math.abs(_fs.x), Math.abs(_fs.y)) * 0.55);
+  if (occ || k < 0.03) { el.hidden = true; return; }
+  el.hidden = false; const W = innerWidth, H = innerHeight, sx = (_fs.x + 1) / 2 * W, sy = (1 - _fs.y) / 2 * H, cx = W / 2, cy = H / 2;
+  const I = el.children, pos = [1, 0.55, 0.15, -0.35, -0.8], warm = smooth(0.3, 0.02, sd.y);
+  for (let i = 0; i < I.length; i++) { const t = pos[i], x = cx + (sx - cx) * t, y = cy + (sy - cy) * t; I[i].style.transform = `translate(${x.toFixed(0)}px, ${y.toFixed(0)}px) translate(-50%, -50%)`; I[i].style.opacity = (k * (i ? 0.5 : 1)).toFixed(3); }
+  el.style.setProperty('--warm', warm.toFixed(2));
+}
+{ const base = cameraStep; cameraStep = function (dt) { base(dt); cloudsInit(); cloudsStep(dt); flareInit(); flareStep(); }; }
+// étalonnage un peu plus riche
+GRADE.uniforms.uSat.value = 1.16; GRADE.uniforms.uVig.value = 0.24;
+
+// ===== DÉPART À L'ÉTAT-MAJOR ET FORMATION AVANCÉE =====
+// ----- au lancement (et pour une nouvelle carrière), on commence dans le hall de l'état-major -----
+const START = { done: false };
+const HQ_SPOTS = { start: { x: 0, z: -3.4, yaw: 0 }, hall: { x: 0, z: -4.7, yaw: Math.PI }, office: { x: 9, z: -16.1, yaw: 0 }, ops: { x: -8.5, z: -14.2, yaw: 0 }, cross: { x: 17.3, z: -12.9, yaw: -Math.PI / 2 }, honneur: { x: 11.6, z: -8.6, yaw: Math.PI }, entry: { x: 0, z: -1.4, yaw: 0 } };
+function spawnInHQ(spot) {
+  if (!PW.on || UI.screen !== 'port') return false;
+  if (!HQ.on) { const q = PL(95, -88.6); PW.x = q.x; PW.z = q.z; PW.yaw = -PORT.ang; PW.y = pwGround(PW.x, PW.z); hqEnter(); }
+  const s = HQ_SPOTS[spot || 'entry'] || HQ_SPOTS.entry; HQ.x = s.x; HQ.z = s.z; PW.yaw = s.yaw; PW.pitch = -0.06; PW.snap = 1;
+  if (HUB.place !== 'over') hubGo('over'); HUB.openAt = null;
+  return true;
+}
+{ const base = enterHub; enterHub = function (title) {
+  const first = !START.done; START.done = true; base(title);
+  if ((first || UI.spawnHQ) && CAREER && !CAREER.temp && UI.screen === 'port') { UI.spawnHQ = false; spawnInHQ('start'); }
+}; }
+{ const base = ACT.pwnew; ACT.pwnew = () => { if (UI.newSure) UI.spawnHQ = true; base(); }; }
+if (TSTEPS[0]) TSTEPS[0].t = 'Vous êtes à l\'état-major : allez voir l\'amirale au fond du couloir (Z Q S D) et parlez-lui avec E.';
+
+// ----- formation avancée : une journée à bord d'une frégate, de la sortie du port à l'hélicoptère -----
+Object.assign(MTYPES, { training: { n: 'Formation avancée', ic: 'FORM', d: 'Une journée à bord d\'une frégate : temps, carte, transit, central opérations, hélicoptère, semi-rigide, visite du bord.' } });
+MPORTS.training = [];                                   // jamais au tableau des ordres : on la demande à la capitainerie
+MREQ.training = ['frigate', 'destroyer'];
+{ const base = recommendCls; recommendCls = function (def) { return def.type === 'training' ? 'frigate' : base(def); }; }
+M_GEN.training = (d, r) => {
+  d.hard = false; d.time = 10.5; d.windDir = 0.9; d.weather = { wind: 5, sea: 0.25, cloud: 0.3, rain: 0, fog: 0.04, storm: 0 };
+  d.alpha = openWaterPoint(PORT.entrance.x, PORT.entrance.z, 2600, 3600, 40, 700, r);
+  d.bravo = openWaterPoint(d.alpha.x, d.alpha.z, 1000, 1500, 25, 300, r);
+  d.title = 'Formation avancée : une journée à bord de la Sentinelle';
+  d.brief = 'Journée de formation à bord de la frégate Sentinelle, prêtée par l\'état-major. Au programme : sortie du port, maîtrise du temps, point de route et pilote automatique, transit rapide, central opérations, vol en hélicoptère, semi-rigide, visite du bord, compte rendu et photo souvenir. Suivez le panneau « Formation avancée ».';
+  d.radio = 'Sentinelle, ici la capitainerie. Journée de formation enregistrée, zone d\'exercice dégagée au large. Bonne journée.';
+  d.reward = 4000; d.rep = 20; d.limit = 4 * 3600;
+};
+function trBuoy(p, col) { const b = buildBuoy('yellow'); b.position.set(p.x, 0, p.z); b.scale.setScalar(1.6); if (col) b.traverse(o => { if (o.isMesh && o.material && o.material.color) { o.material = o.material.clone(); o.material.color.set(col); } }); return fxAdd(b); }
+// les étapes : texte du panneau, condition de réussite, et ce qu'on prépare en y entrant
+const TR_STEPS = [
+  { t: 'Bienvenue à bord ! Sortez du port : action « Sortir du port avec le pilote » (touche 1), ou manœuvrez vous-même.', say: 'Commandant, la Sentinelle est à vous pour la journée. Je vous guide pas à pas : suivez le panneau en haut de l\'écran.', ok: m => !inHarbor(PLAYER) },
+  { t: 'Le temps est à vous, même en action : touche T (ou les boutons ×2 à ×32) pour passer en ×4 ou plus.', say: 'Au large. Essayez d\'accélérer le temps : la mer est grande, on n\'a pas toute la vie.', ok: () => MS.warp >= 4 },
+  { t: 'Revenez au temps réel : bouton ×1 (ou T jusqu\'à revenir à ×1).', ok: () => MS.warp === 1 },
+  { t: 'Carte marine : touche M, cliquez près du point Alpha (losange jaune) pour poser un point de route, puis P pour le pilote automatique.', say: 'Point Alpha sur la carte, commandant. Posez un point de route dessus et confiez la barre au pilote automatique.', ok: m => UI.ap === 2 && UI.wp && Math.hypot(UI.wp.x - m.def.alpha.x, UI.wp.z - m.def.alpha.z) < 1500 },
+  { t: 'Transit rapide jusqu\'au point Alpha : Maj+T (ou le bouton ⏩ Transit rapide). Il s\'interrompt tout seul au moindre imprévu.', ok: m => Math.hypot(PLAYER.x - m.def.alpha.x, PLAYER.z - m.def.alpha.z) < 900 },
+  { t: 'Stoppez le bâtiment : S jusqu\'à « Stop », vitesse sous 3 nœuds.', say: 'Point Alpha. On stoppe ici pour la suite : hélicoptère et semi-rigide ne se manœuvrent pas à pleine vitesse.', ok: () => PLAYER.speed < 3 * KN },
+  { t: 'Central opérations : touche K, puis cliquez sur une piste (un navire autour de nous) pour la sélectionner.', say: 'Le central opérations voit tout ce que voient nos radars. Ouvrez-le avec K et sélectionnez une piste.', ok: m => CO.open && (CB.sel || m.coT > 20) },
+  { t: 'Locaux du bord : touche O, puis « Hélicoptère » → « Prendre les commandes ».', say: 'L\'hélicoptère est paré sur la plate-forme. Touche O, puis prenez les commandes : vous allez voler.', ok: () => WALK.fly },
+  { t: 'En vol ! Z/S : vitesse · Q/D : virer · R/F : monter/descendre. Survolez la bouée Bravo (losange jaune) à moins de 120 m.', say: 'Bouée Bravo à un peu plus d\'un kilomètre. Gardez de l\'altitude au début, on n\'est pas pressés.', ok: m => { const H = PLAYER.heli; return H && WALK.fly && Math.hypot(H.x - m.def.bravo.x, H.z - m.def.bravo.z) < 120; } },
+  { t: 'Revenez vous poser sur la plate-forme : approchez lentement par l\'arrière et descendez à la verticale du H. (I : le copilote vous ramène.)', say: 'Bravo validée ! Retour à bord. Doucement sur la fin : la plate-forme bouge avec la houle.', ok: () => !WALK.fly && PLAYER.heli && PLAYER.heli.state === 'deck' },
+  { t: 'Semi-rigide : action « Semi-rigide : repêcher le mannequin » (touche 1) et attendez son retour.', say: 'Un mannequin d\'exercice dérive sur notre tribord. Mettez le semi-rigide à l\'eau pour le repêcher.', ok: m => m.trDummy },
+  { t: 'Visite du bord : touche O (Locaux du bord), puis « Passerelle » → « Y aller ». À pied, E ouvre les portes.', say: 'Bien joué. Rejoignez-moi à la passerelle : c\'est là que vous passerez vos plus longues nuits.', ok: () => WALK.on && !WALK.fly && WALK.level === 'bridge' },
+  { t: 'Rendez compte à l\'amirale : Entrée (Messages), choisissez « Amirale Le Dantec » et écrivez-lui.', say: 'L\'amirale attend votre compte rendu. Un message suffit : elle déteste les rapports de dix pages.', ok: m => m.trMsg },
+  { t: 'Photo souvenir : F8 pour le mode photo, cadrez (Z Q S D, souris), puis le bouton « Prendre la photo » (ou Entrée).', say: 'Dernière chose : une photo pour l\'album. Votre première journée sur une frégate, ça se garde.', ok: m => m.trPhoto }
+];
+M_SETUP.training = (m, d) => {
+  m.tr = { i: 0, said: -1 }; m.coT = 0;
+  trBuoy(d.alpha); trBuoy(d.bravo, '#ffd23a');
+  m.marks.push({ x: d.alpha.x, z: d.alpha.z, r: 400, kind: 'goal', label: 'Point Alpha' }, { x: d.bravo.x, z: d.bravo.z, r: 120, kind: 'zone', label: 'Bouée Bravo' });
+  addObj(m, 'tr', `Formation avancée (0/${TR_STEPS.length})`);
+  m.update = dt => {
+    const T = m.tr, P = PLAYER; if (!P) return;
+    if (CO.open) m.coT += dt;
+    if (T.said !== T.i) { T.said = T.i; trEnter(m, T.i); }
+    if (TR_STEPS[T.i].ok(m)) trNext(m);
+    const o = O(m, 'tr'); o.text = `Formation avancée (${T.i}/${TR_STEPS.length})`; setObj(m, 'tr', null, T.i / TR_STEPS.length);
+    m.status = TR_STEPS[T.i] ? TR_STEPS[T.i].t : '';
+  };
+  m.actions = () => {
+    const out = [], v = m.dummy;
+    if (v && !v.removed && !m.trRhib) { const a = rhibAvail(v, 500); out.push({ id: 'trdummy', label: 'Semi-rigide : repêcher le mannequin', ok: a.ok, why: a.why, run: () => { m.trRhib = true; launchRhib({ target: v, work: 18, say: 'Semi-rigide à l\'eau, cap sur le mannequin.', onWork: () => { v.remove(); }, doneSay: 'Mannequin à bord, semi-rigide saisi. Joli travail.', onDone: () => { m.trDummy = true; } }); } }); }
+    return out;
+  };
+};
+function trEnter(m, i) {
+  const s = TR_STEPS[i]; if (!s) return;
+  if (s.say) vhf(castOf('second').short || 'Second', s.say, 'info');
+  // le mannequin apparaît quand on arrive à son étape, sur le travers
+  if (i === 10 && (!m.dummy || m.dummy.removed)) { const P = PLAYER, f = P.fwd, p = wet({ x: P.x - f.z * 260 + f.x * 60, z: P.z + f.x * 260 + f.z * 60 }, 6); const v = new Vessel('raft', floatingPerson(), p.x, p.z, 0, { name: 'Mannequin d\'exercice' }); v.small = true; v.radar = false; v.ghost = true; m.dummy = v; m.marks.push({ v, kind: 'target', label: 'Mannequin' }); }
+  if (UI.screen === 'sea') tutoUI();
+}
+function trNext(m) {
+  const T = m.tr; T.i++; jingle('xp');
+  if (T.i >= TR_STEPS.length) { setObj(m, 'tr', 'done', 1); trDone(m); return; }
+  pop(`Formation : étape ${T.i + 1}/${TR_STEPS.length}`, TR_STEPS[T.i].t.split(':')[0]);
+  tutoUI();
+}
+function trDone(m) {
+  const M = meta(); if (M && M.tuto !== 'done') { M.tuto = 'done'; TUTO.on = false; }
+  addXP(300, 'Formation avancée'); vhf(castOf('second').short || 'Second', 'Formation terminée, commandant. Vous avez tout vu : à vous la mer.', 'good');
+  endMission(true, 'Formation avancée validée : manœuvre, transit, central opérations, hélicoptère, semi-rigide et compte rendu.', { note: 'Formation avancée complète (+300 XP)' });
+}
+// panneau de formation : il prend la place du tutoriel de base pendant la journée
+{ const base = tutoUI; tutoUI = function () {
+  const m = MS.cur, on = m && m.type === 'training' && m.tr && !m.over && UI.screen === 'sea';
+  if (!on) { const el = $('tuto'); if (el && el._tr) { el._tr = false; el._h = ''; } return base(); }
+  let el = $('tuto'); if (!el) { el = document.createElement('aside'); el.id = 'tuto'; el.setAttribute('aria-live', 'polite'); document.body.appendChild(el); }
+  const T = m.tr, s = TR_STEPS[T.i]; el.hidden = !s; if (!s) return; el._tr = true;
+  const h = `<p class="eyebrow">Formation avancée · ${T.i + 1}/${TR_STEPS.length}</p><b>${escH(s.t)}</b><div class="bar"><i style="width:${Math.round(T.i / TR_STEPS.length * 100)}%"></i></div><div class="row2" style="justify-content:flex-end;gap:6px"><button class="btn sm ghost" data-act="trskip">Étape suivante</button><button class="btn sm ghost" data-act="trquit">Quitter la formation</button></div>`;
+  if (el._h !== h) { el._h = h; el.innerHTML = h; }
+}; }
+{ const base = tutoStep; tutoStep = function () { const m = MS.cur; if (m && m.type === 'training' && !m.over) { tutoUI(); return; } base(); }; }
+Object.assign(ACT, {
+  trskip: () => { const m = MS.cur; if (!m || m.type !== 'training' || m.over) return; if (m.tr.i === 9 && WALK.fly) { toast('Posez d\'abord l\'hélicoptère (ou I pour rendre les commandes au copilote).'); return; } trNext(m); },
+  trquit: () => { const m = MS.cur; if (!m || m.type !== 'training' || m.over) return; endMission(false, 'Formation interrompue à la demande du commandant.', { abandon: true }); setScreen('debrief'); }
+});
+// la formation se déroule sans avarie ni événement imprévu
+{ const base = scheduleIncidents; scheduleIncidents = function (m) { if (m.type === 'training') return; base(m); }; }
+{ const base = evStep; evStep = function (dt) { if (MS.cur && MS.cur.type === 'training') return; base(dt); }; }
+// compte rendu à l'amirale et photo souvenir
+{ const base = postMsg; postMsg = function (id, text, me, extra) { base(id, text, me, extra); const m = MS.cur; if (me && id === 'amirale' && m && m.type === 'training' && m.tr && m.tr.i === 12) m.trMsg = true; }; }
+{ const base = photoShot; photoShot = function () { const r = base(); const m = MS.cur; if (m && m.type === 'training' && m.tr && m.tr.i === 13) m.trPhoto = true; return r; }; }
+{ const base = cannedReply; cannedReply = function (id, q) { const m = MS.cur; if (id === 'amirale' && m && m.type === 'training' && !m.over && UI.screen === 'sea') return { text: pick(['Compte rendu reçu, commandant. Kerbrat me dit que vous apprenez vite. Continuez comme ça.', 'Bien reçu. Ne rayez pas ma frégate, s\'il vous plaît.', 'Reçu. Une journée de formation sans rien casser, c\'est déjà une victoire.']), action: 'aucune' }; return base(id, q); }; }
+
+// ----- lancer la formation : à la capitainerie (et depuis l'histoire) -----
+function trainingDef() { const d = genMission('training', 4242 + (CAREER ? CAREER.day : 0)); d.giver = 'amirale'; return d; }
+function trainingCls() { for (const c of ['frigate', 'destroyer']) if (owned(c) && shipHere(c)) return c; return 'frigate'; }
+function trainingAccept(extra, prefix) {
+  const def = trainingDef(), cls = trainingCls();
+  def.title = `${prefix ? prefix + ' · ' : ''}Formation avancée : une journée à bord ${deN(cls)}`; Object.assign(def, extra || {});
+  UI.briefDef = def; UI.shipCls = cls;
+  if (PW.on && UI.screen === 'port') { if (HQ.on) hqExit(true); pwAccept({ kind: 'mission', def, cls, mode: 'berth' }); toast(`Formation acceptée : rejoignez ${leN(cls)} au poste des frégates (★ sur la carte du port) et montez à bord.`); }
+  else ACT.start({ v: 'berth' });
+}
+ACT.trainingGo = () => trainingAccept();
+{ const base = capitPanel; capitPanel = function () {
+  const h = base(); if (!h.includes('data-act="capfree"')) return h;
+  const card = `<div class="trcard"><b>Formation avancée</b><p class="small">Une journée à bord d'une frégate prêtée : temps, carte, transit rapide, central opérations, vol en hélicoptère, semi-rigide, visite du bord. Idéal pour tout apprendre (+300 XP).</p><button class="btn sm pri" data-act="trainingGo">Suivre la formation</button></div>`;
+  return h.replace('<h4>Livre de bord</h4>', card + '<h4>Livre de bord</h4>');
+}; }
+// à la fin du tutoriel de base, l'amirale propose la formation avancée
+{ const base = tutoStep; tutoStep = function () { const M = CAREER && meta(), was = M && M.tuto; base(); if (M && was === 'on' && M.tuto === 'done' && !M.trOffer) { M.trOffer = 1; saveCareer(); postMsg('amirale', 'Premiers pas validés, commandant. Quand vous voudrez aller plus loin (hélicoptère, semi-rigide, transit, central opérations), la capitainerie organise une journée de formation avancée sur une frégate.'); } }; }
+
+// ===== MODE HISTOIRE : « SILLAGE », SAISON 1 =====
+// Un récit en chapitres : scènes dialoguées où l'on choisit son ton (posé, franc, fougueux), missions scénarisées,
+// presse et réseaux, un rival, une mentore et un grand-père qui garde un secret depuis 1987.
+// Les choix nourrissent des jauges (tempérament, confiance, rival, famille, abonnés) qui changent les dialogues et la fin.
+
+// ----- nouveaux personnages -----
+Object.assign(CAST, {
+  papy: { n: 'Jean-Yves', short: 'Papy', role: 'Votre grand-père, ancien patron du premier Albatros', ini: 'JY', col: '#7a6440',
+    persona: 'Quatre-vingt-un ans, ancien maître principal, patron du premier patrouilleur Albatros. En février 1987, la « nuit du Lion Noir », il a sorti trente et un marins de l\'eau dans le mistral au large de Porquerolles. Vit à Hyères face à la mer. Tutoie le joueur, son petit-enfant, et l\'appelle « moussaillon ». Bourru, tendre, plein d\'anecdotes, fier sans le dire. Il garde un secret sur le Lion Noir (des armes pour Varne, et un ordre de se taire) qu\'il ne révèle qu\'au fil de l\'histoire.' },
+  rival: { n: 'Lieutenant de vaisseau Hugo Lestrade', short: 'LV Lestrade', role: 'Commandant du patrouilleur Vigilant', ini: 'HL', col: '#4a4f72',
+    persona: 'Trente-cinq ans, brillant, fils d\'un vice-amiral, sûr de lui jusqu\'à l\'arrogance, ironique. Rival du joueur pour le commandement de la frégate Sentinelle. Vouvoie et appelle le joueur par son nom de famille. Peut devenir un allié loyal si on le respecte, ou rester un adversaire piquant.' },
+  presse: { n: 'Léa Marchetti', short: 'Léa Marchetti', role: 'Journaliste au Phare du Var', ini: 'LM', col: '#8a3550',
+    persona: 'Journaliste au quotidien Le Phare du Var, la trentaine, vive, curieuse, honnête, toujours à la recherche de la phrase qui fera la une. Respecte le « off » quand on le lui demande. Enquête sur la Flottille de Varne et sur l\'Armement du Lion.' }
+});
+const STORY_CAST = ['papy', 'rival', 'presse'];
+CONTACT_ORDER.push(...STORY_CAST);
+const S0 = () => (CAREER && !CAREER.temp && CAREER.story) || null;
+{ const base = contactsList; contactsList = function () { const S = S0(); return base().filter(id => !STORY_CAST.includes(id) || (S && S.met[id])); }; }
+{ const base = castOf; castOf = function (id) { const c = base(id), S = S0(); if (id === 'papy' && c && S) return Object.assign({}, c, { n: `Jean-Yves ${S.name.n}` }); return c; }; }
+
+// ----- état de l'histoire (sauvegardé avec la carrière) -----
+function storyNew(on) {
+  CAREER.story = { on, ch: 0, intro: false, cur: null, vars: {}, pending: null, done: false, name: { p: 'Camille', n: 'Marec' }, m: { pers: 0, conf: 50, rival: 0, fans: 150, papy: 60 }, flags: {}, met: {}, log: [], press: [], seed: (Math.random() * 9e5 | 0) + 1000, modeAsked: false };
+  return CAREER.story;
+}
+const fmtN = n => Math.round(n).toLocaleString('fr-FR');
+const persLabel = p => p <= -35 ? 'Posé' : p <= -12 ? 'Plutôt posé' : p < 12 ? 'Équilibré' : p < 35 ? 'Plutôt fougueux' : 'Fougueux';
+const rivalLabel = r => r <= -40 ? 'Ennemi juré' : r < -10 ? 'Rival' : r < 15 ? 'Rival respectueux' : r < 40 ? 'Respect mutuel' : 'Allié';
+function sFill(t) {
+  const S = S0() || { name: { p: '', n: '' }, vars: {} }, V = S.vars || {};
+  return String(t == null ? '' : t).replace(/\{P\}/g, S.name.p).replace(/\{N\}/g, S.name.n).replace(/\{port\}/g, PORT.n)
+    .replace(/\{G\}/g, CAREER ? RANKS[rankOf(CAREER.rep)].n : '').replace(/\{v\}/g, V.v || 'le navire').replace(/\{isl\}/g, V.isl || 'les îles').replace(/\{pax\}/g, V.pax || 'six cents');
+}
+
+// ----- tons des réponses -----
+const TONES = { pose: { n: 'Posé', col: '#7fd3ff', pers: -8 }, franc: { n: 'Franc', col: '#f2b33d', pers: 0 }, feu: { n: 'Fougueux', col: '#ff6b5b', pers: 8 } };
+const MNAMES = { pers: 'Tempérament', conf: 'Confiance de l\'amirale', rival: 'Lestrade', papy: 'Grand-père', fans: 'Abonnés' };
+// constructeurs de scène
+const sA = (who, t, o) => Object.assign({ who, t }, o);          // réplique
+const sN = (t, o) => Object.assign({ nar: t }, o);               // narration
+const sT = (title, sub) => ({ title, sub });                     // carton de titre
+const sC = (who, t, opts, o) => Object.assign({ who, t, choice: opts }, o);
+const sO = (tone, l, say, o) => Object.assign({ tone, l, say }, o);
+const sF = fn => ({ fn });
+const met = id => sF(S => { S.met[id] = true; });
+const msg = (id, t) => sF(S => { S.met[id] = true; postMsg(id, sFill(t)); });
+
+// ----- la saison -----
+const SAISON = [
+  // ---------- PROLOGUE ----------
+  { n: 'Prologue', t: 'L\'héritage', syn: 'Toulon, premier jour. L\'amirale Le Dantec vous reçoit… et vous parle de votre grand-père.', at: 'office', next: 'accept',
+    intro: [
+      { mode: true, if: S => !S.modeAsked },
+      sT('Flotte d\'Ysmar', 'Saison 1 · Sillage'),
+      sN('Toulon, 7 h 40. La rade est encore grise quand vous poussez la porte de l\'état-major. Une nouvelle affectation, un nouveau bâtiment… et un nom de famille qui pèse lourd dans ces couloirs.'),
+      { name: true },
+      sA('amirale', 'Lieutenant de vaisseau {N}. Entrez, asseyez-vous.'),
+      sA('amirale', 'Je connais ce nom. Tout le monde le connaît, ici. Jean-Yves {N}, le patron du vieil Albatros. La nuit du Lion Noir, février 1987 : trente et un marins sortis de l\'eau en plein mistral, au large de Porquerolles.'),
+      sA('amirale', 'J\'avais vingt ans. J\'étais aspirante à bord, cette nuit-là. C\'est lui qui m\'a appris à tenir une barre quand la mer veut vous la prendre.'),
+      sC('amirale', 'Alors dites-moi franchement, commandant : vous êtes ici pour lui, ou pour vous ?', [
+        sO('pose', 'Pour servir', 'Pour servir, amirale. Le nom, c\'est son histoire. La mienne reste à écrire.', { fx: { conf: 5 }, log: 'Prologue : « Pour servir. Ma propre histoire reste à écrire. »', then: [sA('amirale', 'Bonne réponse. Un peu scolaire, mais bonne.')] }),
+        sO('franc', 'Un peu des deux', 'Un peu des deux. Je ne vais pas faire semblant de ne pas avoir grandi avec ses histoires.', { fx: { conf: 3, papy: 5 }, log: 'Prologue : vous avez avoué avoir grandi avec les histoires de votre grand-père.', then: [sA('amirale', 'Au moins vous êtes honnête. C\'est rare, à ce grade.')] }),
+        sO('feu', 'Pour faire mieux', 'Pour faire mieux que lui.', { fx: { conf: -2, fans: 40 }, log: 'Prologue : « Pour faire mieux que lui. »', then: [sA('amirale', 'Ha. Il aurait adoré cette réponse. Moi, je vous jugerai sur pièces.')] })
+      ]),
+      sA('amirale', 'Le nouvel Albatros est un patrouilleur de haute mer. Il porte le même nom que le sien, et ce n\'est pas un hasard : c\'est moi qui l\'ai demandé. Il est à vous.'),
+      sA('amirale', 'Mais avant de vous confier la mer, vous passerez une journée de formation à bord de la frégate Sentinelle : hélicoptère, semi-rigide, transit, central opérations. Tout.'),
+      sA('amirale', 'Votre seconde vous accompagnera. Maëlle Kerbrat. La meilleure que j\'aie eue. Ne la gâchez pas.'),
+      msg('second', 'Commandant {N} ? Maëlle Kerbrat, votre seconde. Bienvenue à Toulon. On m\'a dit que vous preniez la Sentinelle pour la journée : je viens avec vous, je connais la bête.'),
+      sN('En sortant, vous croisez votre reflet dans la vitrine des maquettes. Derrière, sur une photo jaunie, un homme en ciré sourit sur la passerelle d\'un vieux patrouilleur. Même mâchoire. Même regard.'),
+      msg('papy', 'Alors, moussaillon, ça y est ? Le Dantec t\'a fait entrer dans son bureau ? Dis-lui que je n\'ai toujours pas digéré sa manœuvre de 87. Et appelle ton vieux grand-père de temps en temps.'),
+      sT('Chapitre 1', 'Premier quart'),
+      sN('La Sentinelle vous attend au poste des frégates. Sortez de l\'état-major et montez à bord (★ sur la carte du port).')
+    ] },
+  // ---------- CHAPITRE 1 ----------
+  { n: 'Chapitre 1', t: 'Premier quart', syn: 'Une journée de formation à bord de la frégate Sentinelle : hélicoptère, semi-rigide, transit, central opérations.', at: 'office', types: ['training'], mode: 'berth', atWin: 'office',
+    intro: [
+      sA('amirale', 'La Sentinelle est à quai, au poste des frégates. Son commandant est en permission : elle est à vous jusqu\'à ce soir.'),
+      sA('amirale', 'Faites tout ce que Kerbrat vous dit. Tout. Ensuite seulement, vous pourrez faire ce que vous voulez.')
+    ],
+    beats: [{ at: 25, who: 'second', t: 'Commandant, petit secret : l\'équipage de la Sentinelle a parié que vous ne poseriez pas l\'hélico du premier coup. J\'ai parié contre eux.' }],
+    win: [
+      sN('Fin d\'après-midi. La Sentinelle a retrouvé son poste. Dans le bureau de l\'amirale, le café a refroidi.'),
+      sA('amirale', 'Kerbrat m\'a fait son rapport. Hélicoptère posé, mannequin repêché, compte rendu propre. Et vous avez même pris une photo. Pour l\'album de famille, je suppose.'),
+      sC('amirale', 'Alors, commandant ? On passe aux choses sérieuses ?', [
+        sO('pose', 'Encore à apprendre', 'Quand vous voudrez, amirale. J\'ai encore beaucoup à apprendre.', { fx: { conf: 4 }, then: [sA('amirale', 'Gardez cette phrase. Elle vous sauvera la vie un jour.')] }),
+        sO('franc', 'L\'Albatros', 'Oui. La Sentinelle est une belle bête, mais c\'est l\'Albatros que je veux.', { fx: { conf: 2 }, then: [sA('amirale', 'Il vous attend. Avec quarante marins qui vous jaugent déjà.')] }),
+        sO('feu', 'Une vraie mission', 'Donnez-moi une vraie mission. Je n\'ai pas fait l\'École navale pour repêcher des mannequins.', { fx: { conf: -3, fans: 30 }, log: 'Chapitre 1 : vous avez réclamé « une vraie mission ».', then: [sA('amirale', 'Le mannequin vous remercie. Le CROSS aura peut-être quelque chose pour vous… plus tôt que vous ne croyez.')] })
+      ]),
+      msg('papy', 'Le Dantec m\'a appelé. Elle dit que tu poses un hélico comme un vieux pilote de l\'Aéronavale. Ton grand-père a bombé le torse devant tout le café du port, moussaillon.'),
+      sT('Chapitre 2', 'Première détresse')
+    ] },
+  // ---------- CHAPITRE 2 ----------
+  { n: 'Chapitre 2', t: 'Première détresse', syn: 'Un voilier a sombré dans la nuit. Votre première vraie sortie à la tête de l\'Albatros, sous le regard de la presse.', at: 'cross', types: ['rescue', 'sarex', 'helo'], atWin: 'hall', failWho: 'cross',
+    patch: d => { d.radio = 'Albatros, ici CROSS Méditerranée. Des vies en jeu, commandant : chaque minute compte. Bonne chasse.'; },
+    intro: [
+      sN('Trois jours plus tard. 5 h 12. Le téléphone sonne avant le réveil.'),
+      sA('cross', 'Commandant {N} ? Morvan, du CROSS. Désolé de vous tirer du lit. Le {v} a déclenché sa balise de détresse cette nuit. Il y a du monde dans l\'eau, ou dans un radeau si on a de la chance.'),
+      sA('cross', 'La Sentinelle est en carénage, le Vigilant est trop loin. L\'Albatros est le plus proche. Et votre grand-père aurait déjà largué les amarres.'),
+      sC('cross', 'Vous pouvez appareiller ?', [
+        sO('pose', 'Méthode', 'On appareille dans vingt minutes. Envoyez-moi la dérive du radeau, on calcule la zone de recherche en route.', { fx: { conf: 3 }, then: [sA('cross', 'Voilà ce que j\'aime entendre. Je vous envoie tout.')] }),
+        sO('franc', 'Qui est à bord ?', 'On y va. Qui est à bord ?', { flag: 'enfant', then: [sA('cross', 'Une famille et deux équipiers. La petite a huit ans. Ramenez-la, commandant.')] }),
+        sO('feu', 'On y est déjà', 'On y est déjà. Dites-leur de tenir bon.', { fx: { fans: 30 }, then: [sA('cross', 'Doucement, commandant. Un sauveteur qui se noie ne sauve personne.')] })
+      ]),
+      sN('Vous dévalez l\'escalier de l\'état-major. Sur le quai, l\'équipage de l\'Albatros est déjà à son poste.')
+    ],
+    beats: [
+      { at: 60, who: 'second', t: 'Commandant, c\'est votre première vraie sortie avec nous. L\'équipage est derrière vous. Moi aussi.' },
+      { at: 240, who: 'cross', t: 'Albatros, le CROSS. Les familles sont arrivées au poste de commandement. Je ne vous mets pas de pression. Enfin si, un peu.' },
+      { at: 420, who: 'second', t: 'La petite de huit ans, commandant… on va la trouver.', if: S => S.flags.enfant }
+    ],
+    win: [
+      sN('Retour à quai. Une petite foule attend devant l\'état-major. Et une journaliste, micro tendu, qui a réussi à passer le factionnaire.'),
+      { actor: { id: 'presse', x: 0.3, z: -1.9 } },
+      sA('presse', 'Léa Marchetti, Le Phare du Var. Commandant {N}, trois mots pour nos lecteurs ? On dit que vous avez sorti tout le monde de l\'eau.'),
+      sC('presse', null, [
+        sO('pose', 'L\'équipage', 'C\'est l\'équipage qu\'il faut féliciter. Je n\'ai fait que donner les ordres.', { fx: { conf: 5, fans: 60 }, flag: 'p2_pose', then: [sA('presse', 'Modeste. Les lecteurs adorent ça, même quand ils n\'y croient pas.')] }),
+        sO('franc', 'Notre métier', 'On a fait notre métier. Et franchement, on a eu de la chance avec la météo.', { fx: { fans: 80 }, flag: 'p2_franc', then: [sA('presse', 'De la franchise ! Je note, je note.')] }),
+        sO('feu', 'La mer a perdu', 'La mer a essayé de les garder. Elle a perdu.', { fx: { conf: -3, fans: 150 }, flag: 'p2_feu', log: 'Chapitre 2 : « La mer a perdu », en une du Phare du Var.', then: [sA('presse', 'Ça, c\'est un titre. Merci, commandant.')] })
+      ]),
+      { press: { kick: 'Sauvetage en mer', head: S => S.flags.p2_feu ? '« La mer a perdu » : le coup d\'éclat du commandant {N}' : S.flags.p2_pose ? '« C\'est l\'équipage qu\'il faut féliciter »' : 'Naufrage au large : « On a fait notre métier »', body: 'Le patrouilleur Albatros a recueilli cette nuit les naufragés du {v}. Trente-sept ans après la nuit du Lion Noir, le nom {N} s\'illustre à nouveau en mer. À quai, l\'équipage a été accueilli par une salve d\'applaudissements.' } },
+      msg('presse', 'Merci pour l\'interview, commandant. Mon numéro est dans votre messagerie : si un jour vous voulez raconter autre chose que des sauvetages, j\'écoute.'),
+      sN('Le soir, votre téléphone vibre. « Papy ».'),
+      sA('papy', 'Je l\'ai lu, l\'article. Au café du port, ils l\'ont scotché au-dessus du comptoir. Tout le monde me le montre comme si je ne savais pas lire.', { phone: true }),
+      sA('papy', 'Je vais te dire une chose que je n\'ai jamais dite au journal, moussaillon : la première nuit, on a peur. Toujours. C\'est normal.', { phone: true }),
+      sC('papy', null, [
+        sO('pose', 'La peur en poche', 'J\'ai eu peur, oui. Mais je ne l\'ai pas montré à l\'équipage.', { fx: { papy: 5 }, then: [sA('papy', 'C\'est ça, le métier. La peur, on la garde dans la poche de son ciré.', { phone: true })] }),
+        sO('franc', 'Et toi, en 87 ?', 'Et toi, tu as eu peur, la nuit du Lion Noir ?', { fx: { papy: 8 }, flag: 'askLion', then: [sA('papy', '… La nuit du Lion. Une autre fois, moussaillon. Une autre fois.', { phone: true })] }),
+        sO('feu', 'Pas le temps', 'Peur ? J\'avais trop à faire pour avoir peur.', { fx: { papy: 2 }, then: [sA('papy', 'Ha ! Tu parles comme moi à ton âge. J\'avais tort, mais c\'était bon de le croire.', { phone: true })] })
+      ]),
+      sT('Chapitre 3', 'Le rival')
+    ] },
+  // ---------- CHAPITRE 3 ----------
+  { n: 'Chapitre 3', t: 'Le rival', syn: 'Un ferry à escorter, des embarcations rapides en maraude… et Hugo Lestrade, qui n\'attendait qu\'une erreur de votre part.', at: 'office', types: ['escort', 'convoy'], atWin: 'office',
+    intro: [
+      sN('Bureau de l\'amirale. Quelqu\'un est déjà là, appuyé contre la fenêtre comme s\'il était chez lui.'),
+      { actor: { id: 'rival', x: 10.9, z: -18.4 } },
+      met('rival'),
+      sA('rival', 'Ah. Le nom célèbre. Hugo Lestrade, commandant du Vigilant. Félicitations pour le voilier. Joli coup de com\'.'),
+      sA('amirale', 'Lestrade. Asseyez-vous, ou taisez-vous. Idéalement les deux.'),
+      sA('amirale', 'Un ferry appareille ce soir pour {isl}, des centaines de passagers à bord. Des embarcations rapides rôdent sur sa route. Je veux une escorte.'),
+      sA('rival', 'Le Vigilant est paré, amirale. Il l\'est toujours.'),
+      sA('amirale', 'Le Vigilant est en maintenance jusqu\'à jeudi, Lestrade. C\'est l\'Albatros qui y va. Vous, vous suivrez l\'escorte depuis le central, et vous me ferez un rapport.'),
+      sA('rival', 'Évidemment.'),
+      sC(null, 'Lestrade vous fixe, un sourire en coin. Que lui dites-vous ?', [
+        sO('pose', 'Votre avis', 'Votre avis m\'intéresse, commandant. Vous connaissez ces eaux mieux que moi.', { fx: { rival: 15 }, flag: 'rivalTip', log: 'Chapitre 3 : vous avez demandé conseil à Lestrade.', then: [sA('rival', '… Les embarcations attaquent par l\'arrière, à contre-jour. Ne me remerciez pas.')] }),
+        sO('franc', 'Même équipe', 'On joue dans la même équipe, Lestrade. Même si ça vous écorche.', { fx: { rival: 5 }, then: [sA('rival', 'On verra bien quelle équipe gagne.')] }),
+        sO('feu', 'Prenez des notes', 'Regardez bien, alors. Vous allez apprendre quelque chose.', { fx: { rival: -15, fans: 20 }, log: 'Chapitre 3 : vous avez provoqué Lestrade.', then: [sA('rival', 'J\'ai hâte. Vraiment.'), sA('amirale', 'Les enfants, ça suffit. Dehors.')] })
+      ])
+    ],
+    beats: [
+      { at: 60, who: 'rival', t: 'Albatros, ici Lestrade, au central. Je vous ai à l\'écran. Essayez de ne pas perdre votre ferry.' },
+      { at: 300, who: 'rival', t: 'Albatros, échos rapides au radar dans votre arrière. À contre-jour. Je vous l\'avais dit.', if: S => S.flags.rivalTip },
+      { at: 300, who: 'second', t: 'Lestrade est au central et ne dit rien. Je crois qu\'il attend qu\'on se plante, commandant.', if: S => !S.flags.rivalTip }
+    ],
+    win: [
+      { actor: { id: 'rival', x: 10.9, z: -18.4 } },
+      sA('amirale', 'Ferry arrivé, passagers à l\'heure, aucun blessé. Lestrade, votre rapport ?'),
+      sA('rival', 'Exécution correcte. Quelques approximations dans le placement, mais… correcte.'),
+      sA('amirale', 'Venant de vous, c\'est presque une médaille. Commandant {N}, le préfet veut un nom pour la lettre de félicitations. Le vôtre, ou celui de l\'équipe du central qui a suivi l\'escorte ?'),
+      sC('amirale', null, [
+        sO('pose', 'Le central et Lestrade', 'Mettez le central. Et le commandant Lestrade : ses informations étaient justes.', { fx: { rival: 20, conf: 5 }, flag: 'credit', log: 'Chapitre 3 : vous avez partagé le mérite avec Lestrade.', then: [sA('rival', '… Merci.'), sA('amirale', 'Noté. Et apprécié.')] }),
+        sO('franc', 'L\'équipage', 'Mettez l\'équipage de l\'Albatros. Ce sont eux qui ont fait le travail.', { fx: { conf: 3, rival: 5 }, then: [sA('amirale', 'Bonne réponse.')] }),
+        sO('feu', 'Mon nom', 'Mettez mon nom. C\'est moi qui étais en mer.', { fx: { fans: 80, rival: -20, conf: -5 }, log: 'Chapitre 3 : vous avez gardé le mérite pour vous.', then: [sA('rival', 'Évidemment.'), sA('amirale', '… C\'est noté.')] })
+      ]),
+      { if: S => S.m.rival >= 10, fn: S => postMsg('rival', `Pour ce soir : rien ne vous obligeait à citer mon nom. Je m'en souviendrai, ${S.name.n}. En bien, pour une fois.`) },
+      { if: S => S.m.rival < 10, fn: S => postMsg('rival', `Profitez de la lettre du préfet, ${S.name.n}. La mer n'a pas de mémoire. Moi, si.`) },
+      sT('Chapitre 4', 'Nuit de mistral')
+    ] },
+  // ---------- CHAPITRE 4 ----------
+  { n: 'Chapitre 4', t: 'Nuit de mistral', syn: 'Un ferry sans moteurs dérive vers les îles, en pleine nuit de mistral. Même endroit, même vent qu\'en 1987.', at: 'ops', types: ['ferry', 'tow'], atWin: 'office',
+    patch: d => { d.time = 22.5; d.weather = { wind: 16, sea: 0.72, cloud: 0.85, rain: 0.25, fog: 0.08, storm: 0.35 }; d.radio = 'Ici le commandement. Mistral force 8, rafales à 10. Ne prenez aucun risque inutile, Albatros.'; },
+    intro: [
+      sN('Salle des opérations, 21 h 50. Sur l\'écran, le mistral dessine des isobares serrées comme des doigts.'),
+      sA('amirale', 'Le {v} a perdu ses deux moteurs. Le mistral le pousse vers les îles. Force huit, rafales à dix. À bord : des familles, des camions, un équipage épuisé.'),
+      sA('amirale', 'Même endroit, même vent qu\'en 87. Je ne crois pas aux signes, commandant. Mais votre grand-père, lui, y croyait.'),
+      sC('amirale', 'Vous êtes d\'attaque ?', [
+        sO('pose', 'Prudence', 'On prend la remorque au vent, on ne force pas, et on laisse le ferry dériver doucement vers le large.', { fx: { conf: 6 }, then: [sA('amirale', 'C\'est exactement ce qu\'il aurait fait.')] }),
+        sO('franc', 'Appeler papy', 'Je vais appeler mon grand-père avant de partir.', { fx: { papy: 10 }, flag: 'callPapy', then: [msg('papy', 'Prends la remorque par le travers, jamais face au vent. Et fais confiance à ton bosco : un bon bosco vaut trois amiraux. Bonne mer, moussaillon.'), sA('amirale', 'Faites vite. Le ferry n\'attendra pas.')] }),
+        sO('feu', 'Personne aux rochers', 'Si ça tape trop fort, on le prend quand même. On ne laisse personne aux rochers.', { fx: { conf: -2, fans: 40 }, then: [sA('amirale', 'Personne ne vous demande de mourir pour un ferry. Ramenez-moi mon patrouilleur.')] })
+      ])
+    ],
+    beats: [
+      { at: 90, who: 'second', t: 'Commandant, l\'équipage a entendu parler de la nuit du Lion. Ils disent que c\'est un signe. Le bosco a sorti son ciré de 87… enfin, celui de son père.' },
+      { at: 360, who: 'bosco', t: 'Commandant, la remorque tiendra. Votre grand-père, il prenait toujours une longueur de plus par gros temps. On en a mis une de plus.', if: S => S.flags.callPapy }
+    ],
+    win: [
+      sN('2 h 30 du matin. Le ferry est au mouillage, ses passagers dorment enfin. Vous, non.'),
+      sA('amirale', 'Tous les passagers sont sains et saufs. Allez dormir, commandant. C\'est un ordre.'),
+      sN('Votre téléphone vibre. Un message de Papy, à 2 h 31. Il n\'a jamais su dormir pendant un coup de mistral.'),
+      sA('papy', 'Tu as fait ce que je n\'ai pas pu faire, moussaillon. Le Lion Noir… ce n\'était pas qu\'un cargo en avarie. Il y avait autre chose dans ses cales. Je t\'en parlerai. Pas au téléphone.', { phone: true }),
+      sC('papy', null, [
+        sO('pose', 'Prends ton temps', 'Prends ton temps, Papy. Je passerai te voir à Hyères.', { fx: { papy: 10 }, then: [sA('papy', 'Viens avec du pain frais. Et sans ta journaliste.', { phone: true })] }),
+        sO('franc', 'Quoi, dans les cales ?', 'Qu\'est-ce qu\'il y avait dans les cales ?', { fx: { papy: 3 }, flag: 'pressLion', then: [sA('papy', 'Pas au téléphone, j\'ai dit. Certaines choses ne se disent qu\'en face.', { phone: true })] }),
+        sO('feu', 'Pourquoi maintenant ?', 'Tu m\'as raconté cette histoire cent fois. Pourquoi changer maintenant ?', { fx: { papy: -5 }, then: [sA('papy', 'Parce que cent fois, j\'ai un peu menti. Bonne nuit, moussaillon.', { phone: true })] })
+      ]),
+      sT('Chapitre 5', 'Les ombres de Varne')
+    ] },
+  // ---------- CHAPITRE 5 ----------
+  { n: 'Chapitre 5', t: 'Les ombres de Varne', syn: 'Un navire de la Flottille de Varne rôde au large. Filature, photos… et un nom d\'armateur qui réveille de vieux souvenirs.', at: 'ops', types: ['shadow', 'cable', 'suspect'], atWin: 'hall',
+    patch: d => { d.brief += ' Le navire appartient à un armateur écran : l\'Armement du Lion.'; },
+    intro: [
+      sN('Briefing confidentiel. Volets fermés, téléphones au vestiaire.'),
+      sA('amirale', 'La Flottille de Varne s\'intéresse à nos côtes. Un de leurs navires, le {v}, longe nos eaux en coupant son AIS.'),
+      sA('amirale', 'Je veux savoir ce qu\'il cherche. Discrétion, patience, et pas un coup de canon sans mon ordre.'),
+      sA('amirale', 'Lestrade l\'a suivi la semaine dernière. Il pense qu\'il cartographie les câbles sous-marins.', { if: S => S.m.rival >= 10 }),
+      sA('amirale', 'Lestrade l\'a suivi la semaine dernière. Il a refusé de me dire ce qu\'il en pensait devant vous. Puéril.', { if: S => S.m.rival < 10 }),
+      sA('amirale', 'Une dernière chose. Ce navire appartient à un armateur écran : l\'Armement du Lion. Ça vous dit quelque chose ?'),
+      sC('amirale', null, [
+        sO('pose', 'Je me renseigne', 'Non, amirale. Mais je vais me renseigner.', { fx: { conf: 4 }, then: [sA('amirale', 'Discrètement. Ce nom fait peur à des gens haut placés.')] }),
+        sO('franc', 'Le Lion Noir ?', 'Le Lion… comme le Lion Noir, en 87 ?', { fx: { conf: 2 }, flag: 'lionLink', log: 'Chapitre 5 : vous avez fait le lien entre l\'Armement du Lion et le Lion Noir de 1987.', then: [sA('amirale', 'Vous avez de la mémoire. Moi aussi. Gardez ça pour vous, pour l\'instant.')] }),
+        sO('feu', 'Arraisonner', 'Si c\'est Varne, pourquoi on ne l\'arraisonne pas tout de suite ?', { fx: { conf: -4 }, then: [sA('amirale', 'Parce qu\'il navigue dans les eaux internationales, et que je n\'ai pas envie de déclencher une crise pour votre plaisir.')] })
+      ])
+    ],
+    beats: [
+      { at: 120, who: 'second', t: 'Commandant, l\'opérateur radar dit que le navire de Varne nous a repérés. Il change de cap toutes les dix minutes. Il joue avec nous.' },
+      { at: 420, who: 'rival', t: 'Albatros, Lestrade. Il fait toujours une boucle vers le sud avant de revenir. Gardez-le à l\'œil.', if: S => S.m.rival >= 10 }
+    ],
+    win: [
+      sN('À la sortie de l\'état-major, Léa Marchetti vous attend, carnet ouvert. Elle a manifestement des sources.'),
+      { actor: { id: 'presse', x: 0.3, z: -1.9 } },
+      sA('presse', 'Commandant ! On dit qu\'un navire de Varne rôde sur nos côtes. Vous l\'avez suivi aujourd\'hui, non ? Nos lecteurs ont le droit de savoir.'),
+      sC('presse', null, [
+        sO('pose', 'Pas de commentaire', 'Je ne commente pas les opérations en cours. Revenez me voir quand ce sera fini.', { fx: { conf: 6, fans: -20 }, flag: 'p5_pose', then: [sA('presse', 'De la langue de bois… mais bien taillée.')] }),
+        sO('franc', 'Off', 'Off the record : oui. Et on ne le lâchera pas.', { fx: { fans: 60, conf: -2 }, flag: 'p5_franc', then: [sA('presse', 'Off the record. Promis.')] }),
+        sO('feu', 'Pas d\'intimidation', 'Écrivez-le : la Flotte d\'Ysmar ne se laissera pas intimider par Varne.', { fx: { fans: 150, conf: -8 }, flag: 'p5_feu', log: 'Chapitre 5 : déclaration choc contre Varne dans la presse.', then: [sA('presse', 'Je l\'écris ? Vraiment ?'), sA('me', 'Vraiment.')] })
+      ]),
+      { press: { if: S => !S.flags.p5_franc, kick: 'Défense', head: S => S.flags.p5_feu ? '« Nous ne nous laisserons pas intimider »' : 'Un navire espion au large : la Marine reste muette', body: S => S.flags.p5_feu ? 'Le commandant {N}, de l\'Albatros, a lancé hier un avertissement à la Flottille de Varne, dont un navire de renseignement croise au large de nos côtes. À Paris, on s\'étrangle ; sur les quais, on applaudit.' : 'Un navire de renseignement de la Flottille de Varne a été suivi hier par l\'Albatros. Interrogé, son commandant a refusé tout commentaire. Selon nos informations, le navire appartiendrait à un armateur écran, l\'Armement du Lion.' } },
+      sA('amirale', 'Je viens de lire Le Phare. La prochaine fois que vous faites de la diplomatie, prévenez-moi, que je puisse démissionner avant.', { phone: true, if: S => S.flags.p5_feu }),
+      sT('Chapitre 6', 'Le choix')
+    ] },
+  // ---------- CHAPITRE 6 (sans mission) ----------
+  { n: 'Chapitre 6', t: 'Le choix', syn: 'La frégate Sentinelle cherche un commandant : vous, ou Lestrade. Et à Hyères, votre grand-père a un malaise.', at: 'office',
+    intro: [
+      sN('Une semaine plus tard. On vous convoque, en même temps que Lestrade. Sur le bureau de l\'amirale, une enveloppe : l\'ordre de commandement de la frégate Sentinelle.'),
+      { actor: { id: 'rival', x: 10.9, z: -18.4 } },
+      sA('amirale', 'La Sentinelle a besoin d\'un commandant. Deux noms sont remontés à Paris. Les vôtres.'),
+      sA('rival', 'Que le meilleur gagne.'),
+      sA('amirale', 'Le meilleur ne gagne jamais, Lestrade. C\'est celui en qui j\'ai confiance qui gagne.'),
+      sF(S => { S.flags.sentinelle = S.m.conf + (CAREER.wins || 0) * 2 >= 62; }),
+      sA('amirale', 'Commandant {N}, la Sentinelle est à vous. Vous gardez l\'Albatros dans votre flottille.', { if: S => S.flags.sentinelle }),
+      sF(S => { if (S.flags.sentinelle && !owned('frigate')) { CAREER.ships.frigate = freshShip('frigate'); if (CAREER.portOf) CAREER.portOf.frigate = CAREER.port; S.flags.gotFrigate = true; } }),
+      sA('rival', 'Félicitations, {N}. Sincèrement. Prenez soin d\'elle.', { if: S => S.flags.sentinelle && S.m.rival >= 15 }),
+      sA('rival', 'Profitez-en. Ça ne durera pas.', { if: S => S.flags.sentinelle && S.m.rival < 15 }),
+      sA('amirale', 'Lestrade prend la Sentinelle. Vous, vous gardez l\'Albatros… et une prime de commandement. Et ma confiance, si vous la regagnez.', { if: S => !S.flags.sentinelle }),
+      sF(S => { if (!S.flags.sentinelle) CAREER.credits += 10000; }),
+      sA('rival', 'Je ne l\'aurais pas eue sans vos rapports, {N}. Je m\'en souviendrai.', { if: S => !S.flags.sentinelle && S.m.rival >= 15 }),
+      sA('rival', 'C\'était écrit.', { if: S => !S.flags.sentinelle && S.m.rival < 15 }),
+      sC(null, 'L\'amirale attend votre réaction.', [
+        sO('pose', 'Merci / Je comprends', S => S.flags.sentinelle ? 'Merci, amirale. Je ne vous décevrai pas.' : 'Je comprends, amirale. Je ferai mes preuves.', { fx: { conf: 5 } }),
+        sO('franc', 'Il la méritait aussi', S => S.flags.sentinelle ? 'Lestrade la méritait aussi. Ce n\'était pas joué d\'avance.' : 'Je ne suis pas d\'accord. Mais j\'accepte.', { fx: { conf: 2 }, then: [sF(S => { if (S.flags.sentinelle) S.m.rival = clamp(S.m.rival + 10, -100, 100); })] }),
+        sO('feu', 'Il était temps / Erreur', S => S.flags.sentinelle ? 'Il était temps.' : 'C\'est une erreur, et vous le savez.', { fx: { conf: -4, fans: 30 }, then: [sF(S => { S.m.rival = clamp(S.m.rival - 10, -100, 100); })] })
+      ]),
+      { unactor: 'rival' },
+      sN('Vous sortez du bureau. Votre téléphone vibre : l\'hôpital d\'Hyères. Votre grand-père a fait un malaise. Il est stable. Il vous demande.'),
+      sA('second', 'Commandant, l\'Albatros appareille à 14 h pour l\'exercice de convoi. Si vous voulez aller à Hyères, je peux prendre la passerelle pour la journée.', { phone: true }),
+      sC(null, 'Que faites-vous ?', [
+        sO('pose', 'Rester', 'Je reste. Il comprendrait. Je l\'appelle ce soir.', { fx: { conf: 6, papy: -8 }, flag: 'stay', log: 'Chapitre 6 : vous avez choisi votre poste pendant le malaise de votre grand-père.' }),
+        sO('franc', 'Une heure', 'J\'y vais. Une heure, pas plus. Tenez la passerelle, Maëlle.', { fx: { papy: 15 }, flag: 'visit', log: 'Chapitre 6 : une heure au chevet de votre grand-père.' }),
+        sO('feu', 'Tout annuler', 'J\'annule l\'exercice. J\'y vais, et tant pis pour le convoi.', { fx: { papy: 20, conf: -10 }, flag: 'visit', log: 'Chapitre 6 : vous avez annulé un exercice pour votre grand-père.' })
+      ]),
+      sN('Hôpital d\'Hyères. Chambre 12, fenêtre sur la mer. Il a maigri. Ses yeux, non.', { if: S => S.flags.visit }),
+      sA('papy', 'Te voilà. Ils t\'ont laissé quitter ta passerelle ? Assieds-toi. Écoute-moi bien, je ne le dirai qu\'une fois.', { if: S => S.flags.visit }),
+      sA('papy', 'Tu as bien fait de rester, moussaillon. Le devoir d\'abord. Mais il faut que tu saches, maintenant. Au cas où.', { phone: true, if: S => S.flags.stay }),
+      sA('papy', 'En 87, le Lion Noir transportait des armes. Pour Varne. Des caisses entières, que j\'ai vues de mes yeux quand on a évacué l\'équipage. Le lendemain, un monsieur de Paris nous a fait signer un papier. On s\'est tus.', { phone: S => S.flags.stay }),
+      sA('papy', 'Mais j\'ai gardé son livre de bord. Il est dans mon coffre de marin, à la maison. Le nom de l\'armateur est dedans. Si Varne revient… c\'est que rien n\'a changé.', { phone: S => S.flags.stay }),
+      sF(S => { S.flags.secret = true; }),
+      sT('Chapitre 7', 'Convoi')
+    ] },
+  // ---------- CHAPITRE 7 ----------
+  { n: 'Chapitre 7', t: 'Convoi', syn: 'Varne montre les dents : drones et vedettes lance-missiles menacent un convoi de navires marchands.', at: 'ops', types: ['convoy', 'escort'], atWin: 'hall', cls: S => S.flags.sentinelle ? 'frigate' : null,
+    intro: [
+      sA('amirale', 'Trois navires marchands à mener jusqu\'à {port}. Varne a des drones et des vedettes lance-missiles dans le secteur. C\'est la première fois qu\'ils montrent les dents aussi près.'),
+      sA('amirale', 'Vous prenez la Sentinelle. Elle a des missiles, servez-vous-en avec discernement.', { if: S => S.flags.sentinelle }),
+      sA('amirale', 'Prenez ce que vous avez de mieux. L\'état-major vous prête un bâtiment armé si l\'Albatros ne suffit pas.', { if: S => !S.flags.sentinelle }),
+      { actor: { id: 'rival', x: -6.6, z: -16.2 } },
+      sA('rival', 'Je couvrirai votre flanc nord avec le Vigilant. Pour une fois, on fait équipe.', { if: S => S.m.rival >= 15 }),
+      sA('rival', 'Le Vigilant reste au port, ordre de Paris. Bonne chance… vraiment.', { if: S => S.m.rival < 15 }),
+      sC('amirale', 'Vos intentions, commandant ?', [
+        sO('pose', 'Groupés', 'On garde les marchands groupés. On ne tire que sur ce qui menace.', { fx: { conf: 4 } }),
+        sO('franc', 'Compter sur Lestrade', S => S.m.rival >= 15 ? 'Lestrade, je compte sur vous. Vraiment.' : 'Je préférerais vous savoir avec moi qu\'au port, Lestrade.', { fx: { rival: 5 }, then: [sA('rival', S => S.m.rival >= 15 ? 'Vous pouvez.' : 'Moi aussi, figurez-vous.')] }),
+        sO('feu', 'Pas de sommation', 'Si un drone approche, je le descends. Pas de sommation.', { fx: { conf: -3, fans: 20 }, then: [sA('amirale', 'Les drones, oui. Les pêcheurs, non. Faites la différence.')] })
+      ])
+    ],
+    beats: [
+      { at: 180, who: 'rival', t: 'Ici Vigilant, sur votre nord. Deux échos rapides, je m\'en occupe.', if: S => S.m.rival >= 15 },
+      { at: 480, who: 'rival', t: 'Un de moins. Vous me devez un café, {N}.', if: S => S.m.rival >= 15 },
+      { at: 240, who: 'second', t: 'Commandant, les équipages marchands nous filment depuis leurs passerelles. On va finir sur les réseaux.' }
+    ],
+    win: [
+      sN('La vidéo du convoi, filmée depuis la passerelle d\'un des cargos, tourne sur tous les réseaux. Quatre millions de vues en une nuit.'),
+      { social: [['@marins_du_var', 'Regardez l\'Albatros se mettre entre le drone et le pétrolier. Frissons. 🇫🇷'], ['@ysmar_spotter', 'Le commandant {N} encore. Ce nom, franchement.'], ['@capitaine_crochet83', 'Mon cousin était sur le cargo. Il dit merci.']] },
+      { actor: { id: 'presse', x: 0.3, z: -1.9 } },
+      sA('presse', 'Commandant, une question simple, et j\'aimerais une réponse simple : la guerre avec Varne a-t-elle commencé ?'),
+      sC('presse', null, [
+        sO('pose', 'Personne ne veut la guerre', 'Personne ne veut la guerre. Nous protégeons le commerce, c\'est tout.', { fx: { conf: 6, fans: 40 }, flag: 'p7_pose' }),
+        sO('franc', 'Question politique', 'C\'est une question pour les politiques. Moi, je garde la mer ouverte.', { fx: { fans: 70 }, flag: 'p7_franc' }),
+        sO('feu', 'Ils savent où nous trouver', 'Si Varne veut la guerre, ils savent où nous trouver.', { fx: { fans: 200, conf: -10 }, flag: 'p7_feu', log: 'Chapitre 7 : « Si Varne veut la guerre, ils savent où nous trouver. »' })
+      ]),
+      { press: { kick: 'Méditerranée', head: S => S.flags.p7_feu ? '« Ils savent où nous trouver » : le défi lancé à Varne' : S.flags.p7_pose ? 'Convoi protégé : « Personne ne veut la guerre »' : '« Je garde la mer ouverte »', body: 'Trois navires marchands escortés à travers une attaque de drones : la vidéo a fait le tour du monde. À la passerelle, toujours le même nom : {N}.' } },
+      sT('Chapitre 8', 'L\'abordage')
+    ] },
+  // ---------- CHAPITRE 8 ----------
+  { n: 'Chapitre 8', t: 'L\'abordage', syn: 'Un cargo chargé d\'armes, un armateur qui porte un nom familier, et le livre de bord de votre grand-père.', at: 'office', types: ['suspect', 'intercept'], atWin: 'office',
+    patch: d => { d.brief += ' Armateur déclaré : l\'Armement du Lion.'; },
+    intro: [
+      sA('amirale', 'Un cargo, le {v}, vient de quitter un port contrôlé par Varne. Douanes et renseignement sont d\'accord : il transporte des armes.'),
+      sA('amirale', 'Son armateur : l\'Armement du Lion.'),
+      sN('Le nom vous frappe comme une gifle. Le livre de bord de Papy. Le Lion Noir.'),
+      sC('amirale', 'Vous êtes pâle, commandant. Quelque chose à me dire ?', [
+        sO('pose', 'Parler de 1987', 'Amirale… il faut que je vous parle de 1987. Mon grand-père a gardé le livre de bord du Lion Noir.', { fx: { conf: 10 }, flag: 'toldAdm', log: 'Chapitre 8 : vous avez révélé le secret de 1987 à l\'amirale.', then: [sN('Un long silence. L\'amirale regarde par la fenêtre, vers la rade.'), sA('amirale', 'Je me doutais qu\'il y avait quelque chose. Cette nuit-là, on nous a fait signer un papier, à moi aussi. Apportez-moi ce livre après la mission.')] }),
+        sO('franc', 'C\'est personnel', 'Je connais ce nom. Laissez-moi aborder ce cargo moi-même.', { then: [sA('amirale', 'C\'est votre mission. Mais votre visage dit que c\'est personnel. Faites attention.')] }),
+        sO('feu', 'Fouiller tout', 'On l\'arraisonne et on fouille jusqu\'à la dernière caisse. Je veux des preuves.', { fx: { conf: -2 }, then: [sA('amirale', 'Vous les aurez, si elles existent. Dans les règles.')] })
+      ])
+    ],
+    beats: [
+      { at: 240, who: 'bosco', t: 'L\'équipe de visite est prête, commandant. Gilets, armes, caméras. Si ce cargo cache quelque chose, on le trouvera.' },
+      { at: 420, who: 'second', t: 'Commandant… c\'est pour votre grand-père, aujourd\'hui. On le sait tous. On est avec vous.', if: S => S.flags.visit }
+    ],
+    win: [
+      sN('Dans la cale du cargo : des caisses de missiles portables, et un classeur. Dedans, une liste de navires et d\'armateurs. En première page : Armement du Lion, fondé en 1986.'),
+      sA('amirale', 'Le même armateur que le Lion Noir. Trente-sept ans de trafic, sous notre nez.'),
+      sN('Le livre de bord de votre grand-père pourrait tout faire éclater : prouver qu\'en 1987, on savait.'),
+      sC(null, 'Que faites-vous du livre de bord ?', [
+        sO('pose', 'À l\'amirale', 'Je le remets à l\'amirale. L\'enquête se fera dans les règles.', { fx: { conf: 12, fans: -20 }, flag: 'logAdm', log: 'Chapitre 8 : le livre de bord remis à l\'amirale.', then: [sA('amirale', 'Merci. Votre grand-père aurait dû le faire il y a trente-sept ans. Vous le faites pour lui.')] }),
+        sO('franc', 'Demander à Papy', 'Je demande d\'abord à mon grand-père. C\'est son histoire.', { fx: { papy: 15, conf: 6 }, flag: 'logPapy', log: 'Chapitre 8 : vous avez laissé votre grand-père décider.', then: [sA('papy', 'Donne-le à Le Dantec. Elle était là, elle aussi. Il est temps.', { phone: true }), sA('amirale', 'Merci, commandant. Et remerciez-le de ma part.')] }),
+        sO('feu', 'À la presse', 'Je le donne à Léa Marchetti. Que tout le monde sache.', { fx: { fans: 300, conf: -15 }, flag: 'logPress', log: 'Chapitre 8 : vous avez donné le livre de bord à la presse.', then: [{ press: { kick: 'Révélations', head: '1987 : l\'affaire du Lion Noir', body: 'Selon un document que Le Phare du Var a pu consulter, le cargo Lion Noir, naufragé en 1987 au large de Porquerolles, transportait des armes destinées à Varne. Son armateur, l\'Armement du Lion, est au cœur d\'un trafic démantelé cette semaine par l\'Albatros.' } }, sA('amirale', 'Vous venez de mettre le feu à Paris, commandant. J\'espère que vous avez raison.')] })
+      ]),
+      sN('Ce soir-là, les radars de la côte s\'affolent. Des échos venus du sud, en formation serrée, puis plus rien. Varne a reçu le message. Varne va répondre.'),
+      sT('Chapitre 9', 'Le repaire')
+    ] },
+  // ---------- CHAPITRE 9 ----------
+  { n: 'Chapitre 9', t: 'Le repaire', syn: 'Le classeur du cargo mène à un repaire de corsaires qui retient un équipage. Lestrade veut mener l\'assaut.', at: 'ops', types: ['raid', 'saw'], atWin: 'office',
+    intro: [
+      sA('amirale', 'Le classeur du cargo nous a donné une adresse : un mouillage discret dans les îlots. Les Corsaires de la Grise y entretiennent les vedettes de Varne. Et ils retiennent l\'équipage d\'un caboteur.'),
+      { actor: { id: 'rival', x: -6.6, z: -16.2 } },
+      sA('rival', 'Je demande à mener l\'assaut, amirale. Le Vigilant est le plus rapide.'),
+      sA('amirale', 'Commandant {N} ? C\'est votre piste.'),
+      sC('amirale', null, [
+        sO('pose', 'Lestrade mène', 'Lestrade mène l\'assaut. Je couvre et je m\'occupe des otages.', { fx: { rival: 15, conf: 4 }, log: 'Chapitre 9 : vous avez laissé Lestrade mener l\'assaut.', then: [sA('rival', '… Merci. Je ne l\'oublierai pas.')] }),
+        sO('franc', 'Ensemble', 'On y va ensemble. Lui par le nord, moi par le sud.', { fx: { rival: 8 }, then: [sA('amirale', 'Enfin une idée que je n\'ai pas eue.')] }),
+        sO('feu', 'Mon assaut', 'C\'est ma piste. C\'est mon assaut.', { fx: { rival: -15, fans: 40 }, log: 'Chapitre 9 : vous avez gardé l\'assaut pour vous.', then: [sA('rival', 'Comme toujours.')] })
+      ])
+    ],
+    beats: [
+      { at: 200, who: 'rival', t: 'Vigilant en position nord. On attend votre signal, {N}.', if: S => S.m.rival >= 20 },
+      { at: 200, who: 'second', t: 'Le Vigilant n\'est pas sur zone, commandant. On est seuls. Comme d\'habitude.', if: S => S.m.rival < 20 }
+    ],
+    win: [
+      { actor: { id: 'rival', x: 10.9, z: -18.4 } },
+      sA('amirale', 'Équipage du caboteur libéré, repaire neutralisé. Les Corsaires sont en fuite, Varne nie tout. Comme d\'habitude.'),
+      sA('rival', 'Beau travail, {N}. Je n\'aime pas le dire. Mais beau travail.', { if: S => S.m.rival >= 0 }),
+      sA('rival', 'Vous avez eu de la chance. Elle finira par tourner.', { if: S => S.m.rival < 0 }),
+      sN('Le téléphone de l\'amirale sonne. Elle écoute, sans un mot. Puis elle raccroche, très lentement.'),
+      sA('amirale', 'Les radars de la côte. Des dizaines d\'échos venus du sud. Drones, missiles. Varne a choisi sa réponse : ils vont frapper la rade.'),
+      sT('Chapitre 10', 'Tempête sur la rade')
+    ] },
+  // ---------- CHAPITRE 10 ----------
+  { n: 'Chapitre 10', t: 'Tempête sur la rade', syn: 'Le final : des vagues de drones et de missiles visent la rade. Toute la flotte d\'Ysmar compte sur vous.', at: 'ops', types: ['aaw', 'saw'], atWin: 'office', cls: S => S.flags.sentinelle ? 'frigate' : null,
+    patch: d => { d.time = 19.6; d.weather = { wind: 12, sea: 0.55, cloud: 0.8, rain: 0.2, fog: 0.05, storm: 0.45 }; d.radio = 'Ici le commandement. Alerte générale. Toutes les unités, postes de combat. Que Dieu garde la rade.'; },
+    intro: [
+      sN('Alerte générale. Toutes les permissions sont annulées. Dans la salle des opérations, personne ne parle plus fort qu\'un murmure.'),
+      sA('amirale', 'Drones et missiles, par vagues. La rade, les ferries, l\'hôpital, les quais : tout est à portée. C\'est à vous de tenir.'),
+      sA('amirale', 'La Sentinelle sera votre bouclier. Je n\'en connais pas de meilleur.', { if: S => S.flags.sentinelle }),
+      { actor: { id: 'rival', x: -6.6, z: -16.2 } },
+      sA('rival', 'Le Vigilant est à vos ordres, {N}. Toute la nuit.', { if: S => S.m.rival >= 15 }),
+      sA('rival', 'Je tiendrai mon secteur. Vous, tenez le vôtre.', { if: S => S.m.rival < 15 }),
+      msg('papy', 'Je regarde la rade depuis ma fenêtre. Je vois les feux de l\'Albatros. Tiens bon, moussaillon. Comme en 87.'),
+      sC(null, 'Avant d\'appareiller, l\'équipage attend un mot de vous, au micro du bord.', [
+        sO('pose', 'Comme à l\'entraînement', '« On a fait ça cent fois à l\'entraînement. Chacun à son poste, et on rentre tous ce soir. »', { then: [sF(() => { for (const c of CAREER.crew) c.morale = Math.min(100, c.morale + 10); })] }),
+        sO('franc', 'La vérité', '« Je ne vais pas vous mentir : ce soir, ça va être dur. Mais je ne connais pas meilleur équipage. »', { then: [sF(() => { for (const c of CAREER.crew) c.morale = Math.min(100, c.morale + 12); })] }),
+        sO('feu', 'Ils vont le regretter', '« Ils ont choisi notre rade. Ils vont le regretter. »', { fx: { fans: 60 }, then: [sF(() => { for (const c of CAREER.crew) c.morale = Math.min(100, c.morale + 15); })] })
+      ])
+    ],
+    beats: [
+      { at: 90, who: 'amirale', t: 'Première vague en approche. Bonne chance, commandant. Je suis au central, avec vous.' },
+      { at: 360, who: 'rival', t: 'Vigilant : je tiens le secteur est. Ne vous occupez pas de moi, {N}.', if: S => S.m.rival >= 15 },
+      { at: 600, who: 'second', t: 'Commandant, à terre ils ont éteint les lumières de la ville. Tout Toulon regarde la rade.' }
+    ],
+    win: [
+      sN('Aube. La rade fume encore, mais elle est debout. Pas un navire au mouillage n\'a été touché.'),
+      sA('amirale', 'Rentrez, commandant. Vous avez tenu. Nous avons tous tenu.'),
+      sT('Épilogue', 'Sillage')
+    ] },
+  // ---------- ÉPILOGUE ----------
+  { n: 'Épilogue', t: 'Sillage', syn: 'Salle d\'honneur. Médailles, vérités, et un vieil homme au premier rang.', at: 'honneur',
+    intro: [
+      sN('Trois semaines plus tard. Salle d\'honneur de l\'état-major.'),
+      { actor: { id: 'amirale', x: 11.6, z: -4.4 } }, { actor: { id: 'papy', x: 9.3, z: -6.8 } }, { actor: { id: 'second', x: 8.5, z: -7.9 } }, { actor: { id: 'rival', x: 14.0, z: -6.8 } }, { actor: { id: 'presse', x: 14.3, z: -9.1 } },
+      sN('Les drapeaux, les maquettes, les photos jaunies. Et au premier rang, droit comme un mât malgré sa canne, un vieil homme en blazer bleu.'),
+      sA('amirale', 'Pour sa conduite exemplaire lors de la défense de la rade, la Flotte d\'Ysmar décerne sa médaille d\'honneur au commandant {P} {N}.'),
+      sA('amirale', 'Et à titre exceptionnel, trente-sept ans après les faits, nous reconnaissons officiellement le courage du maître principal Jean-Yves {N}, qui a fini par dire la vérité sur la nuit du Lion Noir.', { if: S => S.flags.logAdm || S.flags.logPapy }),
+      sA('amirale', 'L\'enquête sur l\'affaire du Lion Noir est ouverte. Grâce à la presse… et à une certaine indiscipline.', { if: S => S.flags.logPress }),
+      sA('papy', 'Je t\'avais dit que ce nom pèserait lourd, moussaillon. Tu l\'as porté plus loin que moi.'),
+      sA('second', 'L\'équipage a voté, commandant. Vous ne descendez plus jamais de la passerelle. Ordre de l\'équipage.'),
+      sA('rival', 'Je vais être honnête, {N}. Je voulais vous détester. J\'ai échoué. À la prochaine mission ?', { if: S => S.m.rival >= 20 }),
+      sA('rival', 'Profitez de la médaille. La prochaine, elle sera pour moi.', { if: S => S.m.rival <= -20 }),
+      sA('rival', 'Bravo, {N}. On se reverra en mer.', { if: S => S.m.rival > -20 && S.m.rival < 20 }),
+      sA('presse', 'Une dernière question, commandant, pour la une de demain : et maintenant ?'),
+      sC('presse', null, [
+        sO('pose', 'Au travail', 'Maintenant, on retourne au travail. La mer n\'attend pas.', { flag: 'endPose' }),
+        sO('franc', 'Une semaine à Hyères', 'Maintenant, je vais passer une semaine à Hyères. Avec mon grand-père.', { fx: { papy: 10 }, flag: 'endFranc' }),
+        sO('feu', 'Varne n\'a pas dit son dernier mot', 'Maintenant ? Varne n\'a pas dit son dernier mot. Nous non plus.', { fx: { fans: 100 }, flag: 'endFeu' })
+      ]),
+      { press: { kick: 'Édition spéciale', head: S => S.flags.endFeu ? '« Varne n\'a pas dit son dernier mot. Nous non plus. »' : S.flags.endFranc ? 'Le héros de la rade rentre à Hyères' : '« La mer n\'attend pas »', body: 'Médaille d\'honneur pour le commandant {P} {N}, qui a tenu la rade face aux drones de Varne. Au premier rang de la cérémonie, Jean-Yves {N}, l\'ancien patron du premier Albatros. Deux générations, un même sillage.' } },
+      sF(() => { CAREER.credits += 25000; addXP(1000, 'Saison 1 terminée'); jingle('medal'); }),
+      { summary: true },
+      sT('Fin de la saison 1', 'Sillage · merci d\'avoir joué. Votre carrière continue.')
+    ] }
+];
+const LOOKS = {
+  rival: { uni: '#18233a', shirt: '#eef0f2', boards: 3, cap: '#f2f2ee', hair: '#2a1d14', skin: '#c48f6e' },
+  presse: { uni: '#8a3346', pants: '#23262c', shirt: '#efe4d4', hair: '#3b2416', long: true, skin: '#e0b08f' },
+  papy: { uni: '#24324e', pants: '#3a3f47', shirt: '#e9e6df', hair: '#e2e2e2', beard: true, skin: '#c99a7a', beret: '#1b2232' },
+  second: { uni: '#18233a', shirt: '#eef0f2', boards: 2, hair: '#9a4a24', long: true, skin: '#e2b493' },
+  amirale: { uni: '#18233a', shirt: '#eef0f2', boards: 5, cap: '#f2f2ee', hair: '#5a3b26', long: true, skin: '#d9a585' }
+};
+const persTone = { pose: -8, franc: 0, feu: 8 };
+
+// ----- moteur de scènes -----
+const SC = { on: false, q: [], beats: [], i: 0, cur: null, typing: null, full: '', shown: 0, actors: {}, onEnd: null, fx: null, look: null, timer: null, label: '' };
+function scEl() {
+  let el = $('story'); if (el) return el;
+  el = document.createElement('div'); el.id = 'story'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Scène de l\'histoire'); el.hidden = true; document.body.appendChild(el);
+  el.addEventListener('click', e => {
+    const b = e.target.closest('[data-sc]'); if (b) { e.stopPropagation(); scAct(b.dataset.sc, b.dataset.i); return; }
+    if (e.target.closest('input, button, .scchoices, .scname')) return; scAdvance();
+  });
+  return el;
+}
+function scenePlay(beats, o) { SC.q.push({ beats, o: o || {} }); if (!SC.on) sceneNext(); }
+function sceneNext() {
+  const it = SC.q.shift(); if (!it) return;
+  SC.on = true; SC.beats = it.beats.slice(); SC.i = 0; SC.onEnd = it.o.onEnd || null; SC.fx = null; SC.label = it.o.label || '';
+  for (const k in KEYS) KEYS[k] = false; if (PW.mv) for (const k in PW.mv) PW.mv[k] = false;
+  if (document.pointerLockElement) document.exitPointerLock();
+  if (COMMS.open) closeMsgs();
+  if (typeof JEEP !== 'undefined' && JEEP.on) jeepExit();
+  if (it.o.at && UI.screen === 'port') spawnInHQ(it.o.at);
+  if (UI.screen === 'port' && HUB.place !== 'over') hubGo('over');
+  document.body.classList.add('storyon'); scEl().hidden = false;
+  scStep();
+}
+function scStep() {
+  const S = S0(); clearTimeout(SC.timer);
+  while (SC.i < SC.beats.length) {
+    const b = SC.beats[SC.i];
+    if (b.if && !(S && b.if(S))) { SC.i++; continue; }
+    if (b.fn && !b.who && !b.nar) { SC.i++; try { if (S) b.fn(S); } catch (e) { console.error(e); } continue; }
+    if (b.actor) { SC.i++; scActor(b.actor); continue; }
+    if (b.unactor) { SC.i++; scUnactor(b.unactor); continue; }
+    break;
+  }
+  if (SC.i >= SC.beats.length) { scEnd(); return; }
+  SC.cur = SC.beats[SC.i]; scRender(SC.cur);
+}
+const scTxt = (v, S) => sFill(typeof v === 'function' ? v(S) : v);
+function scWho(who) {
+  const S = S0();
+  if (who === 'me') { const nm = S ? S.name : { p: '', n: '' }, ini = ((nm.p[0] || '') + (nm.n[0] || '')).toUpperCase() || 'CDT'; return { pt: `<span class="pt big" style="--pc:#18233a" aria-hidden="true">${escH(ini)}</span>`, n: `${nm.p} ${nm.n}`.trim() || 'Vous', r: `${CAREER ? RANKS[rankOf(CAREER.rep)].n : ''} · vous` }; }
+  const c = castOf(who) || { n: who, role: '' }; return { pt: portrait(who, true), n: c.n, r: c.role };
+}
+function scRender(b) {
+  const el = scEl(), S = S0() || { ch: 0, name: { p: '', n: '' }, m: { pers: 0, conf: 50, rival: 0, fans: 0, papy: 60 }, flags: {}, log: [], press: [] }, ch = SAISON[Math.min(S.ch, SAISON.length - 1)];
+  const top = `<div class="sctop"><span>${escH(SC.label || `Saison 1 · ${ch.n} — ${ch.t}`)}</span><button class="btn sm ghost" data-sc="skip">Passer la scène<span class="k"> (Échap)</span></button></div>`;
+  let box = '', next = true; SC.full = ''; clearInterval(SC.typing); SC.typing = null; SC.look = null;
+  const fx = SC.fx ? `<div class="scfx">${Object.entries(SC.fx).filter(([, v]) => v).map(([k, v]) => `<span class="${v > 0 ? 'up' : 'down'}">${escH(MNAMES[k])} ${k === 'pers' ? (v > 0 ? '▲ fougueux' : '▼ posé') : (v > 0 ? '+' : '') + fmtN(v)}</span>`).join('')}</div>` : ''; SC.fx = null;
+  if (b.title) {
+    box = `<div class="sccard"><p class="eyebrow">${escH(scTxt(b.title, S))}</p><h2>${escH(scTxt(b.sub, S))}</h2></div>`; next = false; sfx('tel');
+    SC.timer = setTimeout(() => { if (SC.cur === b) { SC.i++; scStep(); } }, 3400);
+  } else if (b.mode) {
+    box = `<div class="scbox nar"><p class="sctxt">Bienvenue dans la Flotte d'Ysmar. Comment voulez-vous jouer ?</p><div class="scchoices two"><button class="scch" style="--tc:#f2b33d" data-sc="mode" data-i="1"><b>Mode histoire · Saison 1 « Sillage »</b><span>Dix chapitres, des choix qui comptent, un rival, une journaliste et un secret de famille. Recommandé.</span></button><button class="scch" style="--tc:#93a8b2" data-sc="mode" data-i="0"><b>Carrière libre</b><span>Le jeu ouvert, sans histoire. Vous pourrez la commencer plus tard depuis l'état-major.</span></button></div></div>`; next = false;
+  } else if (b.name) {
+    box = `<div class="scbox nar"><p class="sctxt">Votre nom, tel qu'il est brodé sur votre vareuse :</p><form class="scname" data-sc-form="1"><label>Prénom<input id="scP" maxlength="18" value="${escH(S.name.p)}" autocomplete="off"></label><label>Nom<input id="scN" maxlength="22" value="${escH(S.name.n)}" autocomplete="off"></label><button class="btn pri" type="button" data-sc="name">Valider</button></form><p class="small">Votre grand-père porte le même nom de famille.</p></div>`; next = false;
+  } else if (b.press) {
+    const P = b.press, head = scTxt(P.head, S); S.press.push({ ch: S.ch, day: CAREER.day, head }); if (S.press.length > 30) S.press.shift();
+    box = `<div class="scpress"><header><b>Le Phare du Var</b><span>Quotidien de la côte varoise · jour ${CAREER.day}</span></header><p class="kick">${escH(scTxt(P.kick, S))}</p><h2>${escH(head)}</h2><div class="cols"><div class="ph" aria-hidden="true"></div><p>${escH(scTxt(P.body, S))}</p></div><footer>Vos abonnés : <b>${fmtN(S.m.fans)}</b></footer></div>`; sfx('click');
+  } else if (b.social) {
+    box = `<div class="scsocial"><header><b>Fil d'actu</b><span>${fmtN(S.m.fans)} abonnés</span></header>${b.social.map(([u, t]) => `<div class="post"><b>${escH(u)}</b><p>${escH(sFill(t))}</p><span>♥ ${fmtN(80 + Math.random() * 4000)}</span></div>`).join('')}</div>`;
+  } else if (b.summary) {
+    box = `<div class="scbox nar"><p class="eyebrow">Votre parcours · Saison 1</p>${meterHTML(S)}<p class="small">${S.log.length} choix marquants, ${S.press.length} unes du Phare du Var.${S.flags.sentinelle ? ' Commandant de la frégate Sentinelle.' : ''}</p></div>`;
+  } else {
+    const nar = !!b.nar && !b.who, W = nar ? null : scWho(b.who), phone = typeof b.phone === 'function' ? b.phone(S) : b.phone;
+    const ch2 = b.choice ? (b.choice.filter(o => !o.if || o.if(S))) : null;
+    const txt = scTxt(nar ? b.nar : b.t, S);
+    box = `<div class="scbox ${nar ? 'nar' : ''} ${phone ? 'phone' : ''}">${W ? `<div class="scwho">${W.pt}<div><b>${escH(W.n)}</b><span>${escH(W.r)}</span></div>${phone ? '<em class="pill">Appel</em>' : ''}</div>` : ''}<p class="sctxt" id="scTxt"></p>${fx}
+      ${ch2 ? `<div class="scchoices">${ch2.map((o, k) => { const T = TONES[o.tone]; return `<button class="scch" style="--tc:${T.col}" data-sc="c" data-i="${k}"><i>${k + 1}</i><b>${escH(T.n)} · ${escH(scTxt(o.l, S))}</b><span>${escH(scTxt(o.say, S))}</span></button>`; }).join('')}</div>` : ''}</div>`;
+    SC.full = txt; next = !ch2; if (!nar) scLookAt(b.who); if (phone) sfx('radio');
+  }
+  el.innerHTML = `${top}<div class="scwrap">${box}${next ? '<p class="scnext">Espace ▸</p>' : ''}</div>`;
+  if (SC.full) { const t = $('scTxt'); SC.shown = 0; const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; if (reduce) { t.textContent = SC.full; } else { SC.typing = setInterval(() => { SC.shown += 2; t.textContent = SC.full.slice(0, SC.shown); if (SC.shown >= SC.full.length) { clearInterval(SC.typing); SC.typing = null; } }, 16); } }
+  if (b.name) setTimeout(() => { const i = $('scP'); if (i) i.focus(); }, 60);
+}
+function scTypeEnd() { clearInterval(SC.typing); SC.typing = null; const t = $('scTxt'); if (t) t.textContent = SC.full; }
+function scAdvance() {
+  const b = SC.cur; if (!SC.on || !b) return;
+  if (SC.typing) { scTypeEnd(); return; }
+  if (b.choice || b.name || b.mode) return;
+  SC.i++; scStep();
+}
+function scAct(a, i) {
+  const S = S0(), b = SC.cur; if (!SC.on || !b) return;
+  if (a === 'skip') { scSkip(); return; }
+  if (a === 'mode') {
+    S.modeAsked = true; const M = meta();
+    if (+i === 1) { S.on = true; if (M && (M.tuto === 'on' || !M.tuto)) { M.tuto = 'story'; TUTO.on = false; tutoUI(); } saveCareer(); SC.i++; scStep(); }
+    else { S.on = false; saveCareer(); SC.beats = []; SC.onEnd = null; scEnd(); toast('Carrière libre : vous pourrez commencer l\'histoire depuis l\'état-major.'); }
+    return;
+  }
+  if (a === 'name') { scNameOk(); return; }
+  if (a === 'c') { scChoose(+i); }
+}
+function scNameOk() {
+  const S = S0(), cap = s => s.trim().replace(/\s+/g, ' ').replace(/^./, c => c.toUpperCase());
+  const p = cap(($('scP') || {}).value || ''), n = cap(($('scN') || {}).value || '');
+  S.name = { p: p || 'Camille', n: n || 'Marec' }; saveCareer(); SC.i++; scStep(); if (UI.screen === 'port') hubRender();
+}
+function scChoose(k) {
+  const S = S0(), b = SC.cur; if (!b || !b.choice) return;
+  const o = b.choice.filter(x => !x.if || x.if(S))[k]; if (!o) return;
+  const fx = Object.assign({ pers: persTone[o.tone] || 0 }, o.fx || {});
+  for (const key in fx) { if (key === 'fans') S.m.fans = Math.max(0, S.m.fans + fx[key]); else S.m[key] = clamp((S.m[key] || 0) + fx[key], key === 'conf' || key === 'papy' ? 0 : -100, 100); }
+  if (o.flag) S.flags[o.flag] = true;
+  if (o.log) S.log.push({ ch: S.ch, t: sFill(o.log), tone: o.tone, day: CAREER.day });
+  S.tones = S.tones || { pose: 0, franc: 0, feu: 0 }; S.tones[o.tone]++;
+  const ins = []; if (o.say) ins.push(sA('me', scTxt(o.say, S))); if (o.then) ins.push(...o.then);
+  SC.beats.splice(SC.i + 1, 0, ...ins); SC.fx = fx; SC.i++; sfx('click'); saveCareer(); scStep();
+}
+function scSkip() {
+  const S = S0(); clearTimeout(SC.timer); scTypeEnd();
+  // on saute le texte jusqu'au prochain choix (les choix et le nom restent à faire)
+  for (; ;) {
+    const b = SC.beats[SC.i]; if (!b) { scEnd(); return; }
+    if (b.if && !(S && b.if(S))) { SC.i++; continue; }
+    if (b.fn && !b.who && !b.nar) { SC.i++; try { b.fn(S); } catch (e) { console.error(e); } continue; }
+    if (b.actor) { SC.i++; scActor(b.actor); continue; }
+    if (b.unactor) { SC.i++; scUnactor(b.unactor); continue; }
+    if (b.press) { const head = scTxt(b.press.head, S); S.press.push({ ch: S.ch, day: CAREER.day, head }); }
+    if ((b.choice && b.choice.length) || b.name || b.mode) { SC.cur = b; scRender(b); return; }
+    SC.i++;
+  }
+}
+function scEnd() {
+  clearInterval(SC.typing); clearTimeout(SC.timer); SC.typing = null;
+  for (const id of Object.keys(SC.actors)) scUnactor(id);
+  SC.on = false; SC.cur = null; SC.look = null; const el = $('story'); if (el) { el.hidden = true; el.innerHTML = ''; }
+  document.body.classList.remove('storyon');
+  const f = SC.onEnd; SC.onEnd = null; saveCareer();
+  if (f) try { f(); } catch (e) { console.error(e); }
+  if (UI.screen === 'port') hubRender();
+  if (!SC.on && SC.q.length) setTimeout(sceneNext, 300);
+}
+KEYHOOK.unshift(e => {
+  if (!SC.on) return false;
+  if (e.target.matches && e.target.matches('input, textarea')) { if (e.key === 'Enter') { scNameOk(); return true; } return false; }
+  const b = SC.cur;
+  if (b && b.choice && /^(Digit|Numpad)[1-3]$/.test(e.code)) { scChoose(+e.code.slice(-1) - 1); return true; }
+  if (b && b.mode && (e.code === 'Digit1' || e.code === 'Enter')) { scAct('mode', '1'); return true; }
+  if (e.code === 'Space' || e.code === 'Enter') { if (!e.repeat) scAdvance(); return true; }
+  if (e.code === 'Escape') { scSkip(); return true; }
+  return true;   // le reste du clavier est ignoré pendant une scène
+});
+// pendant une scène, le commandant ne bouge pas et regarde la personne qui parle
+{ const base = hqStep; hqStep = function (dt) { if (SC.on) { for (const k in KEYS) KEYS[k] = false; } base(dt); if (SC.on && SC.look) { const want = Math.atan2(-(SC.look.x - HQ.x), -(SC.look.z - HQ.z)); PW.yaw += wrapA(want - PW.yaw) * clamp(dt * 3, 0, 1); PW.pitch = lerp(PW.pitch, -0.05, clamp(dt * 3, 0, 1)); } }; }
+{ const base = pwStep; pwStep = function (dt) { if (SC.on) { for (const k in KEYS) KEYS[k] = false; } base(dt); }; }
+function scLookAt(who) {
+  if (!HQ.on) return; const A = SC.actors[who]; if (A) { SC.look = { x: A.n.x, z: A.n.z }; return; }
+  const n = who === 'amirale' ? HQ.amirale : HQ.npcs.find(q => q.who === who); if (n && Math.hypot(n.x - HQ.x, n.z - HQ.z) < 9) SC.look = { x: n.x, z: n.z };
+}
+function scActor(a) {
+  if (!HQ.on || !HQ.g || !LOOKS[a.id]) return; scUnactor(a.id);
+  const o0 = HQ.obs.length, yaw = a.yaw != null ? a.yaw : Math.atan2(-(HQ.x - a.x), -(HQ.z - a.z));
+  const n = hqHuman(HQ.g, LOOKS[a.id], a.x, a.z, yaw, { who: 'story_' + a.id });
+  n.m.traverse(q => { if (q.isMesh) q.castShadow = true; });
+  SC.actors[a.id] = { n, obs: HQ.obs.slice(o0) };
+}
+function scUnactor(id) {
+  const A = SC.actors[id]; if (!A) return; delete SC.actors[id];
+  if (A.n.m.parent) A.n.m.parent.remove(A.n.m);
+  const k = HQ.npcs.indexOf(A.n); if (k >= 0) HQ.npcs.splice(k, 1);
+  for (const o of A.obs) { const j = HQ.obs.indexOf(o); if (j >= 0) HQ.obs.splice(j, 1); }
+}
+
+// ----- déroulé des chapitres -----
+function storyVars(d) { return { v: d.vessel || d.name || d.boat || d.cargo || (d.names && d.names[0]) || d.ship || '', isl: d.island || d.place || PORT.n, pax: d.pax ? String(d.pax) : '' }; }
+function storyDef(i) {
+  const S = S0(), ch = SAISON[i]; const same = S.cur && S.cur.ch === i;
+  const type = same ? S.cur.type : (ch.types.find(t => t === 'training' || typeHere(t)) || ch.types[ch.types.length - 1]);
+  const seed = same ? S.cur.seed : (S.seed + i * 977) % 999983;
+  const d = genMission(type, seed); d.giver = CIVIL.includes(type) ? 'cross' : 'amirale'; d.story = i;
+  if (i < 7) { d.hard = false; }
+  if (ch.patch) ch.patch(d, S);
+  S.cur = { ch: i, type, seed }; S.vars = storyVars(d);
+  d.title = `${ch.n} · ${d.title}`;
+  return d;
+}
+function storyCls(def, want) {
+  const req = def.req || ALLC, ok = c => req.includes(c) && (!owned(c) || shipHere(c));
+  if (want && ok(want)) return want;
+  const d = defaultCls(def); if (ok(d)) return d;
+  return req.find(c => owned(c) && shipHere(c)) || req.find(c => !owned(c) && c !== 'sub' && c !== 'carrier') || 'opv';
+}
+function storyPlayCh(i) {
+  const S = S0(), ch = SAISON[i]; if (!S || !ch) return;
+  if (ch.types) storyDef(i);
+  scenePlay(ch.intro, { at: ch.at, onEnd: () => {
+    const S2 = S0(); if (!S2 || !S2.on) return;
+    if (ch.types) { S2.intro = true; saveCareer(); storyAccept(i); }
+    else { storyAdvance(i, ch.next === 'accept'); if (ch.next === 'accept') { S2.intro = true; saveCareer(); storyAccept(S2.ch); } }
+  } });
+}
+function storyAccept(i) {
+  const S = S0(), ch = SAISON[i]; if (!S || !ch || !ch.types) return;
+  const def = storyDef(i); saveCareer();
+  if (def.type === 'training') { trainingAccept({ story: i, giver: 'amirale' }, ch.n); return; }
+  const cls = storyCls(def, ch.cls && ch.cls(S));
+  UI.briefDef = def; UI.shipCls = cls;
+  if (PW.on && UI.screen === 'port') { if (HQ.on) hqExit(true); pwAccept({ kind: 'mission', def, cls, mode: ch.mode || 'sea' }); toast(`★ ${ch.n} : rejoignez ${leN(cls)} à quai (★ sur la carte du port) et montez à bord.`); }
+}
+function storyAdvance(i, quiet) {
+  const S = S0(); S.ch = i + 1; S.intro = false; S.cur = null; S.fails = 0;
+  if (S.ch >= SAISON.length) { S.done = true; S.ch = SAISON.length - 1; }
+  saveCareer(); checkMedals();
+  const n = SAISON[S.ch]; if (!S.done && n && !quiet) setTimeout(() => toast(`★ ${n.n} « ${n.t} » : l'amirale vous attend à l'état-major.`), 900);
+}
+function storyReward(i) {
+  const pay = 2000 + i * 600, xp = 150 + i * 30; CAREER.credits += pay; addXP(xp, 'Histoire'); jingle('level');
+  pop(`${SAISON[i].n} terminé`, `Prime de chapitre ${fmtCr(pay)} · +${xp} XP`, true);
+}
+function storyAfter() {
+  const S = S0(), p = S && S.pending; if (!p) return; S.pending = null; saveCareer();
+  const ch = SAISON[p.ch]; if (!ch) return;
+  if (p.win) {
+    scenePlay(ch.win, { at: ch.atWin || ch.at, onEnd: () => { storyReward(p.ch); if (p.ch === SAISON.length - 2) { storyAdvance(p.ch, true); storyPlayCh(p.ch + 1); } else storyAdvance(p.ch); } });
+    return;
+  }
+  const who = ch.failWho || 'amirale';
+  scenePlay([
+    sA(who, pick(['Ce n\'est pas le résultat que j\'attendais, commandant. Ça arrive. Ce qui compte, c\'est la suite.', 'La mer a gagné cette fois. On en tire les leçons, et on y retourne.', 'J\'ai lu le rapport. Ne vous flagellez pas : analysez.'])),
+    sC(who, 'Que voulez-vous faire ?', [
+      sO('pose', 'Réessayer', 'Je veux y retourner. Donnez-moi une seconde chance.', { fx: { conf: 2 }, then: [sF(S2 => { S2.fails = (S2.fails || 0) + 1; S2.intro = true; S2.retry = true; })] }),
+      sO('franc', 'Assumer et continuer', 'J\'assume. On passe à la suite.', { fx: { conf: -6 }, then: [sF(S2 => { S2.flags['fail' + p.ch] = true; S2.log.push({ ch: p.ch, t: `${ch.n} : échec assumé (« ${ch.t} »).`, tone: 'franc', day: CAREER.day }); S2.next = true; })] })
+    ])
+  ], { at: ch.atWin || ch.at, onEnd: () => {
+    const S2 = S0(); if (!S2) return;
+    if (S2.next) { S2.next = false; if (p.ch === SAISON.length - 2) { storyAdvance(p.ch, true); storyPlayCh(p.ch + 1); } else storyAdvance(p.ch); }
+    else if (S2.retry) { S2.retry = false; storyAccept(p.ch); }
+  } });
+}
+// fin d'une mission de l'histoire : la suite se joue au retour à quai
+{ const base = endMission; endMission = function (win, text, extra) {
+  const m = MS.cur, was = m && m.over; base(win, text, extra);
+  if (!m || was || !m.over || !m.def || m.def.story == null || m.isOp) return;
+  const S = S0(); if (!S) return;
+  S.pending = { ch: m.def.story, win: !!win };
+  if (m.debrief && m.debrief.notes) m.debrief.notes.push(win ? '★ Histoire : la suite vous attend au retour à quai.' : '★ Histoire : vous pourrez rejouer le chapitre ou poursuivre, au retour à quai.');
+  saveCareer();
+}; }
+// répliques radio pendant les missions de l'histoire
+{ const base = simStep; simStep = function (dt) {
+  base(dt);
+  const m = MS.cur; if (!m || m.over || !m.def || m.def.story == null || UI.screen !== 'sea') return;
+  const S = S0(), ch = SAISON[m.def.story]; if (!S || !ch || !ch.beats) return;
+  m.sb = m.sb || {};
+  ch.beats.forEach((b, k) => { if (m.sb[k] || m.t < b.at || (b.if && !b.if(S))) return; m.sb[k] = 1; const c = castOf(b.who); vhf(c.short || c.n, sFill(b.t), 'info'); });
+}; }
+// le fil de l'histoire avance tout seul : prologue au premier lancement, suite au retour de mission
+function storyTick() {
+  if (!CAREER || CAREER.temp || UI.quickMode || SC.on || UI.screen !== 'port' || !PW.on || CINE.on || (typeof PHOTO !== 'undefined' && PHOTO.on)) return;
+  const S = S0();
+  if (!S && !CAREER.storyAsk) {
+    CAREER.storyAsk = 1;
+    if (!CAREER.missions && !CAREER.history.length) { storyNew(true); saveCareer(); storyPlayCh(0); }
+    else { saveCareer(); postMsg('amirale', 'Commandant, passez à mon bureau quand vous aurez un moment. J\'ai quelque chose pour vous : une histoire qui commence. (Nouveau : le mode histoire « Sillage », depuis l\'état-major.)'); }
+    return;
+  }
+  if (S && S.on && S.pending) storyAfter();
+}
+setInterval(() => { try { storyTick(); } catch (e) { console.error(e); } }, 450);
+
+// ----- carte « Histoire » à l'état-major, bouton dans le bandeau, journal -----
+function storyCardHTML() {
+  if (!CAREER || CAREER.temp) return '';
+  const S = S0();
+  if (!S || !S.on) return `<div class="stcard"><p class="eyebrow">Mode histoire · Saison 1</p><b>Sillage</b><p class="small">Le nom de votre grand-père pèse lourd à Toulon. Dix chapitres, des choix qui comptent, un rival, une journaliste et un secret de 1987.</p><div class="row2"><button class="btn sm pri" data-act="stbegin">${S ? 'Reprendre l\'histoire' : 'Commencer l\'histoire'}</button></div></div>`;
+  if (S.done) return `<div class="stcard done"><p class="eyebrow">Mode histoire · Saison 1 terminée</p><b>Sillage</b><p class="small">Merci d'avoir joué ! La saison 2 se prépare. Votre carrière continue.</p><div class="row2"><button class="btn sm" data-act="stjournal">Mon parcours</button><button class="btn sm ghost" data-act="streplay">Revoir l'épilogue</button></div></div>`;
+  const ch = SAISON[S.ch], pend = PW.pend && PW.pend.def && PW.pend.def.story === S.ch;
+  const main = S.pending ? ['stafter', 'Voir la suite'] : pend ? null : S.intro && ch.types ? ['stplay', 'Reprendre l\'ordre'] : ['stplay', S.ch ? 'Jouer le chapitre' : 'Jouer le prologue'];
+  return `<div class="stcard"><p class="eyebrow">★ Histoire · Saison 1 « Sillage » · ${S.ch}/${SAISON.length - 1}</p><b>${escH(ch.n)} — ${escH(ch.t)}</b><p class="small">${escH(sFill(ch.syn))}</p>${pend ? `<p class="small ok">Ordre accepté : rejoignez ${escH(leN(PW.pend.cls))} à quai et montez à bord.</p>` : ''}
+    <div class="row2">${main ? `<button class="btn sm pri" data-act="${main[0]}">▶ ${main[1]}</button>` : ''}${S.intro && ch.types && !S.pending ? '<button class="btn sm ghost" data-act="streplay">Revoir la scène</button>' : ''}<button class="btn sm ghost" data-act="stjournal">Mon parcours</button></div></div>`;
+}
+{ const base = emPanel; emPanel = function () { const h = base(); if (HUB.sub && (HUB.sub.order != null || HUB.sub.career)) return h; const c = storyCardHTML(); if (!c) return h; return h.includes('<div class="opcard">') ? h.replace('<div class="opcard">', c + '<div class="opcard">') : h.replace('<h4>Ordres ponctuels</h4>', c + '<h4>Ordres ponctuels</h4>'); }; }
+function meterHTML(S) {
+  const m = S.m, bar = (l, v, lo, hi, txt) => `<div class="stm"><span>${escH(l)}</span><em class="pb"><s style="width:${Math.round((v - lo) / (hi - lo) * 100)}%"></s></em><b>${escH(txt)}</b></div>`;
+  return `<div class="stmeters"><div class="stm pers"><span>Tempérament</span><em class="tb"><i style="left:${Math.round((m.pers + 100) / 2)}%"></i></em><b>${escH(persLabel(m.pers))}</b></div>
+    ${bar('Confiance de l\'amirale', m.conf, 0, 100, Math.round(m.conf) + ' %')}${bar('Lestrade', m.rival, -100, 100, rivalLabel(m.rival))}${bar('Grand-père', m.papy, 0, 100, m.papy >= 70 ? 'Complices' : m.papy >= 45 ? 'Proches' : 'Distants')}
+    <div class="stm"><span>Abonnés</span><b class="big">${fmtN(m.fans)}</b></div></div>`;
+}
+function journalHTML() {
+  const S = S0(); if (!S) return '';
+  return `<div class="rowsp"><h3>Mon parcours</h3><button class="btn sm ghost" data-act="stjclose">Fermer</button></div>
+    <p class="eyebrow">Saison 1 · Sillage · ${escH(S.name.p)} ${escH(S.name.n)}</p>${meterHTML(S)}
+    <h4>Chapitres</h4><ol class="stch">${SAISON.map((c, i) => `<li class="${S.done || i < S.ch ? 'ok' : i === S.ch ? 'cur' : 'lock'}"><b>${escH(c.n)}</b> ${escH(c.t)}${i === S.ch && !S.done ? ' <span>· en cours</span>' : ''}</li>`).join('')}</ol>
+    <h4>Vos choix marquants</h4><ul class="stlog">${S.log.slice().reverse().map(l => `<li class="${l.tone}">${escH(l.t)}</li>`).join('') || '<li>Pas encore de choix marquant.</li>'}</ul>
+    <h4>À la une du Phare du Var</h4><ul class="stlog">${S.press.slice().reverse().map(p => `<li>Jour ${p.day} · ${escH(p.head)}</li>`).join('') || '<li>La presse ne parle pas encore de vous.</li>'}</ul>`;
+}
+function journalOpen() { const el = dlgEl('storyUI', 'Mon parcours'); if (document.pointerLockElement) document.exitPointerLock(); el.innerHTML = journalHTML(); el.hidden = !el.innerHTML; }
+Object.assign(ACT, {
+  stbegin: () => { let S = S0(); if (!S) S = storyNew(true); S.on = true; S.modeAsked = true; const M = meta(); if (M && M.tuto === 'on') { M.tuto = 'story'; TUTO.on = false; } saveCareer(); storyPlayCh(S.ch); },
+  stplay: () => { const S = S0(); if (!S) return; const ch = SAISON[S.ch]; if (S.intro && ch.types) storyAccept(S.ch); else storyPlayCh(S.ch); },
+  streplay: () => { const S = S0(); if (!S) return; const ch = SAISON[S.ch]; scenePlay(ch.intro.filter(b => !b.mode), { at: ch.at, label: `Souvenir · ${ch.n} — ${ch.t}` }); },
+  stafter: () => storyAfter(),
+  stjournal: () => journalOpen(),
+  stjclose: () => { const el = $('storyUI'); if (el) el.hidden = true; },
+  story: () => { const el = $('storyUI'); if (el && !el.hidden) el.hidden = true; else if (S0() && S0().on) journalOpen(); else { spawnInHQ('office'); toast('L\'amirale vous attend : parlez-lui (E) pour commencer l\'histoire.'); } }
+});
+KEYHOOK.push(e => { const el = $('storyUI'); if (el && !el.hidden && e.code === 'Escape') { el.hidden = true; return true; } return false; });
+{ const base = setScreen; setScreen = function (s) { if (s !== 'port') { const el = $('storyUI'); if (el) el.hidden = true; } base(s); }; }
+// bandeau du port : nom du commandant et bouton « Histoire »
+{ const base = hubRender; hubRender = function () {
+  base(); const t = $('hubTop'), S = S0(); if (!t || UI.screen !== 'port' || HUB.title) return;
+  if (S && S.on) { const b = t.querySelector('.ht1 b'); if (b) b.textContent = `${RANKS[rankOf(CAREER.rep)].n} ${S.name.n}`; }
+  if (!t.querySelector('[data-act="story"]')) { const m = t.querySelector('[data-act="msgs"]'); if (m) { const b = document.createElement('button'); b.className = 'btn sm'; b.dataset.act = 'story'; b.textContent = '★ Histoire'; b.title = 'Mode histoire : mon parcours'; m.parentNode.insertBefore(b, m); } }
+}; }
+// en entrant à l'état-major, on rappelle où en est l'histoire
+{ const base = hqEnter; hqEnter = function () { base(); const S = S0(); if (S && S.on && !S.done && !S.pending && !SC.on) { const ch = SAISON[S.ch]; setTimeout(() => { if (HQ.on && !SC.on) toast(`★ ${ch.n} « ${ch.t} » : l'amirale vous attend dans son bureau.`); }, 1600); } }; }
+
+// ----- les personnages de l'histoire répondent aussi par messagerie -----
+const ST_SUG = {
+  papy: ['Comment vas-tu, Papy ?', 'Raconte-moi la nuit du Lion Noir.', 'Un conseil pour ma prochaine sortie ?'],
+  rival: ['Un conseil, Lestrade ?', 'On fait équipe ?', 'Bien joué pour la dernière fois.'],
+  presse: ['Une question pour moi ?', 'C\'est off, d\'accord ?', 'Où en est votre enquête ?']
+};
+{ const base = suggestions; suggestions = function (id) { return ST_SUG[id] ? ST_SUG[id].slice() : base(id); }; }
+{ const base = cannedReply; cannedReply = function (id, q) {
+  if (!STORY_CAST.includes(id)) return base(id, q);
+  const S = S0() || { ch: 0, m: { rival: 0, papy: 60 }, flags: {}, name: { n: '' } }, s = nrmTxt(q), has = (...w) => w.some(x => s.includes(x));
+  let t;
+  if (id === 'papy') {
+    if (has('lion', '1987', '87', 'secret', 'cale')) t = S.flags.secret ? 'Tu sais tout, maintenant. Les caisses, le papier signé, le livre de bord. Fais-en bon usage, moussaillon.' : 'La nuit du Lion… Le vent hurlait, on ne voyait pas l\'étrave. Trente et un gars dans l\'eau glacée. Le reste… plus tard.';
+    else if (has('sante', 'vas', 'va bien', 'comment')) t = S.flags.visit || S.flags.stay ? 'Le docteur dit que mon cœur est un vieux diesel : il tousse, mais il démarre. Ne t\'inquiète pas.' : 'Comme un vieux phare : un peu rouillé, mais toujours debout. Et toi, tu manges ?';
+    else if (has('conseil', 'mission', 'sortie', 'mer')) t = pick(['Écoute ton bosco, regarde le ciel, et ne fais jamais confiance à une mer d\'huile.', 'Par gros temps, une longueur de remorque de plus. Toujours.', 'Le commandant qui n\'a jamais peur, c\'est celui qui n\'a jamais compris la mer.']);
+    else t = pick(['Bien reçu, moussaillon. Ton vieux grand-père est fier de toi, même s\'il ne le dit pas assez.', 'Ah, tu penses à moi ! Le café du port va en parler toute la semaine.', 'Ici, la mer est belle. Elle te salue.']);
+  } else if (id === 'rival') {
+    const R = S.m.rival;
+    if (has('conseil', 'avis')) t = R >= 15 ? 'Gardez toujours une route de dégagement. Et méfiez-vous des contacts trop sages.' : 'Un conseil ? Laissez-moi les missions difficiles.';
+    else if (has('equipe', 'ensemble')) t = R >= 15 ? 'Je ne l\'aurais pas cru, mais oui. On fait une bonne équipe.' : 'On verra. Prouvez-le-moi en mer.';
+    else if (has('bravo', 'bien joue', 'merci')) t = R >= 0 ? 'Venant de vous, ça compte. Un peu.' : 'Gardez vos compliments pour la presse.';
+    else t = R >= 15 ? pick(['Reçu, ' + S.name.n + '. Le Vigilant veille.', 'Je vous lis. On se voit au carré ?']) : pick(['Reçu.', 'Vous n\'avez rien de mieux à faire ?', 'Noté. Sans enthousiasme.']);
+  } else {
+    if (has('off')) t = 'Off. Promis. Ma parole vaut plus que mes sources.';
+    else if (has('enquete', 'lion', 'varne')) t = S.flags.logPress ? 'Paris est en ébullition. Trois armateurs sont déjà convoqués. Merci, commandant.' : 'L\'Armement du Lion a des bureaux partout et des employés nulle part. Je creuse.';
+    else if (has('question')) t = pick(['Une seule : qu\'est-ce qui vous fait encore peur, en mer ?', 'Votre grand-père, il vous a appris quoi, vraiment ?', 'Lestrade et vous : rivaux ou amis ?']);
+    else t = pick(['Merci, commandant. Je garde ça dans un coin.', 'Noté. Mes lecteurs vous adorent, au fait.', 'On en reparle autour d\'un café ?']);
+  }
+  return { text: t, action: 'aucune' };
+}; }
+function nrmTxt(q) { return String(q || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+// la rédaction libre (Claude) connaît l'histoire en cours
+{ const base = gameBrief; gameBrief = function (id) {
+  const s = base(id), S = S0();
+  if (S && S.on) { const ch = SAISON[S.ch]; s.histoire = { saison: 'Sillage', chapitre: `${ch.n} « ${ch.t} »`, commandant: `${S.name.p} ${S.name.n}`, temperament: persLabel(S.m.pers), confiance_amirale: Math.round(S.m.conf), relation_lestrade: rivalLabel(S.m.rival), abonnes: S.m.fans, secret_1987_connu: !!S.flags.secret, choix_recents: S.log.slice(-5).map(l => l.t) }; }
+  return s;
+}; }
+// médailles de l'histoire
+med('hist1', 'Premier quart', 'Terminer le chapitre 1 du mode histoire', 0, x => !!(x.C.story && (x.C.story.ch >= 2 || x.C.story.done)));
+med('hist6', 'À la croisée des chemins', 'Atteindre le chapitre 6 du mode histoire', 1, x => !!(x.C.story && (x.C.story.ch >= 6 || x.C.story.done)));
+med('hist10', 'Sillage', 'Terminer la saison 1 du mode histoire', 2, x => !!(x.C.story && x.C.story.done));
 </script>
 
 </body></html>
