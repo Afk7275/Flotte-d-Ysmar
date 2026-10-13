@@ -608,6 +608,42 @@ body.storyon #hud, body.storyon #hub, body.storyon #pwUI, body.storyon #tuto, bo
 .stlog { margin: 4px 0; padding-left: 16px; display: grid; gap: 4px; font-size: 13px; max-height: 180px; overflow: auto; }
 .stlog li.pose { color: #a9e2ff; } .stlog li.feu { color: #ffb0a6; }
 @media (max-width: 560px) { .stm { grid-template-columns: 1fr 1fr; } .stm .pb, .stm .tb { grid-column: 1 / 3; grid-row: 2; } }
+
+/* ---------- guidage : repère d'objectif, carte d'objectif, accès rapide ---------- */
+#guideMk { position: fixed; left: 0; top: 0; z-index: 12; pointer-events: none; display: grid; justify-items: center; gap: 4px; will-change: transform; margin-left: -60px; width: 120px; }
+#guideMk[hidden] { display: none; }
+#guideMk i { width: 16px; height: 16px; background: #ffd27a; transform-origin: center; box-shadow: 0 0 0 2px #18233a, 0 0 14px rgba(255, 210, 122, .8); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); animation: gmbob 1.4s ease-in-out infinite; }
+#guideMk.edge i { width: 22px; height: 18px; clip-path: polygon(0 20%, 60% 20%, 60% 0, 100% 50%, 60% 100%, 60% 80%, 0 80%); animation: none; }
+#guideMk span { font: 600 11.5px var(--ui); color: #ffe7b0; background: rgba(8, 17, 25, .78); border: 1px solid rgba(255, 210, 122, .45); border-radius: 999px; padding: 2px 9px; white-space: nowrap; text-shadow: 0 1px 2px #000; }
+@keyframes gmbob { 50% { transform: translateY(-5px); } }
+#guideCard { position: absolute; left: 14px; top: calc(96px + env(safe-area-inset-top, 0px)); width: min(290px, calc(100vw - 28px)); display: grid; gap: 2px; background: var(--panel2); border: 1px solid #ffd27a; border-left-width: 4px; border-radius: 10px; padding: 8px 12px; pointer-events: none; }
+#guideCard[hidden] { display: none; }
+#guideCard .eyebrow { margin: 0; font: 600 10.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: #ffd27a; }
+#guideCard b { font-weight: 500; font-size: 14px; } #guideCard span { font-size: 12px; color: var(--mut); } #guideCard em { font-style: normal; font-size: 12px; color: var(--amber2); } #guideCard kbd { margin: 0 3px; }
+body.storyon #guideMk, body.storyon #guideCard, body.cine #guideMk, body.cine #guideCard { visibility: hidden; }
+#pwQuick { position: absolute; right: 16px; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 6px; pointer-events: auto; }
+#pwQuick[hidden] { display: none; } #pwQuick .btn { background: var(--panel2); } #pwQuick kbd { margin: 0 0 0 6px; }
+@media (max-width: 760px) { #guideCard { top: calc(84px + env(safe-area-inset-top, 0px)); width: min(240px, calc(100vw - 28px)); } #pwQuick { bottom: calc(132px + env(safe-area-inset-bottom, 0px)); } #pwQuick kbd { display: none; } }
+/* carnet « Que faire ? » */
+#guideUI .gnow { display: grid; gap: 3px; padding: 10px 12px; border-radius: 8px; background: rgba(255, 210, 122, .08); border: 1px solid rgba(255, 210, 122, .4); margin: 6px 0 4px; }
+#guideUI .gnow .eyebrow { margin: 0; font: 600 10.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: #ffd27a; } #guideUI .gnow b { font-weight: 500; font-size: 15px; } #guideUI .gnow span { color: var(--mut); font-size: 13px; }
+#guideUI .gplaces { display: grid; gap: 6px; } #guideUI .gp { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; }
+#guideUI .gp b { display: block; font-weight: 600; font-size: 14px; } #guideUI .gp span { font-size: 12.5px; color: var(--mut); } #guideUI .gp .btn { flex: none; }
+#guideUI .gkeys { list-style: none; padding: 0; margin: 4px 0 8px; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 4px 12px; font-size: 13px; color: var(--mut); }
+/* défi en jeep */
+#raceHud { position: absolute; left: 14px; top: calc(96px + env(safe-area-inset-top, 0px)); width: min(270px, calc(100vw - 28px)); display: grid; gap: 2px; background: var(--panel2); border: 1px solid #ff9a3d; border-radius: 10px; padding: 8px 12px; pointer-events: none; }
+#raceHud[hidden] { display: none; } #raceHud .eyebrow { margin: 0; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: #ff9a3d; } #raceHud span { font: 700 24px var(--mono); color: var(--fg); } #raceHud span.warn { color: var(--bad); } #raceHud em { font-style: normal; font-size: 12px; color: var(--mut); }
+/* document lu dans une scène */
+#story .scdoc { background: #f1e8d0; color: #2b2416; border-radius: 3px; padding: 16px 20px 18px; display: grid; gap: 8px; box-shadow: 0 18px 50px rgba(0, 0, 0, .5), inset 0 0 60px rgba(120, 90, 40, .25); transform: rotate(.5deg); cursor: default; background-image: repeating-linear-gradient(180deg, transparent 0 27px, rgba(80, 110, 150, .18) 27px 28px); }
+#story .scdoc header { display: grid; gap: 2px; border-bottom: 1px solid rgba(43, 36, 22, .3); padding-bottom: 6px; }
+#story .scdoc header b { font: 400 22px var(--fellsc); } #story .scdoc header span { font: italic 13px var(--fell); color: #6b5d43; }
+#story .scdoc p { margin: 0; font: italic 16.5px/1.55 var(--fell); color: #2f2618; }
+
+/* ---------- remise en état à quai ---------- */
+.refit { display: grid; gap: 8px; margin-bottom: 8px; }
+.refit .rf { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; display: grid; gap: 6px; }
+.refit .rfh { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; } .refit .rfh b { font-weight: 600; } .refit .rfh span { font-size: 12px; color: var(--mut); }
+.refit .rfg { display: grid; gap: 3px; } .refit .row2 { flex-wrap: wrap; gap: 6px; }
 </style>
 <canvas id="gl" aria-label="Vue du bâtiment"></canvas>
 <div id="bridgeFrame" hidden></div>
@@ -4937,6 +4973,9 @@ function helpHTML() {
     <tr><td>En mer</td><td>Événements imprévus (voilier en avarie, conteneurs à la dérive, rorqual, grain, ballots de contrebande) : objectifs facultatifs et primes. La carte (<kbd>M</kbd>) montre vos bases et leurs bâtiments, et les cargos du trafic commercial</td></tr>
     <tr><td>Bases</td><td>Toulon, Ajaccio, Cagliari, Bizerte, Alger : choisissez vos bases et répartissez la flotte au bureau des affectations (état-major ou capitainerie), puis rejoignez une autre base en traversée ou en naviguant vous-même</td></tr>
     <tr><td>Histoire</td><td>Mode histoire « Sillage » (saison 1) : un prologue, dix chapitres et un épilogue, depuis la carte ★ de l'état-major. Pendant les scènes, <kbd>Espace</kbd> pour avancer, <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> pour répondre (posé, franc, fougueux), <kbd>Échap</kbd> pour passer. Vos choix changent la suite : bouton « ★ Histoire » pour votre parcours</td></tr>
+    <tr><td><kbd>J</kbd> <kbd>G</kbd></td><td>Au port : <kbd>J</kbd> appelle la jeep (un chauffeur vous l'amène, même devant l'état-major), <kbd>G</kbd> ouvre « Que faire ? » : l'objectif du moment et « Me guider » vers chaque lieu. La flèche et la colonne dorées montrent toujours où aller</td></tr>
+    <tr><td>Réparer</td><td>À l'arsenal, ou dans « Ma flotte » (<kbd>F</kbd>) : réparer, faire le plein et réarmer chaque bâtiment présent au port, ou tout remettre en état d'un coup</td></tr>
+    <tr><td>Ravitailleur</td><td>Le Penfret (arsenal) : venez à couple d'un bâtiment ami (moins de 180 m, même cap, même vitesse) puis action « Ravitaillement à la mer ». Mission dédiée « Ravitaillement à la mer ». Depuis un autre bâtiment, s'il est à vous : action « Faire venir le ravitailleur »</td></tr>
     <tr><td>Formation</td><td>Formation avancée à la capitainerie : une journée sur une frégate pour tout apprendre (temps, carte, transit, central opérations, hélicoptère, semi-rigide, visite du bord)</td></tr>
     <tr><td><kbd>Y</kbd></td><td>Groupe aérien du porte-avions (ordres depuis le PCA ou le Central Opérations)</td></tr>
     <tr><td><kbd>L</kbd></td><td>Journal de bord</td></tr>
@@ -12260,6 +12299,8 @@ function scRender(b) {
   } else if (b.press) {
     const P = b.press, head = scTxt(P.head, S); S.press.push({ ch: S.ch, day: CAREER.day, head }); if (S.press.length > 30) S.press.shift();
     box = `<div class="scpress"><header><b>Le Phare du Var</b><span>Quotidien de la côte varoise · jour ${CAREER.day}</span></header><p class="kick">${escH(scTxt(P.kick, S))}</p><h2>${escH(head)}</h2><div class="cols"><div class="ph" aria-hidden="true"></div><p>${escH(scTxt(P.body, S))}</p></div><footer>Vos abonnés : <b>${fmtN(S.m.fans)}</b></footer></div>`; sfx('click');
+  } else if (b.doc) {
+    const D = b.doc; box = `<div class="scdoc"><header><b>${escH(scTxt(D.title, S))}</b>${D.sub ? `<span>${escH(scTxt(D.sub, S))}</span>` : ''}</header>${D.lines.map(l => `<p>${escH(scTxt(l, S))}</p>`).join('')}</div>`; sfx('click');
   } else if (b.social) {
     box = `<div class="scsocial"><header><b>Fil d'actu</b><span>${fmtN(S.m.fans)} abonnés</span></header>${b.social.map(([u, t]) => `<div class="post"><b>${escH(u)}</b><p>${escH(sFill(t))}</p><span>♥ ${fmtN(80 + Math.random() * 4000)}</span></div>`).join('')}</div>`;
   } else if (b.summary) {
@@ -12269,7 +12310,7 @@ function scRender(b) {
     const ch2 = b.choice ? (b.choice.filter(o => !o.if || o.if(S))) : null;
     const txt = scTxt(nar ? b.nar : b.t, S);
     box = `<div class="scbox ${nar ? 'nar' : ''} ${phone ? 'phone' : ''}">${W ? `<div class="scwho">${W.pt}<div><b>${escH(W.n)}</b><span>${escH(W.r)}</span></div>${phone ? '<em class="pill">Appel</em>' : ''}</div>` : ''}<p class="sctxt" id="scTxt"></p>${fx}
-      ${ch2 ? `<div class="scchoices">${ch2.map((o, k) => { const T = TONES[o.tone]; return `<button class="scch" style="--tc:${T.col}" data-sc="c" data-i="${k}"><i>${k + 1}</i><b>${escH(T.n)} · ${escH(scTxt(o.l, S))}</b><span>${escH(scTxt(o.say, S))}</span></button>`; }).join('')}</div>` : ''}</div>`;
+      ${ch2 ? `<div class="scchoices">${ch2.map((o, k) => { const T = TONES[o.tone] || { n: '', col: '#9fb4bf' }; return `<button class="scch" style="--tc:${T.col}" data-sc="c" data-i="${k}"><i>${k + 1}</i><b>${T.n ? escH(T.n) + ' · ' : ''}${escH(scTxt(o.l, S))}</b><span>${escH(scTxt(o.say, S))}</span></button>`; }).join('')}</div>` : ''}</div>`;
     SC.full = txt; next = !ch2; if (!nar) scLookAt(b.who); if (phone) sfx('radio');
   }
   el.innerHTML = `${top}<div class="scwrap">${box}${next ? '<p class="scnext">Espace ▸</p>' : ''}</div>`;
@@ -12307,7 +12348,7 @@ function scChoose(k) {
   for (const key in fx) { if (key === 'fans') S.m.fans = Math.max(0, S.m.fans + fx[key]); else S.m[key] = clamp((S.m[key] || 0) + fx[key], key === 'conf' || key === 'papy' ? 0 : -100, 100); }
   if (o.flag) S.flags[o.flag] = true;
   if (o.log) S.log.push({ ch: S.ch, t: sFill(o.log), tone: o.tone, day: CAREER.day });
-  S.tones = S.tones || { pose: 0, franc: 0, feu: 0 }; S.tones[o.tone]++;
+  S.tones = S.tones || { pose: 0, franc: 0, feu: 0 }; if (o.tone) S.tones[o.tone]++;
   const ins = []; if (o.say) ins.push(sA('me', scTxt(o.say, S))); if (o.then) ins.push(...o.then);
   SC.beats.splice(SC.i + 1, 0, ...ins); SC.fx = fx; SC.i++; sfx('click'); saveCareer(); scStep();
 }
@@ -12406,7 +12447,7 @@ function storyAdvance(i, quiet) {
   const S = S0(); S.ch = i + 1; S.intro = false; S.cur = null; S.fails = 0;
   if (S.ch >= SAISON.length) { S.done = true; S.ch = SAISON.length - 1; }
   saveCareer(); checkMedals();
-  const n = SAISON[S.ch]; if (!S.done && n && !quiet) setTimeout(() => toast(`★ ${n.n} « ${n.t} » : l'amirale vous attend à l'état-major.`), 900);
+  const n = SAISON[S.ch]; if (!S.done && n && !quiet && !INTERS[i]) setTimeout(() => toast(`★ ${n.n} « ${n.t} » : l'amirale vous attend à l'état-major.`), 900);
 }
 function storyReward(i) {
   const pay = 2000 + i * 600, xp = 150 + i * 30; CAREER.credits += pay; addXP(xp, 'Histoire'); jingle('level');
@@ -12551,6 +12592,813 @@ function nrmTxt(q) { return String(q || '').toLowerCase().normalize('NFD').repla
 med('hist1', 'Premier quart', 'Terminer le chapitre 1 du mode histoire', 0, x => !!(x.C.story && (x.C.story.ch >= 2 || x.C.story.done)));
 med('hist6', 'À la croisée des chemins', 'Atteindre le chapitre 6 du mode histoire', 1, x => !!(x.C.story && (x.C.story.ch >= 6 || x.C.story.done)));
 med('hist10', 'Sillage', 'Terminer la saison 1 du mode histoire', 2, x => !!(x.C.story && x.C.story.done));
+
+// ===== JEEP À LA DEMANDE : J, un chauffeur vous l'amène là où vous êtes =====
+const JCALL = { on: false, path: [], i: 0, stuck: 0, honk: 0, tl: null, chauffeur: null, walker: null, rt: 0 };
+const JROAD = (LANE.e + LANE.w) / 2;
+const JC_NAMES = ['le matelot Ferrandi', 'le quartier-maître Lebreton', 'le matelot Diallo', 'le second-maître Rocca', 'la matelote Quéré'];
+// le point d'arrivée, dans le repère du port : devant l'état-major si l'on est dedans, sinon au plus près du commandant
+function jcTarget() { if (HQ.on) return { x: 95, z: -80 }; const l = portL(PORT, PW.x, PW.z); return { x: l.x, z: l.z }; }
+function jcFreeLine(a, b, step) {
+  const n = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.z - a.z) / (step || 2))), h = Math.atan2(-(b.x - a.x), -(b.z - a.z)); let last = null;
+  for (let k = 1; k <= n; k++) { const x = lerp(a.x, b.x, k / n), z = lerp(a.z, b.z, k / n); if (jeepFree(x, z, h)) return last; last = { x, z }; }
+  return last;
+}
+// itinéraire : la route des camions, puis une approche en ligne droite si elle est libre
+function jcRoute() {
+  const tl = jcTarget(), W = (lx, lz) => Object.assign(PL(lx, lz), { lx, lz });
+  const side = Math.abs(tl.x) > 286 && tl.z > -45 ? Math.sign(tl.x) : 0;
+  const rx = side ? side * (LANE.x1 - 2) : clamp(tl.x, LANE.x0 + 3, LANE.x1 - 3), R = W(rx, JROAD), pts = [R];
+  if (side) {
+    // on remonte le quai latéral par la colonne la plus dégagée
+    let best = null, bp = -1;
+    for (const cx of [296, 304, 292, 300]) { const up = W(side * cx, -52); if (!pwWalkable(up.x, up.z) || jeepFree(up.x, up.z, 0)) continue; const end = W(side * cx, clamp(tl.z - 6, -52, 150)), f = jcFreeLine(up, end, 3), prog = f ? Math.hypot(f.x - up.x, f.z - up.z) : 0; if (prog > bp) { bp = prog; best = [up, f]; } }
+    if (best) { pts.push(best[0]); if (best[1]) pts.push(best[1]); }
+  }
+  else {
+    const goal = W(tl.x, tl.z), d = Math.hypot(goal.x - R.x, goal.z - R.z);
+    if (d > 6) { const stop = { x: lerp(R.x, goal.x, (d - 4.5) / d), z: lerp(R.z, goal.z, (d - 4.5) / d) }; const f = jcFreeLine(R, stop, 2); if (f && Math.hypot(f.x - R.x, f.z - R.z) > 3) pts.push(f); }
+  }
+  // départ : la jeep vient de son emplacement si la route est proche, sinon le chauffeur arrive par la route
+  const j = portL(PORT, JEEP.x, JEEP.z), entry = W(clamp(j.x, LANE.x0 + 3, LANE.x1 - 3), JROAD), near = Math.hypot(JEEP.x - R.x, JEEP.z - R.z) < 160;
+  let start = null;
+  if (near && !(Math.abs(j.z - JROAD) < 4 && Math.abs(j.x) <= LANE.x1)) { const f = jcFreeLine({ x: JEEP.x, z: JEEP.z }, entry, 2); if (f && Math.hypot(f.x - entry.x, f.z - entry.z) < 1) pts.unshift(entry); else start = true; }
+  if (!near || start) { let sx = rx + (j.x < rx ? -95 : 95); if (sx < LANE.x0 + 3 || sx > LANE.x1 - 3) sx = 2 * rx - sx; start = W(clamp(sx, LANE.x0 + 3, LANE.x1 - 3), JROAD); }
+  return { tl, pts, start };
+}
+function jeepCall() {
+  if (!PW.on || UI.screen !== 'port' || !JEEP.mesh) return;
+  if (JEEP.on) { toast('Vous êtes déjà au volant.'); return; }
+  if (JCALL.on) { toast(`La jeep arrive : encore ${Math.round(Math.hypot(JEEP.x - PW.x, JEEP.z - PW.z))} m.`); return; }
+  if (!HQ.on && Math.hypot(JEEP.x - PW.x, JEEP.z - PW.z) < 16) { toast('La jeep est juste là : E pour monter.'); return; }
+  const r = jcRoute(); if (!r.pts.length) { toast('La jeep ne peut pas venir jusqu\'ici : rejoignez le quai principal.'); return; }
+  if (r.start) { JEEP.x = r.start.x; JEEP.z = r.start.z; const n = r.pts[0]; JEEP.a = Math.atan2(-(n.x - JEEP.x), -(n.z - JEEP.z)); }
+  Object.assign(JCALL, { on: true, path: r.pts, i: 0, stuck: 0, honk: 0, tl: r.tl, rt: 0, name: pick(JC_NAMES) }); JEEP.v = 0;
+  jcChauffeur(true); sfx('radio');
+  toast(`Poste de garde : « Bien reçu, commandant. ${JCALL.name.replace(/^./, c => c.toUpperCase())} vous amène la jeep${HQ.on ? ' devant l\'état-major' : ''}. »`);
+}
+function jcChauffeur(on) {
+  if (!JEEP.mesh) return;
+  if (!JCALL.chauffeur) { const d = buildHuman({ uni: '#2e4a78', shirt: '#eef0f2', cap: '#f2f2ee', hair: '#2a1d14', sit: true }); d.position.set(-0.4, 0.62, 0.02); d.traverse(o => { if (o.isMesh) o.castShadow = true; }); JEEP.mesh.add(d); JCALL.chauffeur = d; }
+  JCALL.chauffeur.visible = on;
+}
+function jcCancel() { JCALL.on = false; JEEP.v = 0; JEEP.steer = 0; jcChauffeur(false); }
+function jcStep(dt) {
+  if (!JCALL.on) return;
+  const J = JEEP; if (!J.mesh || !PW.on || UI.screen !== 'port' || J.on) { jcCancel(); return; }
+  // le commandant s'est éloigné : nouvel itinéraire
+  JCALL.rt += dt; if (JCALL.rt > 3) { JCALL.rt = 0; const t = jcTarget(); if (Math.hypot(t.x - JCALL.tl.x, t.z - JCALL.tl.z) > 40) { const r = jcRoute(); if (r.pts.length) { JCALL.path = r.pts; JCALL.i = 0; JCALL.tl = r.tl; } } }
+  const p = JCALL.path[JCALL.i]; if (!p) { jcArrive(); return; }
+  const last = JCALL.i === JCALL.path.length - 1, dx = p.x - J.x, dz = p.z - J.z, d = Math.hypot(dx, dz);
+  if (d < (last ? 1.3 : 4.5)) { JCALL.i++; if (JCALL.i >= JCALL.path.length) jcArrive(); return; }
+  const want = Math.atan2(-dx, -dz), err = wrapA(want - J.a);
+  const vt = Math.min(11, last ? 1.5 + d * 0.8 : 11) * (Math.abs(err) > 0.5 ? 0.35 : 1);
+  J.v = lerp(J.v, vt, clamp(dt * 1.5, 0, 1));
+  const turn = clamp(err, -1.3 * dt * Math.max(0.6, J.v / 6), 1.3 * dt * Math.max(0.6, J.v / 6)), na = J.a + turn;
+  J.steer = lerp(J.steer, clamp(err * 1.2, -0.5, 0.5), clamp(dt * 6, 0, 1));
+  const nx = J.x - Math.sin(na) * J.v * dt, nz = J.z - Math.cos(na) * J.v * dt;
+  const why = jeepFree(nx, nz, na) || (Math.hypot(nx - PW.x, nz - PW.z) < 3.2 && !HQ.on ? 'piéton' : null);
+  if (!why) { J.x = nx; J.z = nz; J.a = na; JCALL.stuck = 0; }
+  else {
+    J.v = 0; JCALL.stuck += dt;
+    if (why === 'piéton' && JCALL.stuck > 0.6 && JCALL.honk < 2) { JCALL.honk++; jeepHorn(); }
+    if (JCALL.stuck > 2.6) { if (why === 'piéton' && last) { jcArrive(); return; } J.x = p.x; J.z = p.z; J.a = want; JCALL.i++; JCALL.stuck = 0; }
+  }
+}
+function jcArrive() {
+  const J = JEEP; J.v = 0; J.steer = 0; JCALL.on = false; jcChauffeur(false); jeepHorn();
+  // le chauffeur descend et repart à pied vers le poste de garde
+  const rx = Math.cos(J.a), rz = -Math.sin(J.a); let x = J.x - rx * 1.7, z = J.z - rz * 1.7; if (!pwWalkable(x, z)) { x = J.x + rx * 1.7; z = J.z + rz * 1.7; }
+  if (JCALL.walker) scene.remove(JCALL.walker.m);
+  const m = buildHuman({ uni: '#2e4a78', shirt: '#eef0f2', cap: '#f2f2ee', hair: '#2a1d14' }); m.traverse(o => { if (o.isMesh) o.castShadow = true; }); scene.add(m);
+  const g = liaSpots().garde; JCALL.walker = { m, x, z, tx: g.x, tz: g.z, t: 0, ph: 0 };
+  toast(`${JCALL.name.replace(/^./, c => c.toUpperCase())} : « Votre jeep, commandant ! Les clés sont dessus. »${HQ.on ? ' Elle vous attend devant l\'état-major.' : ' E pour monter.'}`);
+}
+function jcWalkerStep(dt) {
+  const w = JCALL.walker; if (!w) return;
+  w.t += dt; const dx = w.tx - w.x, dz = w.tz - w.z, d = Math.hypot(dx, dz);
+  if (w.t < 1.2) { w.m.position.set(w.x, pwGround(w.x, w.z), w.z); w.m.rotation.y = Math.atan2(-(PW.x - w.x), -(PW.z - w.z)); w.m.userData.armR && (w.m.userData.armR.rotation.x = -2.6); return; }
+  if (w.m.userData.armR) w.m.userData.armR.rotation.x = 0;
+  if (d > 1 && w.t < 40) { const sp = 1.35, nx = w.x + dx / d * sp * dt, nz = w.z + dz / d * sp * dt; if (pwWalkable(nx, nz)) { w.x = nx; w.z = nz; } else { w.x += dz / d * sp * dt; w.z -= dx / d * sp * dt; } w.ph += dt * 5; animHuman(w.m, w.ph, 0.55); w.m.rotation.y = Math.atan2(-dx, -dz); w.m.position.set(w.x, pwGround(w.x, w.z), w.z); }
+  else { scene.remove(w.m); JCALL.walker = null; }
+}
+{ const base = cameraStep; cameraStep = function (dt) { base(dt); if (UI.screen === 'port') { const d = paused || CINE.on ? 0 : dt; jcStep(d); jcWalkerStep(d); } }; }
+{ const base = harborLeave; harborLeave = function () { jcCancel(); if (JCALL.walker) { scene.remove(JCALL.walker.m); JCALL.walker = null; } base(); }; }
+// pas de « Prendre la jeep » tant qu'elle roule avec son chauffeur
+{ const base = pwPlaces; pwPlaces = function () { const L = base(); return JCALL.on ? L.filter(p => p.id !== 'jeep') : L; }; }
+KEYHOOK.push(e => {
+  if (e.code !== 'KeyJ' || e.repeat || !PW.on || UI.screen !== 'port' || (e.target.matches && e.target.matches('input, textarea')) || COMMS.open || CINE.on) return false;
+  jeepCall(); return true;
+});
+ACT.jeepcall = () => jeepCall();
+
+// ===== POUR NE PAS SE PERDRE : objectif courant, flèche dorée, carnet « Que faire ? » (G) et panneaux à l'état-major =====
+if (SET.guide == null) SET.guide = true;
+const GUIDE = { manual: null, beam: null, ring: null, seenOut: false };
+const HQ_ADM = { x: 9, z: -17.9 }, HQ_EXIT = { x: 0, z: -0.8 };
+function guidePlace(id) {
+  if (id === 'ship') { const c = CAREER.ship, g = gangway(c); return { x: g.x, z: g.z, label: `Monter à bord ${deN(c)}` }; }
+  const p = liaPlace(id); return p ? { x: p.x, z: p.z, label: { em: 'Entrer à l\'état-major', capit: 'Aller à la capitainerie', carre: 'Aller au carré de l\'équipage', arsenal: 'Aller à l\'arsenal' }[id] || p.label } : null;
+}
+// l'objectif du moment, par ordre d'importance
+function guideTarget() {
+  if (!CAREER || CAREER.temp || UI.screen !== 'port' || !PW.on || SC.on || CINE.on) return null;
+  const S = S0(), inHQ = HQ.on;
+  const out = (label, why) => inHQ ? { hq: true, x: HQ_EXIT.x, z: HQ_EXIT.z, label: 'Sortir sur le quai', why: label + (why ? ' · ' + why : '') } : null;
+  const adm = why => inHQ ? { hq: true, x: HQ_ADM.x, z: HQ_ADM.z, label: 'Bureau de l\'amirale (fond du couloir)', why } : Object.assign(guidePlace('em'), { why });
+  if (PW.pend) { const c = PW.pend.cls, g = gangway(c); return out(`★ ${leN(c)}`, 'monter à bord') || { x: g.x, z: g.z, label: `Monter à bord ${deN(c)} (★)`, why: PW.pend.def ? PW.pend.def.title : '' }; }
+  const it = typeof interGoal === 'function' ? interGoal() : null; if (it) return out(it.label, it.why) || it;
+  if (S && S.on && !S.done && !S.pending) return adm(`★ ${SAISON[S.ch].n} « ${SAISON[S.ch].t} » : l'amirale vous attend`);
+  if (GUIDE.manual) { const p = guidePlace(GUIDE.manual); if (p) return out(p.label) || p; GUIDE.manual = null; }
+  if (TUTO.on && TUTO.i <= 1) return adm('Premiers pas : prendre un ordre auprès de l\'amirale');
+  return null;
+}
+const _gdv = new THREE.Vector3();
+function guideEls() {
+  let mk = $('guideMk'); if (!mk) { mk = document.createElement('div'); mk.id = 'guideMk'; mk.innerHTML = '<i></i><span></span>'; mk.hidden = true; $('hub').appendChild(mk); }
+  let cd = $('guideCard'); if (!cd) { cd = document.createElement('div'); cd.id = 'guideCard'; cd.hidden = true; $('hub').appendChild(cd); }
+  return { mk, cd };
+}
+const fmtDist = d => d < 1000 ? `${Math.round(d)} m` : `${(d / 1000).toFixed(1).replace('.', ',')} km`;
+function guideStep() {
+  const { mk, cd } = guideEls(), T = SET.guide ? guideTarget() : null;
+  const beamOff = () => { if (GUIDE.beam) GUIDE.beam.visible = GUIDE.ring.visible = false; };
+  if (!T) { mk.hidden = cd.hidden = true; beamOff(); return; }
+  const px = T.hq ? HQ.x : JEEP.on ? JEEP.x : PW.x, pz = T.hq ? HQ.z : JEEP.on ? JEEP.z : PW.z, d = Math.hypot(T.x - px, T.z - pz);
+  if (GUIDE.manual && !T.hq && d < 7) { GUIDE.manual = null; toast('Vous y êtes.'); }
+  // carte d'objectif
+  const tip = !T.hq && !JEEP.on && d > 140 ? '<em>Loin ? <kbd>J</kbd> appelle la jeep</em>' : T.hq ? '<em><kbd>G</kbd> que faire ?</em>' : '';
+  const s = `<p class="eyebrow">Objectif · ${fmtDist(d)}</p><b>${escH(T.label)}</b>${T.why ? `<span>${escH(T.why)}</span>` : ''}${tip}`;
+  if (cd._s !== s) { cd._s = s; cd.innerHTML = s; }
+  cd.hidden = !!($('liaHud') && !$('liaHud').hidden) || !!($('raceHud') && !$('raceHud').hidden);
+  // colonne de lumière dorée sur la destination (dehors)
+  if (!T.hq) {
+    if (!GUIDE.beam) {
+      const bg = new THREE.CylinderGeometry(0.9, 0.9, 46, 12, 1, true); bg.translate(0, 23, 0);
+      GUIDE.beam = new THREE.Mesh(bg, new THREE.MeshBasicMaterial({ color: '#ffd27a', transparent: true, opacity: 0.22, depthWrite: false, side: THREE.DoubleSide, toneMapped: false })); GUIDE.beam.renderOrder = 5;
+      GUIDE.ring = new THREE.Mesh(new THREE.RingGeometry(2.2, 2.7, 32), new THREE.MeshBasicMaterial({ color: '#ffd27a', transparent: true, opacity: 0.75, depthWrite: false, side: THREE.DoubleSide, toneMapped: false })); GUIDE.ring.rotation.x = -Math.PI / 2;
+    }
+    if (!GUIDE.beam.parent) { scene.add(GUIDE.beam); scene.add(GUIDE.ring); }
+    const gy = pwGround(T.x, T.z); GUIDE.beam.position.set(T.x, gy, T.z); GUIDE.ring.position.set(T.x, gy + 0.06, T.z); GUIDE.ring.scale.setScalar(1 + Math.sin(GFX.t * 3.5) * 0.1);
+    GUIDE.beam.visible = GUIDE.ring.visible = d > 6;
+  } else beamOff();
+  // repère à l'écran, ou flèche sur le bord quand la destination est hors champ
+  const y = T.hq ? 2.0 : pwGround(T.x, T.z) + 3.4; _gdv.set(T.x, y, T.z).applyMatrix4(camera.matrixWorldInverse);
+  const W = innerWidth, H = innerHeight, near = d < (T.hq ? 1.6 : 5);
+  if (near) { mk.hidden = true; return; }
+  mk.hidden = false; const lab = mk.lastChild, l = `${T.label.split(' (')[0]} · ${fmtDist(d)}`; if (lab.textContent !== l) lab.textContent = l;
+  const front = _gdv.z < -0.5; let sx, sy, edge = true, ang = 0;
+  if (front) { _gdv.set(T.x, y, T.z).project(camera); if (Math.abs(_gdv.x) < 0.9 && Math.abs(_gdv.y) < 0.8) { edge = false; sx = (_gdv.x + 1) / 2 * W; sy = (1 - _gdv.y) / 2 * H; } }
+  if (edge) {
+    _gdv.set(T.x, y, T.z).applyMatrix4(camera.matrixWorldInverse); let ax = _gdv.x, ay = _gdv.y; if (!front && Math.abs(ax) < Math.abs(ay) * 0.3) ax = ax < 0 ? -1 : 1;
+    if (!front) ay = Math.min(ay, 0); const m = Math.max(Math.abs(ax) / 0.44, Math.abs(ay) / 0.36) || 1; ax /= m; ay /= m;
+    sx = W / 2 + ax * W; sy = H / 2 - ay * H; ang = Math.atan2(-ay, ax);
+  }
+  mk.classList.toggle('edge', edge); mk.style.transform = `translate(${sx.toFixed(0)}px, ${sy.toFixed(0)}px)`; mk.firstChild.style.transform = edge ? `rotate(${(ang * 180 / Math.PI).toFixed(0)}deg)` : '';
+}
+{ const base = cameraStep; cameraStep = function (dt) { base(dt); if (UI.screen === 'port') guideStep(); else { const g = $('guideMk'), c = $('guideCard'); if (g) g.hidden = true; if (c) c.hidden = true; if (GUIDE.beam) GUIDE.beam.visible = GUIDE.ring.visible = false; } }; }
+{ const base = harborLeave; harborLeave = function () { if (GUIDE.beam && GUIDE.beam.parent) { scene.remove(GUIDE.beam); scene.remove(GUIDE.ring); } base(); }; }
+// l'étoile de l'objectif sur le plan du port
+{ const base = portMapDraw; portMapDraw = function () {
+  base(); const cv = $('pmap'), T = SET.guide ? guideTarget() : null; if (!cv || cv.hidden || !T || T.hq) return;
+  const g = cv.getContext('2d'), W = 280, H = 132, x0 = -335, x1 = 335, z0 = -135, z1 = 175, s = Math.min(W / (x1 - x0), H / (z1 - z0)), ox = (W - (x1 - x0) * s) / 2, oy = (H - (z1 - z0) * s) / 2;
+  const l = portL(PORT, T.x, T.z), a = ox + (l.x - x0) * s, b = oy + (z1 - l.z) * s, r = 5 + Math.sin(GFX.t * 4);
+  g.fillStyle = '#ffd27a'; g.strokeStyle = '#18233a'; g.lineWidth = 1.5; g.beginPath(); for (let k = 0; k < 10; k++) { const rr2 = k % 2 ? r * 0.45 : r, an = -Math.PI / 2 + k * Math.PI / 5; g.lineTo(a + Math.cos(an) * rr2, b + Math.sin(an) * rr2); } g.closePath(); g.fill(); g.stroke();
+}; }
+
+// ----- carnet « Que faire ? » -----
+function guideHTML() {
+  const C = CAREER, T = guideTarget(), K = CLASSES[C.ship];
+  const places = [['em', 'État-major', 'Ordres de mission, histoire ★, affectations, CROSS. L\'amirale est au fond du couloir.'], ['ship', `Votre bâtiment : ${K.n}`, 'Monter à bord par la coupée (E) pour appareiller.'], ['capit', 'Capitainerie', 'Sorties libres, exercices, formation avancée et liaisons en jeep.'], ['arsenal', 'Arsenal', 'Réparations, améliorations, achat de nouveaux bâtiments.'], ['carre', 'Carré', 'Moral de l\'équipage, permissions, entraînement.']];
+  return `<div class="rowsp"><h3>Que faire ?</h3><button class="btn sm ghost" data-act="guideclose">Fermer (G)</button></div>
+    <div class="gnow"><p class="eyebrow">Maintenant</p><b>${T ? escH(T.label) : 'Rien d\'urgent. Prenez un ordre à l\'état-major, suivez l\'histoire, ou explorez le port.'}</b>${T && T.why ? `<span>${escH(T.why)}</span>` : ''}<span class="small">La flèche et la colonne dorées vous montrent toujours où aller.</span></div>
+    <h4>Le port</h4><div class="gplaces">${places.map(([id, n, d]) => `<div class="gp"><div><b>${escH(n)}</b><span>${escH(d)}</span></div><button class="btn sm" data-act="guideto" data-v="${id}">Me guider</button></div>`).join('')}</div>
+    <h4>Raccourcis</h4><ul class="gkeys"><li><kbd>E</kbd>entrer, parler, monter à bord</li><li><kbd>J</kbd>appeler la jeep</li><li><kbd>M</kbd>plan du port</li><li><kbd>F</kbd>ma flotte</li><li><kbd>Entrée</kbd>messages</li><li><kbd>?</kbd>toutes les commandes</li><li><kbd>Échap</kbd>menu et réglages</li></ul>
+    <div class="row2"><button class="btn sm ${SET.guide ? '' : 'pri'}" data-act="guidetoggle">${SET.guide ? 'Masquer la flèche d\'objectif' : 'Afficher la flèche d\'objectif'}</button></div>`;
+}
+function guideOpen() { if (!CAREER) return; const el = dlgEl('guideUI', 'Que faire ?'); if (document.pointerLockElement) document.exitPointerLock(); el.innerHTML = guideHTML(); el.hidden = false; }
+function guideClose() { const el = $('guideUI'); if (el) el.hidden = true; }
+Object.assign(ACT, {
+  guide: () => { const el = $('guideUI'); if (el && !el.hidden) guideClose(); else guideOpen(); },
+  guideclose: guideClose,
+  guideto: d => { GUIDE.manual = d.v; SET.guide = true; saveSettings(); guideClose(); const p = guidePlace(d.v); toast(`Suivez la flèche dorée : ${p ? p.label.toLowerCase() : ''}${HQ.on ? ' (sortez d\'abord de l\'état-major)' : ''}.`); },
+  guidetoggle: () => { SET.guide = !SET.guide; saveSettings(); guideOpen(); }
+});
+KEYHOOK.push(e => {
+  if (e.target.matches && e.target.matches('input, textarea')) return false;
+  const el = $('guideUI'); if (el && !el.hidden && e.code === 'Escape') { guideClose(); return true; }
+  if (e.code === 'KeyG' && !e.repeat && UI.screen === 'port' && PW.on && !COMMS.open && !CINE.on) { ACT.guide(); return true; }
+  return false;
+});
+{ const base = setScreen; setScreen = function (s) { if (s !== 'port') guideClose(); base(s); }; }
+// au premier pas sur le quai, le carnet s'ouvre une fois
+{ const base = hqExit; hqExit = function (silent) { base(silent); if (CAREER && !CAREER.guideSeen && UI.screen === 'port' && !CAREER.temp) { CAREER.guideSeen = 1; saveCareer(); setTimeout(() => { if (UI.screen === 'port' && PW.on && !HQ.on && !SC.on && !CINE.on) guideOpen(); else CAREER.guideSeen = 0; }, 1400); } }; }
+// barre d'accès rapide (souris et tactile) et rappel des touches
+{ const base = pwUI; pwUI = function () {
+  base(); const u = $('pwUI'); if (!u || $('pwQuick')) return;
+  const q = document.createElement('div'); q.id = 'pwQuick'; q.innerHTML = '<button class="btn sm" data-act="guide">Que faire ? <kbd>G</kbd></button><button class="btn sm" data-act="jeepcall">Jeep <kbd>J</kbd></button>'; u.appendChild(q);
+  const k = u.querySelector('.pwkeys'); if (k) k.innerHTML = 'Z Q S D marcher · Maj courir · souris regarder · <b>E</b> entrer, parler, monter à bord · <b>J</b> jeep · <b>G</b> que faire ? · M plan · Entrée messages · Échap menu';
+}; }
+{ const base = pwCamera; pwCamera = function (dt) { base(dt); const q = $('pwQuick'); if (q) q.hidden = JEEP.on || SC.on; }; }
+
+// ----- panneaux au-dessus des portes de l'état-major -----
+function hqSign(g, text, w, x, y, z, ry, small) {
+  const t = canvasTex(512, 96, (c, W, H) => { c.fillStyle = '#16233a'; c.fillRect(0, 0, W, H); c.strokeStyle = '#c9a646'; c.lineWidth = 6; c.strokeRect(5, 5, W - 10, H - 10); c.fillStyle = '#f2e3b3'; c.font = `600 ${small ? 34 : 40}px Georgia, serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(text, W / 2, H / 2 + 2); });
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w * 96 / 512), new THREE.MeshBasicMaterial({ map: t, toneMapped: false })); m.position.set(x, y, z); m.rotation.y = ry; g.add(m); return m;
+}
+{ const base = hqBuild; hqBuild = function () {
+  base(); const g = HQ.g; if (!g) return;
+  const name = { amirale: 'Bureau de l\'amirale', ops: 'Salle des opérations', cross: 'CROSS et liaisons', affect: 'Affectations', honneur: 'Salle d\'honneur' };
+  for (const R of HQ_ROOMS) {
+    if (!name[R.id]) continue;
+    for (const D of R.doors) {
+      const m = (D.a + D.b) / 2, o = 0.23;
+      if (D.side === 's') hqSign(g, name[R.id], 2.0, m, 2.62, R.r[3] + o, 0);
+      else if (D.side === 'n') hqSign(g, name[R.id], 2.0, m, 2.62, R.r[2] - o, Math.PI);
+      else if (D.side === 'e') hqSign(g, name[R.id], 2.0, R.r[1] + o, 2.62, m, Math.PI / 2);
+      else hqSign(g, name[R.id], 2.0, R.r[0] - o, 2.62, m, -Math.PI / 2);
+    }
+  }
+  hqSign(g, 'Hall · Sortie', 1.6, 0, 2.62, -10.23, Math.PI);
+  hqSign(g, 'Sortie · Quai', 1.6, 0, 2.62, -0.23, Math.PI);
+}; }
+
+// ===== HISTOIRE : INTERLUDES À PIED ENTRE LES CHAPITRES, DÉFI EN JEEP ET CINÉMATIQUES =====
+// Entre deux chapitres, on retrouve les personnages sur le quai : une fête au carré, la visite du grand-père, un défi en jeep,
+// un rendez-vous avec la journaliste, le livre de bord du Lion Noir, un prototype à l'arsenal, la veille d'armes.
+Object.assign(LOOKS, {
+  bosco: { uni: '#2e4a78', shirt: '#eef0f2', hair: '#1a120c', skin: '#8d5a3d', beret: '#2e4a78' },
+  meca: { uni: '#3b3f44', pants: '#2a2d31', hair: '#6b6b6b', beard: true, skin: '#d4a385' },
+  arsenal: { uni: '#e8e4da', pants: '#2a2d31', shirt: '#9fb4bf', hair: '#7a4a2a', long: true, skin: '#e2b493' }
+});
+const crewMorale = n => { for (const c of CAREER.crew) c.morale = Math.min(100, c.morale + n); };
+const fmtT = t => `${Math.floor(t / 60)} min ${(t % 60).toFixed(1).replace('.', ',').padStart(4, '0')} s`;
+const STORM_WX = { wind: 15, sea: 0.65, cloud: 0.95, rain: 0.5, fog: 0.12, storm: 0.5 };
+// lieux des interludes, dans le repère du port (le point est rendu praticable s'il tombe sur un obstacle)
+function walkNear(lx, lz) {
+  for (let r = 0; r < 16; r += 1) for (let k = 0; k < (r ? 12 : 1); k++) { const a = k / 12 * TAU, x = lx + Math.cos(a) * r, z = lz + Math.sin(a) * r, w = PL(x, z); if (pwWalkable(w.x, w.z)) return Object.assign(w, { lx: x, lz: z }); }
+  return Object.assign(PL(lx, lz), { lx, lz });
+}
+function interSpotL(id) {
+  if (id === 'albatros') { const g = gangway('opv'); return { x: g.lx, z: g.lz - 5 }; }
+  if (id === 'jeep') return { x: 74, z: -79 };
+  if (id === 'cafe') return { x: 186, z: -74 };
+  const p = { carre: [205, -79], arsenal: [-140, -82] }[id]; return { x: p[0], z: p[1] };
+}
+const UPG_OFFER = ['radar', 'rhib', 'thermal', 'hull', 'engine', 'thruster', 'spot', 'tow'];
+const upgOpts = () => UPG_OFFER.filter(k => UPGRADES[k] && upLv(k) < UPGRADES[k].cost.length).slice(0, 3);
+const upgOpt = n => sO(null, S => { const k = upgOpts()[n]; return k ? UPGRADES[k].n : ''; }, S => { const k = upgOpts()[n]; return k ? UPGRADES[k].d : ''; }, {
+  if: () => !!upgOpts()[n],
+  then: [sF(S => { const k = upgOpts()[n]; if (!k) return; CAREER.up = CAREER.up || {}; CAREER.up[k] = upLv(k) + 1; S.flags.proto = k; S.log.push({ ch: S.ch, t: `Interlude : prototype offert par l'arsenal (${UPGRADES[k].n}).`, day: CAREER.day }); })]
+});
+
+const INTERS = {
+  1: { t: 'Le carré', syn: 'Le soir même, l\'équipage de l\'Albatros fête l\'arrivée de son nouveau commandant devant le carré. On vous attend.', spot: 'carre', actors: ['second', 'bosco', 'meca'], time: 20.6, place: 'Devant le carré de l\'équipage, 20 h 30',
+    cine: () => [cinePort('Interlude', 'Le carré')],
+    scene: [
+      sN('Devant le carré : des guirlandes de fanions, une table pliante, et un barbecue que personne n\'a autorisé. L\'équipage de l\'Albatros s\'est mis sur son trente et un.'),
+      sA('second', 'Commandant ! On commençait à parier que vous ne viendriez pas.'),
+      sA('bosco', 'Le bosco, commandant. Ici, on a une tradition : le nouveau commandant goûte la sauce du bosco. Elle est… pimentée.'),
+      sC('bosco', null, [
+        sO('pose', 'Une cuillère', 'Avec plaisir. Une cuillère, pas plus : j\'ai un navire à commander demain.', { then: [sF(() => crewMorale(4)), sA('bosco', 'Sage. Le dernier commandant a pleuré.')] }),
+        sO('franc', 'Comme un marin', 'Allez, servez-moi comme un vrai marin.', { then: [sF(() => crewMorale(6)), sA('bosco', 'Ha ! Respect, commandant. Vous êtes des nôtres.')] }),
+        sO('feu', 'Défier le bosco', 'Je goûte si vous en reprenez deux fois plus que moi.', { fx: { fans: 20 }, then: [sF(() => crewMorale(8)), sN('Dix minutes plus tard, le bosco demande grâce, les yeux pleins de larmes. Tout l\'équipage scande votre nom.')] })
+      ]),
+      sA('meca', 'Le chef mécanicien. Je ne fais pas de discours, commandant. Mes moteurs vous attendent. Ne les brusquez pas, et ils vous rendront tout.'),
+      sC('second', 'Un mot pour l\'équipage, commandant ?', [
+        sO('pose', 'Ensemble', 'Merci pour l\'accueil. On apprendra ensemble, et on rentrera toujours au port ensemble.', { fx: { conf: 2 }, then: [sF(() => crewMorale(5))] }),
+        sO('franc', 'Vos prénoms', 'Je ne connais pas encore vos prénoms. Dans un mois, je les connaîtrai tous.', { flag: 'prenoms', log: 'Interlude : vous avez promis à l\'équipage d\'apprendre tous les prénoms.', then: [sF(() => crewMorale(7))] }),
+        sO('feu', 'Le meilleur équipage', 'Dans six mois, on sera le meilleur équipage de la flotte. Et tout le monde le saura.', { fx: { fans: 40 }, then: [sF(() => crewMorale(5))] })
+      ]),
+      sN('Tard dans la soirée, Maëlle vous raccompagne jusqu\'au bout du quai.'),
+      sA('second', 'Ils vous suivront, commandant. Il faudra juste leur donner une raison.')
+    ] },
+  2: { t: 'La visite', syn: 'Papy est venu voir le nouvel Albatros. Il vous attend sur le quai, devant la coupée.', spot: 'albatros', actors: ['papy'], time: 16.4, place: 'Quai de l\'Albatros, fin d\'après-midi',
+    cine: () => [cineShip('opv', 'Interlude', 'La visite')],
+    scene: [
+      sN('Sur le quai, un vieil homme en béret contemple l\'Albatros comme on regarde une vieille photo. Il met un moment à se retourner.'),
+      sA('papy', 'Quatre-vingt-sept mètres. Le mien en faisait quarante-deux, et il roulait comme une barrique. Elle est belle, ta coque, moussaillon.'),
+      sA('papy', 'Tu sais ce qui me manque le plus ? Pas la mer. L\'odeur du gasoil à cinq heures du matin, quand tout le monde dort sauf la passerelle.'),
+      sC('papy', null, [
+        sO('pose', 'La visite', 'Viens, je te fais visiter. La passerelle d\'abord.', { fx: { papy: 10 }, then: [sN('Il monte la coupée lentement, une main sur la rambarde. À la passerelle, il pose la paume sur la console et ne dit rien, très longtemps.'), sA('papy', 'C\'est bien. C\'est très bien.')] }),
+        sO('franc', 'Le Lion Noir', 'Papy… l\'autre soir, tu n\'as pas voulu parler du Lion Noir.', { fx: { papy: 3 }, flag: 'askLion2', then: [sA('papy', 'Pas ici. Les quais ont des oreilles, moussaillon. Un jour, je te dirai tout. Promis.')] }),
+        sO('feu', 'Le chambrer', 'Quarante-deux mètres ? C\'était une annexe, pas un patrouilleur.', { fx: { papy: 6 }, then: [sA('papy', 'Ha ! Cette annexe a sorti trente et un gars du mistral. On en reparlera quand tu en auras sorti trente-deux.')] })
+      ]),
+      sA('papy', 'Tiens. C\'est pour toi.'),
+      sN('Il vous tend une vieille montre de bord au cerclage de laiton, le verre rayé. Au dos, gravé : « Albatros · 1979 ».'),
+      sF(S => { S.flags.montre = true; S.log.push({ ch: S.ch, t: 'Interlude : Papy vous a offert la montre de bord du premier Albatros.', day: CAREER.day }); }),
+      sA('papy', 'Elle retarde de deux minutes par jour depuis 1987. Ne la fais pas réparer. C\'est comme ça qu\'elle est juste.'),
+      msg('second', 'Commandant, l\'équipage a vu votre grand-père sur le quai. Le bosco dit qu\'il a reconnu le patron du premier Albatros à sa façon de regarder la coque.')
+    ] },
+  3: { t: 'Le défi', syn: 'Lestrade vous attend près de la jeep de service. Il a une idée en tête… et un chronomètre.', spot: 'jeep', actors: ['rival'], time: 11.2, place: 'Parking de l\'état-major, fin de matinée', race: true,
+    cine: () => [cineEM('Interlude', 'Le défi')],
+    scene: [
+      sA('rival', '{N}. On raconte que vous conduisez cette jeep comme un patrouilleur : en ligne droite et sans freins.'),
+      sA('rival', S => `Un tour du port par la route des camions, sept portes, arrivée devant l'état-major. Mon record : ${fmtT(raceSetup().par)}. Battez-le, et je paie les cafés du carré pendant un mois.`),
+      sC('rival', null, [
+        sO('pose', 'Prudemment', 'D\'accord. Mais on respecte les piétons.', { fx: { rival: 5 }, then: [sA('rival', 'Évidemment. Je ne suis pas un monstre.')] }),
+        sO('franc', 'Accepter', 'Préparez votre porte-monnaie.', { then: [sA('rival', 'On verra.')] }),
+        sO('feu', 'Doubler la mise', 'Un mois ? Disons deux. Et le perdant lave la jeep.', { fx: { rival: -3, fans: 20 }, then: [sA('rival', 'Marché conclu.')] })
+      ]),
+      sN('La jeep vous attend sur la ligne de départ. Le moteur tourne déjà.')
+    ],
+    retry: [sA('rival', 'Une revanche ? Le chrono est toujours prêt. Sept portes, arrivée devant l\'état-major.')],
+    won: [
+      sA('rival', S => `${fmtT(RACE.last.t)}… Vous avez triché. Non ? Bon. Les cafés sont pour moi.`),
+      sC('rival', null, [
+        sO('pose', 'Pour le Vigilant', 'Gardez votre argent. Offrez-les plutôt à l\'équipage du Vigilant.', { fx: { rival: 10 }, then: [sA('rival', '… Vous êtes agaçant de gentillesse, {N}.')] }),
+        sO('franc', 'Un double', 'Un double, sans sucre.', { fx: { rival: 5 } }),
+        sO('feu', 'La jeep propre', 'Et la jeep sera propre demain matin, j\'imagine ?', { fx: { rival: -5, fans: 40 }, then: [sA('rival', 'Ne poussez pas votre chance.')] })
+      ]),
+      sF(S => { S.flags.raceWon = true; S.log.push({ ch: S.ch, t: `Interlude : défi de Lestrade remporté (${fmtT(RACE.last.t)}).`, day: CAREER.day }); }),
+      sN('Le soir, au carré, on ne parle que de ça. Le bosco a déjà fait encadrer le chrono.')
+    ],
+    lost: [
+      sA('rival', S => `${fmtT(RACE.last.t)}. Pas mal… pour une première fois. Les cafés sont pour vous.`),
+      sC('rival', null, [
+        sO('pose', 'Bien joué', 'Bien joué. Vous connaissez vos virages.', { fx: { rival: 10 }, then: [sA('rival', 'Huit ans de quai, ça aide.')] }),
+        sO('franc', 'Revanche', 'Revanche quand vous voulez.', { fx: { rival: 5 }, then: [sA('rival', 'Quand vous voulez. Je ne suis pas pressé.')] }),
+        sO('feu', 'Mauvaise jeep', 'J\'avais une jeep plus lente. Évidemment.', { fx: { rival: -8 }, then: [sA('rival', 'Évidemment.')] })
+      ]),
+      sF(S => { S.log.push({ ch: S.ch, t: `Interlude : défi de Lestrade perdu (${fmtT(RACE.last.t)}).`, day: CAREER.day }); })
+    ] },
+  5: { t: 'Le rendez-vous', syn: 'Léa Marchetti vous donne rendez-vous en terrasse, près du carré. Elle a trouvé quelque chose sur l\'Armement du Lion.', spot: 'cafe', actors: ['presse'], time: 19.3, place: 'Terrasse du port, 19 h 15',
+    cine: () => [cinePort('Interlude', 'Le rendez-vous')],
+    scene: [
+      sN('Une terrasse, deux cafés, et une pochette cartonnée posée entre les tasses.'),
+      sA('presse', 'Merci pour votre temps, commandant. Je vais droit au but.'),
+      sA('presse', 'L\'Armement du Lion a été créé en 1986, à Malte. Ses navires changent de nom tous les deux ans. Et en 1987, il possédait un cargo appelé… Lion Noir.'),
+      { doc: { title: 'Le Phare du Var · archives', sub: 'Édition du 16 février 1987', lines: ['NAUFRAGE DU LION NOIR : TRENTE ET UN MARINS SAUVÉS', 'Le patrouilleur Albatros, commandé par le maître principal Jean-Yves {N}, a recueilli dans la nuit de samedi l\'équipage du cargo Lion Noir, en perdition dans le mistral au large de Porquerolles.', 'La cargaison, déclarée comme « pièces mécaniques », n\'a pas été retrouvée. L\'armateur n\'a pas souhaité répondre à nos questions.'] } },
+      sA('presse', '« Pièces mécaniques. » Votre grand-père était là. Il a forcément vu quelque chose.'),
+      sC('presse', null, [
+        sO('pose', 'Protéger Papy', 'Mon grand-père est un vieil homme. Laissez-le en dehors de ça.', { fx: { papy: 5 }, flag: 'protect', then: [sA('presse', 'Je respecte ça. Mais la vérité finit toujours par remonter, commandant. Comme les épaves.')] }),
+        sO('franc', 'Un marché', 'Si je trouve quelque chose, vous serez la première informée. En échange, vous ne publiez rien sans mon accord.', { flag: 'deal', log: 'Interlude : pacte avec Léa Marchetti sur l\'affaire du Lion.', then: [sA('presse', 'Marché conclu. Je sais tenir une promesse.')] }),
+        sO('feu', 'Chercher ensemble', 'Alors on cherche. Tous les deux. Et tant pis pour ceux que ça dérange.', { fx: { conf: -4, fans: 60 }, flag: 'deal', then: [sA('presse', 'Voilà qui me plaît.')] })
+      ]),
+      sN('Elle range la pochette. En partant, elle se retourne.'),
+      sA('presse', 'Faites attention, commandant. Les gens de l\'Armement du Lion n\'aiment pas qu\'on parle d\'eux.')
+    ] },
+  6: { t: 'Le coffre de marin', syn: S => S.flags.visit ? 'Papy est sorti de l\'hôpital. Il vous attend sur le quai, avec quelque chose à vous remettre.' : 'Un colis est arrivé d\'Hyères. Maëlle vous attend devant la coupée de l\'Albatros.', spot: 'albatros', actors: S => S.flags.visit ? ['papy', 'second'] : ['second'], time: 18.3, place: 'Quai de l\'Albatros, le soir',
+    cine: () => [cineShip('opv', 'Interlude', 'Le coffre de marin')],
+    scene: [
+      sN('Papy est là, appuyé sur une canne neuve qu\'il déteste déjà. Sous son bras, un cahier relié de toile, gonflé par l\'humidité.', { if: S => S.flags.visit }),
+      sA('papy', 'Le livre de bord du Lion Noir. Trente-sept ans dans un coffre. Lis. Je reste là.', { if: S => S.flags.visit }),
+      sN('Maëlle vous tend un colis ficelé. L\'écriture sur le papier kraft tremble un peu, mais vous la reconnaîtriez entre mille.', { if: S => !S.flags.visit }),
+      sA('second', 'Il y a une lettre avec, commandant. Je vous laisse.', { if: S => !S.flags.visit }),
+      { doc: { title: 'Livre de bord · cargo Lion Noir', sub: 'Armement du Lion · La Valette', lines: ['12 février 1987. Appareillé 06 h 10. Cargaison : 840 caisses « pièces mécaniques ». Destinataire : non communiqué.', '13 février. Le second refuse d\'ouvrir la cale 2. Ordre de l\'armateur.', '14 février, 23 h 40. Mistral force 9. Avarie de barre. Nous dérivons vers Porquerolles.'] } },
+      { doc: { title: 'En marge, au crayon', sub: 'Notes de Jean-Yves {N}', lines: ['15 février, 02 h 10. Cale 2 ouverte par la mer. Des caisses de fusils, marquages effacés. Sur les bordereaux : VARNE.', '16 février. Un monsieur de Paris. Un papier à signer, « pour la sécurité de l\'État ». J\'ai signé.', 'J\'ai gardé ce livre. Un jour, quelqu\'un devra savoir.'] } },
+      sA('papy', 'Voilà. Maintenant, tu sais ce que je sais. Fais-en ce que ta conscience te dira.', { if: S => S.flags.visit }),
+      sN('La lettre ne fait que trois lignes : « Ne fais pas comme moi. Ne te tais pas. Ton vieux grand-père. »', { if: S => !S.flags.visit }),
+      sC(null, 'Le livre pèse lourd entre vos mains.', [
+        sO('pose', 'En lieu sûr', 'Je le garde en lieu sûr. Le moment viendra.', { fx: { conf: 2 } }),
+        sO('franc', 'Merci', S => S.flags.visit ? 'Merci de me faire confiance, Papy.' : 'Merci, Papy. Je t\'appelle ce soir.', { fx: { papy: 10 } }),
+        sO('feu', 'Ils paieront', 'Ils vont payer. Pour toi, et pour ces trente et un marins.', { fx: { papy: 5 } })
+      ]),
+      sF(S => { S.flags.logbook = true; S.log.push({ ch: S.ch, t: 'Interlude : vous avez lu le livre de bord du Lion Noir.', day: CAREER.day }); })
+    ] },
+  7: { t: 'Prototype', syn: 'L\'ingénieure Abgrall a un prototype à vous montrer, devant l\'arsenal.', spot: 'arsenal', actors: ['arsenal'], time: 9.6, place: 'Devant l\'arsenal, matin',
+    cine: () => [cinePort('Interlude', 'Prototype')],
+    scene: [
+      sA('arsenal', 'Commandant. Ce convoi m\'a coûté trois nuits blanches et deux moteurs à reprendre. Alors j\'ai eu le temps de bricoler.'),
+      sA('arsenal', 'Trois prototypes. Je peux en installer un seul, gratuitement, sur toute la flotte. Les autres, il faudra les payer comme tout le monde.', { if: () => upgOpts().length > 0 }),
+      sC('arsenal', 'Lequel voulez-vous ?', [upgOpt(0), upgOpt(1), upgOpt(2)], { if: () => upgOpts().length > 0 }),
+      sA('arsenal', 'Vous avez déjà tout ce que l\'arsenal sait faire. Je vous offre un café, alors. Et une prime pour l\'équipage.', { if: () => !upgOpts().length }),
+      sF(() => { if (!upgOpts().length && !CAREER.storyProtoCash) { CAREER.storyProtoCash = 1; CAREER.credits += 8000; } }),
+      sA('arsenal', 'Bon choix. Enfin, un choix. Ne me le cassez pas.', { if: S => !!S.flags.proto }),
+      msg('arsenal', 'Prototype installé et réglé, commandant. Je vous ai mis la notice sur la passerelle. Elle fait quarante pages. Lisez-la.')
+    ] },
+  9: { t: 'Veille d\'armes', syn: 'La nuit avant la tempête. L\'équipage de l\'Albatros veille sur le quai. Allez les voir.', spot: 'albatros', actors: S => S.m.rival >= 15 ? ['second', 'bosco', 'rival'] : ['second', 'bosco'], time: 22.6, place: 'Quai de l\'Albatros, 23 h',
+    cine: () => [cineShip('opv', 'Interlude', 'Veille d\'armes')],
+    scene: [
+      sN('23 h. Le quai est silencieux. Sur l\'Albatros, on a éteint les lumières de pont ; seules brillent la lueur rouge de la passerelle et quelques visages.'),
+      sA('second', 'Personne n\'arrive à dormir, commandant. Alors on veille ensemble.'),
+      sA('bosco', 'Commandant… on a fait une cagnotte. Si demain ça tourne mal, on voudrait que l\'argent aille aux familles des sauveteurs en mer. C\'est vous qui gardez l\'enveloppe.'),
+      sC('bosco', null, [
+        sO('pose', 'Rassurer', 'Demain, tout le monde rentre. Mais je garde l\'enveloppe. Promis.', { then: [sF(() => crewMorale(8))] }),
+        sO('franc', 'Avouer sa peur', 'J\'ai peur aussi. C\'est normal. Ce qui compte, c\'est ce qu\'on en fait.', { then: [sF(() => crewMorale(10))] }),
+        sO('feu', 'Galvaniser', 'Demain, c\'est eux qui auront peur.', { fx: { fans: 30 }, then: [sF(() => crewMorale(12))] })
+      ]),
+      sN('Une silhouette descend du quai voisin, deux gobelets fumants à la main. Lestrade.', { if: S => S.m.rival >= 15 }),
+      sA('rival', 'Café ? Je vous en devais un. Ou deux.', { if: S => S.m.rival >= 15 }),
+      sF(S => { if (S.m.rival >= 15) S.m.rival = Math.min(100, S.m.rival + 5); }),
+      sA('second', 'Allez dormir, commandant. On a besoin de vous en forme demain. C\'est un ordre de votre seconde.'),
+      sN('Vous regardez une dernière fois la rade. Quelque part au sud, dans le noir, Varne prépare sa réponse.')
+    ] }
+};
+// ----- plans de cinéma réutilisables -----
+function cinePort(title, sub) { return shotPort(PORT, { dur: 5.5, title, sub }); }
+function cineShip(cls, title, sub) { const get = () => FLEET[cls] || FLEET[CAREER.ship] || Object.values(FLEET)[0] || null; return get() ? shotShip(get, { dur: 5.5, title, sub, b0: 0.7, b1: 1.35, r0: 1.25, r1: 1.7, h0: 0.14, h1: 0.3, lead: 0.1 }) : cinePort(title, sub); }
+function cineEM(title, sub) { const y = PD_Y; return shotPan({ dur: 5, title, sub, p0: Object.assign(PL(150, -42), { y: y + 26 }), p1: Object.assign(PL(112, -62), { y: y + 7 }), l0: Object.assign(PL(95, -100), { y: y + 9 }), l1: Object.assign(PL(95, -96), { y: y + 5 }), fov: 52 }); }
+function storyMood(o) { if (!o) return; if (o.time != null) ENV.time = o.time; if (o.wx) setWeather(o.wx, true); }
+const CH_CINE = {
+  0: { time: 7.7, shots: () => [cinePort(PORT.n, 'Saison 1 · Sillage'), cineEM('7 h 40', 'L\'état-major vous attend')] },
+  1: { shots: () => [cineShip('frigate', 'Chapitre 1', 'Premier quart')] },
+  2: { time: 5.4, shots: () => [cineShip('opv', 'Chapitre 2', 'Première détresse')] },
+  3: { time: 15, shots: () => [cinePort('Chapitre 3', 'Le rival')] },
+  4: { time: 21.9, wx: STORM_WX, shots: () => [cinePort('Chapitre 4', 'Nuit de mistral')] },
+  5: { time: 9, shots: () => [cineShip('opv', 'Chapitre 5', 'Les ombres de Varne')] },
+  6: { time: 11, shots: () => [cineShip('frigate', 'Chapitre 6', 'Le choix')] },
+  7: { time: 13.5, shots: () => [cinePort('Chapitre 7', 'Convoi')] },
+  8: { time: 6.6, shots: () => [cineShip('opv', 'Chapitre 8', 'L\'abordage')] },
+  9: { time: 4.9, shots: () => [cinePort('Chapitre 9', 'Le repaire')] },
+  10: { time: 19.4, wx: STORM_WX, shots: () => [cinePort('Chapitre 10', 'Tempête sur la rade'), cineEM('Alerte générale', 'Toutes les permissions sont annulées')] },
+  11: { time: 18.5, wx: PRESETS.brise.w, shots: () => [cinePort('Épilogue', 'Trois semaines plus tard'), cineEM('Salle d\'honneur', 'Préfecture maritime')] }
+};
+// un chapitre commence par un plan d'ensemble (on sort de l'état-major le temps de la cinématique)
+function storyCine(i, then) {
+  const S = S0(), C = CH_CINE[i]; if (!S || !C) { then(); return; }
+  S.cineSeen = S.cineSeen || {}; const seen = S.cineSeen[i]; S.cineSeen[i] = true;
+  if (UI.screen === 'port') storyMood(C);
+  if (seen || !SET.cine || UI.screen !== 'port' || !PW.on) { then(); return; }
+  if (HQ.on) hqExit(true); if (JEEP.on) jeepExit();
+  cinePlay(C.shots(), then);
+}
+{ const base = storyPlayCh; storyPlayCh = function (i) { storyCine(i, () => base(i)); }; }
+{ const base = storyAccept; storyAccept = function (i) { if (i === 1) storyCine(1, () => base(i)); else base(i); }; }
+
+// ----- état d'un interlude -----
+function interCur() {
+  const S = S0(); if (!S || !S.on || S.done || S.pending || S.intro) return null;
+  const k = S.ch - 1, I = INTERS[k]; if (!I || (S.idone && S.idone[k])) return null;
+  return Object.assign({ k }, I, { syn: typeof I.syn === 'function' ? I.syn(S) : I.syn, actorsL: typeof I.actors === 'function' ? I.actors(S) : I.actors });
+}
+const PACT = {}, PACTK = { key: '', spot: null, sk: '' };
+function interSpot(I) { const k = PORT.id + ':' + I.k; if (PACTK.sk !== k) { const l = interSpotL(I.spot); PACTK.spot = walkNear(l.x, l.z); PACTK.sk = k; } return PACTK.spot; }
+function interGoal() { const I = interCur(); if (!I || !PW.on) return null; const p = interSpot(I); return { x: p.x, z: p.z, label: `Interlude : ${I.t}`, why: I.syn }; }
+function interActorsClear() { for (const k in PACT) { scene.remove(PACT[k].m); delete PACT[k]; } PACTK.key = ''; }
+function interActorsSync(I, p) {
+  const want = I.actorsL, key = I.k + ':' + want.join(',');
+  if (PACTK.key !== key) { interActorsClear(); PACTK.key = key; }
+  const offs = [[0, -2.2], [1.8, -1.4], [-1.8, -1.4], [3.2, -0.4]];
+  want.forEach((id, n) => {
+    if (PACT[id] || !LOOKS[id]) return;
+    const o = offs[n % offs.length], q = walkNear(p.lx + o[0], p.lz + o[1]), m = buildHuman(LOOKS[id]); m.traverse(c => { if (c.isMesh) c.castShadow = true; });
+    m.position.set(q.x, pwGround(q.x, q.z), q.z); scene.add(m); PACT[id] = { m, x: q.x, z: q.z, t: Math.random() * 6 };
+  });
+  // ils regardent le commandant quand il approche
+  const px = JEEP.on ? JEEP.x : PW.x, pz = JEEP.on ? JEEP.z : PW.z;
+  for (const id in PACT) { const A = PACT[id], d = Math.hypot(px - A.x, pz - A.z); A.t += 0.016; const want2 = d < 25 ? Math.atan2(-(px - A.x), -(pz - A.z)) : A.m.rotation.y + Math.sin(A.t * 0.4) * 0.002; A.m.rotation.y += wrapA(want2 - A.m.rotation.y) * 0.08; }
+}
+function interPlay(I) {
+  const S = S0(); S.iseen = S.iseen || {};
+  const beats = I.race && S.iseen[I.k] ? I.retry : I.scene; S.iseen[I.k] = true; saveCareer();
+  scenePlay(beats, { label: `Saison 1 · Interlude — ${I.t}${I.place ? ' · ' + I.place : ''}`, onEnd: () => { if (I.race) raceStart(I.k); else interDone(I.k); } });
+}
+function interDone(k, skipped) {
+  const S = S0(); if (!S) return; S.idone = S.idone || {}; S.idone[k] = true; saveCareer();
+  setTimeout(interActorsClear, skipped ? 0 : 2500);
+  if (!skipped) { addXP(80, 'Interlude'); pop(`Interlude terminé : ${INTERS[k].t}`, '+80 XP', true); }
+  const n = SAISON[S.ch]; if (n && !S.done) setTimeout(() => toast(`★ ${n.n} « ${n.t} » : l'amirale vous attend à l'état-major.`), 1200);
+}
+function interStep() {
+  const I = interCur();
+  if (!I) { if (Object.keys(PACT).length && !SC.on) interActorsClear(); return; }
+  if (!PW.on || UI.screen !== 'port' || HQ.on) return;
+  const p = interSpot(I); interActorsSync(I, p);
+  if (SC.on || CINE.on || RACE.on || (typeof PHOTO !== 'undefined' && PHOTO.on)) return;
+  const x = JEEP.on ? JEEP.x : PW.x, z = JEEP.on ? JEEP.z : PW.z, d = Math.hypot(p.x - x, p.z - z);
+  if (d < 4.5 && !JEEP.on) interPlay(I);
+  else if (d < 10 && JEEP.on && !interStep.told) { interStep.told = true; toast('Descendez de la jeep (E) pour les rejoindre.'); }
+}
+// un interlude qui s'ouvre : petite cinématique, puis on part à pied (la flèche dorée montre le chemin)
+function interBegin(k) {
+  const I = INTERS[k], S = S0(); if (!I || !S || UI.screen !== 'port' || !PW.on) return;
+  storyMood({ time: I.time });
+  const go = () => { const J = interCur(); if (J) toast(`Interlude : ${J.t}. ${J.syn}`); };
+  if (!SET.cine || !I.cine) { go(); return; }
+  if (HQ.on) hqExit(true); if (JEEP.on) jeepExit();
+  cinePlay(I.cine(), go);
+}
+{ const base = storyAdvance; storyAdvance = function (i, quiet) {
+  base(i, quiet); const S = S0(); if (!S || !INTERS[i] || (S.idone && S.idone[i])) return;
+  let n = 0; const wait = () => { if (SC.on || CINE.on) { if (++n < 40) setTimeout(wait, 500); return; } interBegin(i); }; setTimeout(wait, 500);
+}; }
+{ const base = harborLeave; harborLeave = function () { interActorsClear(); base(); }; }
+// pendant une scène sur le quai, le commandant se tourne vers celui qui parle
+{ const base = scLookAt; scLookAt = function (who) { if (!HQ.on && PACT[who]) { SC.look = { x: PACT[who].x, z: PACT[who].z }; return; } base(who); }; }
+{ const base = pwStep; pwStep = function (dt) { base(dt); if (SC.on && SC.look && !HQ.on && !JEEP.on) { const want = Math.atan2(-(SC.look.x - PW.x), -(SC.look.z - PW.z)); PW.yaw += wrapA(want - PW.yaw) * clamp(dt * 3, 0, 1); } }; }
+
+// ----- le défi de Lestrade : un tour du port en jeep, chronométré -----
+const RACE = { on: false, cps: [], i: 0, t: 0, par: 0, count: 0, k: null, last: null, beam: null, ring: null, said: 0 };
+function raceSetup() {
+  const L = [[180, -68.5], [286, -65.75], [120, -63], [-150, -63], [-286, -65.75], [-120, -68.5], [92, -68.5]];
+  const cps = L.map(([x, z], i) => Object.assign(PL(x, z), { label: i === L.length - 1 ? 'l\'arrivée' : `la porte ${i + 1}` }));
+  let len = 0, p = PL(64, -68.5); for (const c of cps) { len += Math.hypot(c.x - p.x, c.z - p.z); p = c; }
+  return { cps, par: Math.round(len / 13.2) };
+}
+function raceStart(k) {
+  if (!PW.on || UI.screen !== 'port') return;
+  if (LIA.cur) liaisonStop(); jcCancel(); if (HQ.on) hqExit(true);
+  const R = raceSetup(), s = PL(60, -68.5), n = PL(61, -68.5);
+  JEEP.x = s.x; JEEP.z = s.z; JEEP.a = Math.atan2(-(n.x - s.x), -(n.z - s.z)); JEEP.v = 0; JEEP.steer = 0; jeepPlace(0);
+  if (!JEEP.on) jeepEnter(); PW.snap = 1;
+  Object.assign(RACE, { on: true, cps: R.cps, par: R.par, i: 0, t: 0, count: 3.4, k, said: 4 });
+}
+function raceEnd(finished, why) {
+  RACE.on = false; if (RACE.beam) RACE.beam.visible = RACE.ring.visible = false; const el = $('raceHud'); if (el) el.hidden = true;
+  RACE.last = { t: RACE.t, finished, win: finished && RACE.t <= RACE.par };
+  if (!finished) { if (why) toast(why); return; }
+  JEEP.v = 0; jingle(RACE.last.win ? 'level' : 'xp'); cineTitle(RACE.last.win ? 'Record battu !' : 'Arrivée', fmtT(RACE.t), 2600);
+  const I = INTERS[RACE.k], k = RACE.k;
+  // Lestrade attend à l'arrivée
+  const A = PACT.rival; if (A) { const rx = Math.cos(JEEP.a), rz = -Math.sin(JEEP.a); for (const s of [1, -1]) { const x = JEEP.x + rx * s * 5, z = JEEP.z + rz * s * 5; if (pwWalkable(x, z)) { A.x = x; A.z = z; A.m.position.set(x, pwGround(x, z), z); break; } } }
+  setTimeout(() => scenePlay(RACE.last.win ? I.won : I.lost, { label: `Saison 1 · Interlude — ${I.t}`, onEnd: () => interDone(k) }), 1400);
+}
+function raceStep(dt) {
+  if (!RACE.on) return;
+  if (!PW.on || UI.screen !== 'port') { raceEnd(false); return; }
+  if (!JEEP.on) { raceEnd(false, 'Défi abandonné : il faut rester au volant. Lestrade vous attend pour une revanche.'); return; }
+  if (RACE.count > 0) { RACE.count -= dt; const n = Math.ceil(RACE.count); if (n < RACE.said && n >= 0) { RACE.said = n; cineTitle(n > 0 ? String(n) : 'Partez !', n > 0 ? 'Défi de Lestrade' : `Record à battre : ${fmtT(RACE.par)}`, 900); portBeep(n > 0 ? 520 : 880, null); } }
+  else RACE.t += dt;
+  const cp = RACE.cps[RACE.i], d = Math.hypot(cp.x - JEEP.x, cp.z - JEEP.z);
+  if (d < 8) { RACE.i++; sfx('click'); if (RACE.i >= RACE.cps.length) { raceEnd(true); return; } }
+  if (RACE.t > RACE.par + 75) { raceEnd(false, 'Trop lent : Lestrade a rangé son chronomètre. Revanche quand vous voulez.'); return; }
+  const c = RACE.cps[RACE.i];
+  if (!RACE.beam) {
+    const bg = new THREE.CylinderGeometry(3.2, 3.2, 14, 16, 1, true); bg.translate(0, 7, 0);
+    RACE.beam = new THREE.Mesh(bg, new THREE.MeshBasicMaterial({ color: '#ff9a3d', transparent: true, opacity: 0.25, depthWrite: false, side: THREE.DoubleSide, toneMapped: false })); RACE.beam.renderOrder = 5;
+    RACE.ring = new THREE.Mesh(new THREE.RingGeometry(6.2, 7.2, 40), new THREE.MeshBasicMaterial({ color: '#ff9a3d', transparent: true, opacity: 0.8, depthWrite: false, side: THREE.DoubleSide, toneMapped: false })); RACE.ring.rotation.x = -Math.PI / 2;
+  }
+  if (!RACE.beam.parent) { scene.add(RACE.beam); scene.add(RACE.ring); }
+  const gy = pwGround(c.x, c.z); RACE.beam.position.set(c.x, gy, c.z); RACE.ring.position.set(c.x, gy + 0.06, c.z); RACE.beam.visible = RACE.ring.visible = true;
+  let el = $('raceHud'); if (!el) { el = document.createElement('div'); el.id = 'raceHud'; $('pwUI').appendChild(el); }
+  const s = `<p class="eyebrow">Défi de Lestrade · ${Math.min(RACE.i + 1, RACE.cps.length)}/${RACE.cps.length}</p><span class="${RACE.t > RACE.par ? 'warn' : ''}">${fmtT(RACE.t)}</span><em>Record : ${fmtT(RACE.par)} · vers ${escH(c.label)} (${Math.round(Math.hypot(c.x - JEEP.x, c.z - JEEP.z))} m)</em>`;
+  if (el._s !== s) { el._s = s; el.innerHTML = s; } el.hidden = false;
+}
+// la jeep reste sur la ligne pendant le compte à rebours
+{ const base = jeepStep; jeepStep = function (dt) { if (RACE.on && RACE.count > 0) { const x = JEEP.x, z = JEEP.z, a = JEEP.a; base(dt); JEEP.x = x; JEEP.z = z; JEEP.a = a; JEEP.v = 0; PW.x = x; PW.z = z; return; } if (SC.on) { JEEP.v *= 0.9; for (const k in KEYS) KEYS[k] = false; } base(dt); }; }
+{ const base = harborLeave; harborLeave = function () { if (RACE.on) raceEnd(false); if (RACE.beam && RACE.beam.parent) { scene.remove(RACE.beam); scene.remove(RACE.ring); } base(); }; }
+{ const base = cameraStep; cameraStep = function (dt) { base(dt); if (UI.screen === 'port') { const d = paused || CINE.on ? 0 : dt; raceStep(d); interStep(); } }; }
+// la flèche dorée ne montre pas l'interlude pendant le défi
+{ const base = interGoal; interGoal = function () { if (RACE.on) return null; return base(); }; }
+
+// ----- carte « Histoire » : l'interlude en cours -----
+{ const base = storyCardHTML; storyCardHTML = function () {
+  const I = interCur(); if (!I) return base();
+  return `<div class="stcard"><p class="eyebrow">★ Histoire · Interlude</p><b>${escH(I.t)}</b><p class="small">${escH(sFill(I.syn))}</p><p class="small ok">À pied, sur le quai : suivez la flèche dorée.</p>
+    <div class="row2"><button class="btn sm pri" data-act="intergo">Me guider</button><button class="btn sm ghost" data-act="interskip">Passer l'interlude</button><button class="btn sm ghost" data-act="stjournal">Mon parcours</button></div></div>`;
+}; }
+Object.assign(ACT, {
+  intergo: () => { if (HUB.place !== 'over') hubGo('over'); const I = interCur(); if (!I) return; toast(`Interlude : ${I.t}. Sortez de l'état-major et suivez la flèche dorée.`); },
+  interskip: () => { const I = interCur(); if (!I) return; interDone(I.k, true); hubRender(); toast('Interlude passé.'); }
+});
+// la suite du chapitre ne démarre qu'après l'interlude (ou si on le passe)
+{ const base = ACT.stplay; ACT.stplay = () => { const I = interCur(); if (I) { interDone(I.k, true); } base(); }; }
+
+// ----- cinématiques hors histoire : nouveau bâtiment, promotion -----
+{ const base = ACT.buyship; ACT.buyship = d => {
+  const had = owned(d.v); base(d);
+  if (!had && owned(d.v) && shipHere(d.v) && UI.screen === 'port' && PW.on) setTimeout(() => { if (UI.screen !== 'port') return; if (HUB.place !== 'over') hubGo('over'); if (HQ.on) hqExit(true); cinePlay([cineShip(d.v, 'Nouveau bâtiment', `${CLASSES[d.v].n} · ${CLASSES[d.v].cls}`)]); }, 400);
+}; }
+{ const base = emGreet; emGreet = function () { const before = CAREER.rankSeen || 0; base(); const rk = CAREER.rankSeen || 0; if (rk > before) { jingle('level'); cineTitle('Promotion', RANKS[rk].n, 3800); } }; }
+// ----- scènes en extérieur : plan à deux personnages (de côté), et un peu de lumière d'appoint la nuit -----
+const SCAM = { key: '', side: 1, init: false, v: new THREE.Vector3() };
+function sceneCam(dt) {
+  const A = SC.look, px = JEEP.on ? JEEP.x : PW.x, pz = JEEP.on ? JEEP.z : PW.z;
+  const dx = A.x - px, dz = A.z - pz, d = Math.max(1, Math.hypot(dx, dz)), ux = dx / d, uz = dz / d, sx = -uz, sz = ux;
+  const mx = (px + A.x) / 2, mz = (pz + A.z) / 2, gy = pwGround(mx, mz), off = d * 0.8 + 2.8, key = Math.round(A.x) + ':' + Math.round(A.z);
+  if (SCAM.key !== key) { const ok = s => pwWalkable(mx + sx * off * s - ux * 1.4, mz + sz * off * s - uz * 1.4); SCAM.side = ok(SCAM.side) ? SCAM.side : ok(-SCAM.side) ? -SCAM.side : SCAM.side; SCAM.key = key; }
+  SCAM.v.set(mx + sx * off * SCAM.side - ux * 1.4, gy + (JEEP.on ? 2.3 : 1.75), mz + sz * off * SCAM.side - uz * 1.4);
+  if (!SCAM.init) { camera.position.copy(SCAM.v); SCAM.init = true; } else camera.position.lerp(SCAM.v, clamp(dt * 2.5, 0, 1));
+  camera.lookAt(mx, gy + 1.45, mz); camera.fov = lerp(camera.fov, 45, 0.2); camera.updateProjectionMatrix();
+  if (PW.av && !JEEP.on) PW.av.visible = true;
+}
+{ const base = pwCamera; pwCamera = function (dt) { base(dt); if (SC.on && SC.look && !HQ.on && UI.screen === 'port') sceneCam(dt); }; }
+{ const base = scEnd; scEnd = function () { const out = !HQ.on && UI.screen === 'port'; base(); if (out && !SC.on) { PW.snap = 1; SCAM.init = false; SCAM.key = ''; } }; }
+{ const base = updateEnvironment; updateEnvironment = function (dt, focus) {
+  base(dt, focus); if (!SC.on || UI.screen !== 'port' || HQ.on) return;
+  // la nuit, une lumière d'appoint chaude, comme les projecteurs d'un plateau de tournage
+  const night = 1 - smooth(-0.08, 0.2, sunDir().y); HEMI.intensity = Math.max(HEMI.intensity, 0.62 + night * 0.5);
+  if (night > 0) { HEMI.color.lerp(_scC.setRGB(0.95, 0.82, 0.66), night * 0.8); HEMI.groundColor.lerp(_scC.setRGB(0.32, 0.27, 0.22), night * 0.8); }
+}; }
+const _scC = new THREE.Color();
+
+// ===== RÉPARATIONS À QUAI (arsenal et « Ma flotte ») ET BÂTIMENT RAVITAILLEUR « PENFRET » =====
+// ----- remise en état : réparer, faire le plein, réarmer, pour chaque bâtiment présent au port -----
+const shipsHere = () => Object.keys(CLASSES).filter(c => owned(c) && shipHere(c));
+function refitCost(c) { const k = shipCosts(c); return { rep: k.repair, fuel: k.fuel, ammo: k.ammo || 0, all: k.repair + k.fuel + (k.ammo || 0) }; }
+function refitHTML(title) {
+  const C = CAREER, L = shipsHere(); if (!C || !L.length) return '';
+  const tot = L.reduce((a, c) => a + refitCost(c).all, 0);
+  return `<h4>${escH(title || 'Remise en état à quai')}</h4><div class="refit">${L.map(c => { const st = C.ships[c], k = refitCost(c), K = CLASSES[c];
+    return `<div class="rf"><div class="rfh"><b>${escH(K.n)}</b><span>${escH(K.cls)}</span></div><div class="rfg">${gauge('Coque', st.hull, st.hull < 50)}${gauge('Machine', st.engine, st.engine < 60)}${gauge('Gasoil', st.fuel, st.fuel < 30)}${c === 'oiler' ? gauge('Cargaison', st.cargo == null ? 100 : st.cargo, (st.cargo == null ? 100 : st.cargo) < 30) : ''}</div>
+      <div class="row2"><button class="btn sm" data-act="repair" data-v="${c}" ${k.rep > 0 && C.credits >= k.rep ? '' : 'disabled'}>Réparer${k.rep > 0 ? ` (${fmtCr(k.rep)})` : ''}</button><button class="btn sm" data-act="refuel" data-v="${c}" ${k.fuel > 0 && C.credits >= k.fuel ? '' : 'disabled'}>Plein${k.fuel > 0 ? ` (${fmtCr(k.fuel)})` : ''}</button>${Object.keys(K.gear.ammo || {}).length ? `<button class="btn sm" data-act="rearm" data-v="${c}" ${k.ammo > 0 && C.credits >= k.ammo ? '' : 'disabled'}>Réarmer${k.ammo > 0 ? ` (${fmtCr(k.ammo)})` : ''}</button>` : ''}</div></div>`; }).join('')}</div>
+    <div class="row2"><button class="btn sm pri" data-act="refitall" ${tot > 0 && C.credits >= tot ? '' : 'disabled'}>Tout remettre en état${tot > 0 ? ` (${fmtCr(tot)})` : ' : rien à faire'}</button></div>`;
+}
+ACT.refitall = () => { const C = CAREER; for (const c of shipsHere()) { const k = refitCost(c); if (k.all > 0 && C.credits >= k.all) { if (k.rep) ACT.repair({ v: c }); if (k.fuel) ACT.refuel({ v: c }); if (k.ammo) ACT.rearm({ v: c }); } } sfx('click'); toast('Remise en état terminée.'); refitRefresh(); };
+function refitRefresh() { if (UI.screen === 'port') hubRender(); const f = $('fleetUI'); if (f && !f.hidden) fleetOpen(); }
+for (const k of ['repair', 'refuel', 'rearm']) { const base = ACT[k]; ACT[k] = d => { base(d); refitRefresh(); }; }
+{ const base = panelHTML; panelHTML = function () { const h = base(); if (HUB.place !== 'arsenal' || !CAREER) return h; const r = refitHTML('Réparations, plein et réarmement'); return h.includes('<h4>Améliorations') ? h.replace('<h4>Améliorations', r + '<h4>Améliorations') : h + r; }; }
+{ const base = fleetHTML; fleetHTML = function () { return base() + refitHTML(`Remise en état à ${PORT.n}`); }; }
+// à la coupée : l'état du bâtiment est rappelé, et l'on prévient s'il est abîmé
+{ const base = pwPlaces; pwPlaces = function () {
+  const L = base(); if (!CAREER) return L;
+  for (const p of L) if (p.ship && owned(p.ship) && p.board) { const st = CAREER.ships[p.ship]; const w = []; if (st.hull < 60) w.push(`coque ${Math.round(st.hull)} %`); if (st.fuel < 35) w.push(`gasoil ${Math.round(st.fuel)} %`); if (w.length) p.label += ` · ${w.join(', ')} (réparation à l'arsenal)`; }
+  return L;
+}; }
+{ const base = pwBoard; pwBoard = function (c) { const st = CAREER && owned(c) && CAREER.ships[c]; if (st && (st.hull < 50 || st.fuel < 25)) toast(`${CLASSES[c].n} : coque ${Math.round(st.hull)} %, gasoil ${Math.round(st.fuel)} %. L'arsenal (ou « Ma flotte », F) répare et fait le plein.`); base(c); }; }
+
+// ----- le ravitailleur -----
+KINDS.oiler = { L: 160, B: 24, T: 7.6, vmax: 10.3, acc: 0.12, rpmRate: 0.06, kr: 0.0017, dr: 0.25, rud: 35, rudRate: 2.8, thr: 0.0013, wind: 0.0005, roll: 8.5, pitch: 6, hp: 420 };
+function buildOiler(name) {
+  const sp = { L: 160, B: 24, D: 13, T: 7.6, sheer: 1.8, rake: 6, transom: 0.92, fine: 0.62, flat: 0.62, bulwark: 1.4, bulFrom: 0.66, forefoot: 0.6, hullCol: HAZE, mark: 'A 725', markCol: '#1d2226', name: name || 'PENFRET', markCol2: '#1d2226', deckCol: '#575e63', antifoul: '#3a2e2a', helideck: [0.015, 0.13] };
+  const root = shipFromSpec(sp); const b = root.userData.body, L = sp.L, H = root.userData.H, dk = s => H.deckH(s);
+  // château avant : passerelle et logements
+  const fwd = boxPart(21, 11, 20, { taper: 0.06, slope: 1.2, col: HAZE, front: [{ y: 0.78, h: 1.3, m: 2.4, pitch: 1.6, band: true }], frontKind: 'band', side: [{ y: 0.78, h: 1.1, m: 18, pitch: 2, band: true }, { y: 0.35, h: 0.7, w: 0.7, pitch: 3, m: 2, round: true, lit: 0.4 }], sideKind: 'band', roof: HAZEDK });
+  b.add(at(fwd, 0, dk(0.77) + 5.5, zAt(L, 0.77)));
+  const mastY = dk(0.77) + 11, mast = boxPart(6, 10, 6, { taper: 0.5, col: HAZE2, roof: HAZEDK }); b.add(at(mast, 0, mastY + 5, zAt(L, 0.76)));
+  const radar = new THREE.Group(); radar.add(at(box(5, 0.5, 0.5, '#d9dcdc'), 0, 0.4, 0)); b.add(at(radar, 0, mastY + 11, zAt(L, 0.76))); root.userData.radar = radar;
+  b.add(at(new THREE.Mesh(new THREE.SphereGeometry(1.2, 14, 10), std('#e8eaea', 0.4)), 0, mastY + 12.6, zAt(L, 0.76)));
+  const gun = turret(0.5); b.add(at(gun, 0, dk(0.9) + 0.6, zAt(L, 0.9))); root.userData.gun = gun;
+  // pont de charge : trois portiques de ravitaillement, collecteurs, conteneurs de vivres
+  for (let i = 0; i < 9; i++) { const p = cyl(0.35, 0.35, 62, '#b9a56a'); p.rotation.x = Math.PI / 2; b.add(at(p, -5 + i * 1.25, dk(0.5) + 0.9, zAt(L, 0.5))); }
+  root.userData.ras = [];
+  for (const s of [0.4, 0.5, 0.6]) {
+    const z = zAt(L, s), y0 = dk(s);
+    for (const x of [-9.6, 9.6]) b.add(at(box(0.9, 14, 0.9, HAZE2), x, y0 + 7, z));
+    b.add(at(box(20.2, 1.2, 1.2, HAZE2), 0, y0 + 14.2, z));
+    for (const x of [-10.6, 10.6]) { const arm = box(3.4, 0.5, 0.6, '#c9a646'); arm.rotation.z = x < 0 ? -0.25 : 0.25; b.add(at(arm, x, y0 + 13.2, z)); }
+    for (const x of [-6, 6]) { const reel = cyl(1.1, 1.1, 1.6, '#2a2d30', 12); reel.rotation.z = Math.PI / 2; b.add(at(reel, x, y0 + 1.6, z + 1.8)); }
+    root.userData.ras.push(new THREE.Vector3(12, y0 + 13 - sp.T, z));
+  }
+  for (let k = 0; k < 4; k++) b.add(at(box(2.5, 2.6, 6, ['#a3402c', '#2d5c8a', '#c9a646', '#3f6b3a'][k], 0.7), -6 + k * 2.6 + (k > 1 ? 4 : 0), dk(0.68) + 1.3, zAt(L, 0.68)));
+  // hangar, cheminée, défense rapprochée, embarcations
+  const hang = boxPart(18, 8, 22, { taper: 0.08, col: HAZE, back: [{ y: 0.06, h: 6, m: 2.6, pitch: 99, band: true }], backKind: 'band', side: [{ y: 0.55, h: 0.6, w: 0.6, pitch: 3.5, m: 2, round: true, lit: 0.3 }], roof: HAZEDK });
+  b.add(at(hang, 0, dk(0.24) + 4, zAt(L, 0.24)));
+  const f = boxPart(5, 7, 7, { taper: 0.2, col: HAZE2, roof: '#151515' }); b.add(at(f, 0, dk(0.27) + 8 + 3.5, zAt(L, 0.28)));
+  root.userData.funnel = new THREE.Vector3(0, dk(0.27) + 15 - sp.T, zAt(L, 0.28));
+  const c1 = ciwsMount(); b.add(at(c1, 0, dk(0.24) + 8.2, zAt(L, 0.2))); root.userData.ciws = [c1];
+  root.userData.decoy = [new THREE.Vector3(-8, dk(0.3) + 8 - sp.T, zAt(L, 0.3)), new THREE.Vector3(8, dk(0.3) + 8 - sp.T, zAt(L, 0.3))];
+  const rhib = buildRhib('#3d4a52'); b.add(at(rhib, 10, dk(0.33) + 2, zAt(L, 0.33))); root.userData.rhib = rhib;
+  const rhib2 = buildRhib('#3d4a52'); b.add(at(rhib2, -10, dk(0.33) + 2, zAt(L, 0.33)));
+  root.userData.helideck = new THREE.Vector3(0, dk(0.08) + 0.2 - sp.T, zAt(L, 0.08));
+  root.userData.towPoint = new THREE.Vector3(0, dk(0.01) + 1 - sp.T, zAt(L, 0.0));
+  addRailings(b, H, L, 0.01, 0.95);
+  stdLights(root, b, dk(0.77) + 9.6, 10.6, 0.78, mastY + 12, L, 0.005, dk(0.01) + 1.5);
+  addSpot(root, dk(0.77) + 11 - sp.T, zAt(L, 0.82));
+  root.userData.eye = new THREE.Vector3(0, dk(0.77) + 9.4 - sp.T, zAt(L, 0.83));
+  return root;
+}
+CLASSES.oiler = { n: RAS_NAME, cls: 'Bâtiment ravitailleur de forces', kind: 'oiler', build: () => buildOiler(), price: 120000, rank: 1, crew: 130,
+  d: '160 m, 20 nœuds. Gasoil, munitions et vivres pour toute la flotte : il ravitaille en mer les autres bâtiments, à couple, par ses trois portiques. Hélicoptère, deux semi-rigides, défense rapprochée.',
+  gear: { gun: '30mm', rhib: 1, heli: 1, ciws: 1, decoy: 4, tow: 1, ras: 1, ammo: { gun: 300, decoy: 4 } }, roles: ['civil', 'log'] };
+ALLC.push('oiler');
+for (const t of ['rescue', 'medevac', 'pollution', 'sarex', 'helo', 'wildfire']) if (MREQ[t] && !MREQ[t].includes('oiler')) MREQ[t].push('oiler');
+ROOMSETS.oiler = ['radio', 'soute', 'secu', 'hangar'];
+CDT.oiler = ['Capitaine de frégate Yann Le Goff', 'YG', '#6a5a2a', 'Ancien officier de la marine marchande, placide, logisticien dans l\'âme, compte tout en mètres cubes et ne s\'énerve jamais.'];
+CAST.cdt_oiler = { n: CDT.oiler[0], short: 'Yann Le Goff', role: `Commandant du ravitailleur ${RAS_NAME}`, ini: 'YG', col: '#6a5a2a', persona: CDT.oiler[3] };
+med('oiler', 'Logisticien', 'Posséder le ravitailleur', 1, x => owned('oiler'));
+med('ras5', 'Pompiste des mers', 'Ravitailler 5 bâtiments en mer', 1, x => (x.M.cnt.ras || 0) >= 5);
+// au port : sur coffre dans le bassin ouest, la vedette de rade y conduit depuis la jetée ouest
+{ const base = berthLocal; berthLocal = function (cls) { return cls === 'oiler' ? { x: -175, z: 300, psi: Math.PI } : base(cls); }; }
+{ const base = gangway; gangway = function (c) { return c === 'oiler' ? gangwayW({ x: -300, z: 150, sz: 150, yaw: Math.PI, side: 0, boat: true }) : base(c); }; }
+{ const base = pwPlanks; pwPlanks = function () {
+  const i = ALLC.indexOf('oiler'); if (i >= 0) ALLC.splice(i, 1); try { base(); } finally { if (i >= 0) ALLC.splice(i, 0, 'oiler'); }
+  if (FLEET.oiler) { const v = buildRhib('#2b3b4c'); v.scale.setScalar(1.5); const q = PL(-284, 152); v.position.set(q.x, 0.4, q.z); v.rotation.y = -PORT.ang; scene.add(v); PW.planks.push(v); }
+}; }
+{ const base = pwPlaces; pwPlaces = function () { const L = base(); for (const p of L) if (p.ship === 'oiler') p.label = p.board ? `${CAREER && CAREER.ship === 'oiler' ? '★ ' : ''}Vedette de rade : rejoindre le ravitailleur ${RAS_NAME}${p.label.includes(' · ') ? p.label.slice(p.label.indexOf(' · ')) : ''}` : `Ravitailleur ${RAS_NAME} : voir le bâtiment`; return L; }; }
+// coûts : le plein du ravitailleur comprend sa cargaison
+{ const base = shipCosts; shipCosts = function (id) {
+  if (id !== 'oiler') return base(id);
+  const st = CAREER.ships[id], K = CLASSES[id], f = 2.2, cg = st.cargo == null ? 100 : st.cargo; let ammo = 0; for (const k in K.gear.ammo) ammo += Math.max(0, K.gear.ammo[k] - (st.ammo[k] || 0)) * ({ gun: 2, decoy: 250 }[k] || 0);
+  return { repair: Math.round(((100 - st.hull) * 180 + (100 - st.engine) * 140) * f), fuel: Math.round(((100 - st.fuel) * 45 + (100 - cg) * 110) * f), ammo: Math.round(ammo) };
+}; }
+{ const base = ACT.refuel; ACT.refuel = d => { const c = d.v || CAREER.ship, st = CAREER.ships[c]; base(d); if (c === 'oiler' && st && st.fuel >= 100) st.cargo = 100; saveCareer(); }; }
+// cargaison embarquée : elle se vide à chaque ravitaillement, et se sauvegarde au retour
+{ const base = spawnPlayer; spawnPlayer = function (x, z, psi, cls) { const r = base(x, z, psi, cls); if (PLAYER && PLAYER.cls === 'oiler') { const st = CAREER && CAREER.ships.oiler; PLAYER.cargo = st && st.cargo != null ? st.cargo : 100; } return r; }; }
+{ const base = endMission; endMission = function (win, text, extra) { const m = MS.cur, was = m && m.over; base(win, text, extra); if (m && !was && m.over && m.cls === 'oiler' && !m.lent && CAREER.ships.oiler && PLAYER) { CAREER.ships.oiler.cargo = Math.round(PLAYER.cargo); saveCareer(); } }; }
+
+// ----- ravitaillement à la mer : à couple, même cap, même vitesse ; les manches à combustible passent d'un bord à l'autre -----
+const RAS2 = { cur: null, lines: [], call: null };
+function rasGeom(o, r) {   // o : ravitailleur, r : bâtiment ravitaillé
+  const f = o.fwd || { x: Math.sin(o.psi), z: -Math.cos(o.psi) }, dx = r.x - o.x, dz = r.z - o.z, along = dx * f.x + dz * f.z, side = -dx * f.z + dz * f.x, lat = Math.abs(side);
+  const dh = Math.abs(wrapA(o.psi - r.psi)), dv = Math.abs(kn(o.u) - kn(r.u));
+  const ok = lat > 30 + (r.B || 10) / 2 && lat < 180 && Math.abs(along) < 100 && dh < 0.35 && dv < 2.5 && kn(o.u) < 16;
+  return { ok, lat, along, dh, dv, side: Math.sign(side) || 1, d: Math.hypot(dx, dz) };
+}
+const isNavy = v => v && v !== PLAYER && !v.removed && !v.sinking && !v.dead && (v.rasRecv || v.ally || (v.faction === 'ysmar' && !v.ambient && !v.escortee && ['patrol', 'corvette', 'frigate', 'destroyer', 'tug', 'carrier', 'sub'].includes(v.kind)));
+function rasTargets() { const P = PLAYER, m = MS.cur; return VESSELS.filter(v => isNavy(v) && distTo(v, P) < 1600 && !(m && m.rasDone && m.rasDone.has(v))).sort((a, b) => distTo(a, P) - distTo(b, P)); }
+function rasWhy(g) { return g.lat > 180 ? `Rapprochez-vous à couple (écart ${Math.round(g.lat)} m, moins de 180).` : g.lat < 30 ? 'Trop près : écartez-vous un peu.' : Math.abs(g.along) >= 100 ? 'Alignez les passerelles (décalage avant-arrière trop grand).' : g.dh >= 0.35 ? 'Prenez le même cap.' : g.dv >= 2.5 ? `Égalisez les vitesses (écart ${g.dv.toFixed(1).replace('.', ',')} nd).` : 'Moins de 16 nœuds pour le transfert.'; }
+{ const base = genericActions; genericActions = function () {
+  const out = base(), P = PLAYER, m = MS.cur; if (!P || !m || UI.screen !== 'sea' || (m.over && !m.free)) return out;
+  // à bord du ravitailleur : ravitailler le bâtiment voisin
+  if (P.gear && P.gear.ras && !RAS2.cur) { const v = rasTargets()[0]; if (v) { const g = rasGeom(P, v), cg = P.cargo == null ? 100 : P.cargo; out.unshift({ id: 'ras', label: `Ravitaillement à la mer : ${v.name || 'bâtiment'} (cargaison ${Math.round(cg)} %)`, ok: g.ok && cg >= 15, why: cg < 15 ? 'Cargaison épuisée : rentrez la recompléter au port.' : rasWhy(g), run: () => rasBegin(v) }); } }
+  // sur un autre bâtiment : faire venir le ravitailleur (si on le possède)
+  if (P.cls !== 'oiler' && owned('oiler') && !m.isOp && !RAS2.call && !m.oilerCalled) {
+    const K = CLASSES[P.cls], low = P.fuel < 70 || Object.keys(K.gear.ammo || {}).some(k => (P.ammo[k] || 0) < K.gear.ammo[k] * 0.6);
+    if (low) out.push({ id: 'rascall', label: `Faire venir le ravitailleur ${RAS_NAME}`, ok: true, run: rasCallStart });
+  }
+  if (RAS2.call && RAS2.call.state === 'along' && !RAS2.cur) { const g = rasGeom(RAS2.call.v, P); out.unshift({ id: 'rasrecv', label: `Ravitailleur ${RAS_NAME} : commencer le transfert`, ok: g.ok, why: rasWhy(g), run: () => rasBegin(P, RAS2.call.v) }); }
+  return out;
+}; }
+function rasBegin(recv, oiler) {
+  RAS2.cur = { recv, oiler: oiler || PLAYER, prog: 0, pause: 0 };
+  vhf(RAS2.cur.oiler === PLAYER ? (recv.name || 'Bâtiment') : RAS_NAME, 'Lignes passées, manches en place. Transfert de gasoil en cours. Gardez le cap et la vitesse.', 'info'); sfx('winch');
+}
+function rasLines(o, r, show) {
+  if (!RAS2.lines.length) for (let k = 0; k < 2; k++) { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(14 * 3), 3)); const l = new THREE.Line(g, new THREE.LineBasicMaterial({ color: k ? 0x2a2a2a : 0x14110c })); l.frustumCulled = false; RAS2.lines.push(l); }
+  for (const l of RAS2.lines) { if (show && !l.parent) scene.add(l); l.visible = !!show; }
+  if (!show) return;
+  const fo = o.fwd || { x: Math.sin(o.psi), z: -Math.cos(o.psi) }, g = rasGeom(o, r), s = g.side, ro = { x: -fo.z * s, z: fo.x * s };
+  RAS2.lines.forEach((l, k) => {
+    const off = (k - 0.5) * 22, ax = o.x + ro.x * (o.B || 20) * 0.45 + fo.x * off, az = o.z + ro.z * (o.B || 20) * 0.45 + fo.z * off, ay = (o.heave || 0) + 13;
+    const bx = r.x - ro.x * (r.B || 12) * 0.4 + fo.x * off, bz = r.z - ro.z * (r.B || 12) * 0.4 + fo.z * off, by = (r.heave || 0) + 6;
+    const p = l.geometry.attributes.position; for (let i = 0; i < 14; i++) { const t = i / 13; p.setXYZ(i, lerp(ax, bx, t), lerp(ay, by, t) - Math.sin(t * Math.PI) * 5, lerp(az, bz, t)); } p.needsUpdate = true;
+  });
+}
+function rasStep2(dt) {
+  const R = RAS2.cur, m = MS.cur; if (!R) { if (RAS2.lines.length) rasLines(null, null, false); return; }
+  const o = R.oiler, r = R.recv;
+  if (!m || UI.screen !== 'sea' || o.removed || r.removed || o.sinking || r.sinking) { RAS2.cur = null; rasLines(null, null, false); return; }
+  const g = rasGeom(o, r);
+  if (g.d > 450) { RAS2.cur = null; rasLines(null, null, false); vhf('Passerelle', 'Lignes larguées : nous sommes trop loin. Le ravitaillement est interrompu.', 'alarm'); return; }
+  rasLines(o, r, true);
+  if (g.ok) { R.prog += dt / 55; R.pause = 0; } else { R.pause += dt; if (R.pause > 1 && !R.warned) { R.warned = true; toast(`Transfert suspendu : ${rasWhy(g)}`); } }
+  if (g.ok) R.warned = false;
+  m.status = `Ravitaillement à la mer : ${Math.round(R.prog * 100)} %${g.ok ? '' : ' (suspendu)'}`;
+  if (R.prog >= 1) rasDone(R);
+}
+function rasDone(R) {
+  const m = MS.cur, o = R.oiler, r = R.recv; RAS2.cur = null; rasLines(null, null, false); sfx('winch'); if (m) m.status = '';
+  if (o === PLAYER) {
+    PLAYER.cargo = Math.max(0, (PLAYER.cargo == null ? 100 : PLAYER.cargo) - 22);
+    if (r.rasRecv) r.rasRecv.done = true;
+    if (r.ally && m && m.op && m.op.units[r.ally.c]) { const u = m.op.units[r.ally.c], K = CLASSES[r.ally.c]; u.st.fuel = 100; if (K) u.st.ammo = JSON.parse(JSON.stringify(K.gear.ammo || {})); }
+    (m.rasDone = m.rasDone || new Set()).add(r);
+    const M = meta(); if (M) { M.cnt.ras = (M.cnt.ras || 0) + 1; checkMedals(); }
+    if (!r.rasRecv && !m.isOp) { CAREER.credits += 1500; CAREER.rep += 2; pop('Ravitaillement réussi', `${r.name || 'Bâtiment'} · +1 500 cr`, true); } else pop('Ravitaillement réussi', r.name || '', true);
+    vhf(r.name || 'Bâtiment', pick(['Soutes pleines, merci le ravitailleur ! On largue les lignes.', 'Transfert terminé. Merci pour le gasoil, et pour les croissants.', 'Plein fait, on dégage par tribord. Bon vent !']), 'good');
+  } else {
+    const P = PLAYER, K = CLASSES[P.cls], f2 = { opv: 1, corvette: 1.4, tug: 1.1, frigate: 2.4, destroyer: 3, carrier: 6, sub: 1.6 }[P.cls] || 1.5;
+    const AC = { ssm: 2500, sam: 1500, torp: 2000, decoy: 250, gun: { '30mm': 2, '76mm': 12, '127mm': 30 }[K.gear.gun] || 0 };
+    let cost = Math.round((100 - P.fuel) * 45 * f2); for (const k in K.gear.ammo) { cost += Math.max(0, K.gear.ammo[k] - (P.ammo[k] || 0)) * (AC[k] || 0); P.ammo[k] = K.gear.ammo[k]; }
+    P.fuel = 100; CAREER.credits = Math.max(0, CAREER.credits - Math.round(cost * 0.6));
+    const st = CAREER.ships.oiler; if (st) st.cargo = Math.max(0, (st.cargo == null ? 100 : st.cargo) - 22);
+    vhf(RAS_NAME, `Transfert terminé : soutes et caisses pleines. ${fmtCr(Math.round(cost * 0.6))} au tarif de la flotte. Je rentre au port, bon vent !`, 'good');
+    if (RAS2.call) RAS2.call.state = 'leave';
+  }
+}
+// le ravitailleur appelé depuis un autre bâtiment vient prendre une route de ravitaillement
+function rasCallStart() {
+  const P = PLAYER, m = MS.cur; m.oilerCalled = true;
+  const p = openWaterPoint(P.x, P.z, 4500, 6000, 40, 500), v = new Vessel('oiler', buildOiler(), p.x, p.z, headingOf(P.x - p.x, P.z - p.z), { name: RAS_NAME });
+  v.ais = true; v.rcs = 300; setupCombatant(v, 'ysmar', 420); v.identAs = 'fri'; v.cls = 'Ravitailleur'; v.u = 6;
+  RAS2.call = { v, state: 'transit', hdg: 0 };
+  m.marks.push({ v, kind: 'goal', label: RAS_NAME });
+  vhf(RAS_NAME, `Ici ${RAS_NAME}, j'appareille vers vous, ${(distTo(v, P) / 1852).toFixed(1).replace('.', ',')} nautiques. Je prendrai une route de ravitaillement à 10 nœuds : venez à couple, même cap, même vitesse.`, 'info');
+}
+function rasCallStep(dt) {
+  const R = RAS2.call; if (!R) return; const v = R.v, P = PLAYER;
+  if (!P || v.removed || v.sinking || !MS.cur) { RAS2.call = null; return; }
+  if (R.state === 'leave') { steerTo(v, avoidHeading(v, R.hdg + 1.3, 1200), 8, dt); if (distTo(v, P) > 9000) { v.remove(); onVesselGone(v); RAS2.call = null; } return; }
+  if (R.state === 'transit') { steerToPoint(v, P.x, P.z, 7, dt, 1200); if (distTo(v, P) < 2200) { R.state = 'along'; const w = openWaterPoint(v.x, v.z, 3500, 5000, 40, 700); R.hdg = headingOf(w.x - v.x, w.z - v.z); vhf(RAS_NAME, `Route de ravitaillement au ${bearingStr(R.hdg)}, 10 nœuds. Je vous attends.`, 'info'); } return; }
+  const ah = avoidHeading(v, R.hdg, 900); if (Math.abs(wrapA(ah - R.hdg)) > 0.05) R.hdg = ah; steerTo(v, R.hdg, 10 * KN, dt);
+}
+{ const base = simStep; simStep = function (dt) { base(dt); if (UI.screen === 'sea' && MS.cur) { rasStep2(dt); rasCallStep(dt); } }; }
+{ const base = clearWorldEntities; clearWorldEntities = function () { RAS2.cur = null; RAS2.call = null; if (RAS2.lines.length) rasLines(null, null, false); base(); }; }
+// en opération, si l'on possède le Penfret, c'est lui qui vient ravitailler
+{ const base = opRAS; opRAS = function () { const r = base(); const m = curOp(); if (r && r.ok && m && m.op.ras && owned('oiler')) { const v = m.op.ras.v, old = v.mesh; const n = buildOiler(); n.rotation.order = 'YXZ'; scene.add(n); v.mesh = n; dropObj(old); v.cls = 'Ravitailleur'; } return r; }; }
+
+// ----- nouvelle mission : ravitaillement à la mer d'un groupe de bâtiments -----
+Object.assign(MTYPES, { ras: { n: 'Ravitaillement à la mer', ic: 'RAS', d: 'Ravitailler en route, à couple, plusieurs bâtiments de la flotte qui rentrent de patrouille.' } });
+MREQ.ras = ['oiler'];
+{ const base = recommendCls; recommendCls = function (def) { return def.type === 'ras' ? 'oiler' : base(def); }; }
+const RAS_RECV = [['frigate', 'AQUILON', 'F 714'], ['corvette', 'MISTRAL', 'C 815'], ['destroyer', 'ORAGE', 'D 652'], ['corvette', 'BORÉE', 'C 817']];
+M_GEN.ras = (d, r, pl, rank, hard) => {
+  d.at = openWaterPoint(PORT.entrance.x, PORT.entrance.z, 7000, 10000, 70, 1800, r); d.n = 2 + (hard ? 1 : 0);
+  d.time = pick([8, 10, 13, 15.5, 17]); d.weather = { wind: rr(4, 10), sea: rr(0.2, 0.45), cloud: rr(0.2, 0.7), rain: 0, fog: rr(0, 0.15), storm: 0 };
+  d.title = 'Ravitaillement à la mer';
+  d.brief = `Un groupe de ${d.n} bâtiments rentre d'une longue patrouille, soutes presque vides. Rejoignez-le au large ${deP(PORT.n)} et ravitaillez chacun en route : venez à couple (moins de 180 m), au même cap et à la même vitesse (10 nœuds), puis lancez le transfert. Attention à l'abordage.`;
+  d.radio = 'Ici le groupe de patrouille. Nous tenons 10 nœuds, en colonne. Le premier à ravitailler est en tête.';
+  d.reward = 8000 + d.n * 2600; d.rep = 45 + d.n * 8; d.limit = 80 * 60;
+};
+M_SETUP.ras = (m, d) => {
+  // la colonne fait route vers le large, là où il y a de l'eau devant elle
+  let hdg = 0, best = -1; for (let k = 0; k < 16; k++) { const h = k / 16 * TAU; let s = 0; for (let j = 1; j <= 10; j++) if (gridH(d.at.x + Math.sin(h) * j * 1000, d.at.z - Math.cos(h) * j * 1000) < -40) s++; else break; if (s > best) { best = s; hdg = h; } }
+  m.recv = [];
+  for (let i = 0; i < d.n; i++) {
+    const [kind, name, mark] = RAS_RECV[(d.seed + i) % RAS_RECV.length], back = i * 1300, x = d.at.x - Math.sin(hdg) * back, z = d.at.z + Math.cos(hdg) * back;
+    const mesh = kind === 'frigate' ? buildFrigate(name, mark) : kind === 'destroyer' ? buildDestroyer(name) : buildCorvette(name);
+    const v = new Vessel(kind, mesh, x, z, hdg, { name: name.charAt(0) + name.slice(1).toLowerCase() }); setupCombatant(v, 'ysmar', KINDS[kind].hp); v.ais = true; v.identAs = 'fri'; v.rcs = 200; v.u = 10 * KN; v.navy = true;
+    v.rasRecv = { done: false, hdg, i }; m.recv.push(v); m.ents.push(v);
+    addObj(m, 'r' + i, `Ravitailler ${v.name} (${CLASSES[kind] ? CLASSES[kind].cls.toLowerCase() : 'bâtiment'})`);
+    m.marks.push({ v, kind: 'target', label: v.name });
+  }
+  m.update = dt => {
+    for (const v of m.recv) {
+      if (v.removed) continue; const R = v.rasRecv;
+      if (R.done) { if (!R.gone) { R.gone = true; setObj(m, 'r' + R.i, 'done'); } steerTo(v, avoidHeading(v, R.hdg + 0.5, 1500), 13 * KN, dt); continue; }
+      const ah = avoidHeading(v, R.hdg, 1500); if (Math.abs(wrapA(ah - R.hdg)) > 0.05) R.hdg = ah; steerTo(v, R.hdg, 10 * KN, dt);
+    }
+    const left = m.recv.filter(v => !v.rasRecv.done);
+    if (m.recv.some(v => v.sinking || (v.hp != null && v.hp <= 0))) endMission(false, 'Un bâtiment du groupe a été gravement endommagé pendant le ravitaillement.');
+    else if (!left.length) endMission(true, `${m.recv.length} bâtiments ravitaillés en route, sans perdre une goutte.`, { bonus: 1500 });
+    else m.status = m.status && m.status.startsWith('Ravitaillement') ? m.status : `Prochain : ${left[0].name}. À couple, même cap, 10 nœuds.`;
+  };
+  m.actions = () => [];
+};
+// la cargaison du ravitailleur s'affiche avec les autres jauges du bord
+{ const base = setH; setH = function (id, h) { if (id === 'status' && UI.screen === 'sea' && PLAYER && PLAYER.cls === 'oiler' && PLAYER.cargo != null) h = h.replace('<div class="gauges">', '<div class="gauges">' + gauge('Cargaison', PLAYER.cargo, PLAYER.cargo < 25)); base(id, h); }; }
 </script>
 
 </body></html>
