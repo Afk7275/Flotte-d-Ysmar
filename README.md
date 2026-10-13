@@ -15,6 +15,12 @@ Flotte d'Ysmar puts you in command of a naval force operating in a dynamic Medit
 - **Port management** — Access port facilities and manage aspects of your naval operations.
 - **Ship systems** — Monitor vessel status and respond to operational incidents.
 - **Immersive interface** — A naval command interface designed to make you feel like you're operating a real fleet.
+- **Five home ports** — Toulon, Ajaccio, Cagliari, Bizerte and Algiers. Choose the ports you are assigned to, distribute your ships between them (by hand or at random), and travel from one to another, either with a quick crossing or by sailing there yourself.
+- **Walkable headquarters** — Visit the staff headquarters on foot: entrance hall, the admiral's office, the operations room, the CROSS rescue centre, the assignments office and the hall of honour.
+- **Free game speed** — Choose ×1 to ×32 at any time, even in combat. Fast transit (Shift+T) sails your ship to the objective and hands control back at the first event.
+- **Cutscenes** — Departure, end of mission, port arrival, crossings and enemy ships going down. Press Space to skip, or turn them off in the settings.
+- **Living ships and ports** — Sailors on deck, pedestrians and gulls on the quays, dolphins at sea.
+- **Player comfort** — Settings panel (volume, voices, mouse sensitivity, larger text), photo mode (F8), on-screen objective marker, and career export/import as a `.json` file.
 
 ## 🌊 Setting
 
@@ -40,8 +46,6 @@ No traditional installation should be necessary for the standalone HTML version.
 Flotte d'Ysmar is an actively developed independent game.
 
 Current development priorities include:
-- Expanding the number of available ports.
-- Improving time acceleration and simulation controls.
 - Refining campaign systems and gameplay consistency.
 - Fixing bugs and improving overall stability.
 - Expanding naval operations and available content.
@@ -50,10 +54,10 @@ Features and mechanics may change as development continues.
 
 ## 🗺️ Roadmap
 
-- [ ] Add more ports and naval facilities.
-- [ ] Refine time acceleration, including ×8 speed.
+- [x] Add more ports and naval facilities (Ajaccio, Cagliari, Bizerte, Algiers, walkable headquarters).
+- [x] Refine time acceleration, including ×8 speed (now ×1 to ×32, never locked).
 - [ ] Improve campaign progression and mission transitions.
-- [ ] Test and improve save reliability.
+- [x] Test and improve save reliability (career export and import).
 - [ ] Expand fleet management and operational possibilities.
 - [ ] Polish the interface and improve the player experience.
 
