@@ -3465,14 +3465,14 @@ function genMission(type, seed) {
     def.safe = (() => { const a = Math.atan2(def.cargo.z - P.z, def.cargo.x - P.x); for (let k = 0; k < 60; k++) { const aa = a + (r() - 0.5) * 1.2, dd = rr(1900, 2500); const p = { x: def.cargo.x + Math.cos(aa) * dd, z: def.cargo.z + Math.sin(aa) * dd }; if (gridH(p.x, p.z) < -35 && nearestCoastDist(p.x, p.z, 1600) >= 1600) return p; } return openWaterPoint(def.cargo.x, def.cargo.z, 1800, 2600, 30, 1200, r); })();
     def.weather.wind = Math.max(def.weather.wind, rr(11, 17)); def.weather.sea = Math.max(def.weather.sea, 0.5);
     def.title = `Avarie : cargo ${def.name}`;
-    def.brief = `Le porte-conteneurs ${def.name} a perdu sa propulsion à l'ouest de ${P.n}. Poussé par le vent, il dérive vers les côtes. Prenez-le en remorque et éloignez-le de la côte jusqu'à la zone de mouillage où un remorqueur de haute mer prendra le relais. Une remorque trop tendue casse : allez doucement.`;
+    def.brief = `Le porte-conteneurs ${def.name} a perdu sa propulsion à l'ouest ${deL(P.n)}. Poussé par le vent, il dérive vers les côtes. Prenez-le en remorque et éloignez-le de la côte jusqu'à la zone de mouillage où un remorqueur de haute mer prendra le relais. Une remorque trop tendue casse : allez doucement.`;
     def.reward = 14000; def.rep = 70;
   } else if (type === 'intercept') {
     const P = pick(pl); const a = r() * TAU; def.drop = (() => { let d = P.r * 0.5; while (gridH(P.x + Math.cos(a) * d, P.z + Math.sin(a) * d) > -2 && d < P.r * 2) d += 20; return { x: P.x + Math.cos(a) * (d + 60), z: P.z + Math.sin(a) * (d + 60) }; })();
     def.island = P.n;
     def.from = openWaterPoint(def.drop.x, def.drop.z, 7500, 9000, 30, 800, r);
     def.title = `Interception : go-fast vers ${P.n}`;
-    def.brief = `Les douanes signalent un go-fast chargé de contrebande qui file vers la côte de ${P.n}. Il est bien plus rapide que vous : coupez-lui la route. Règles d'engagement : sommation radio, puis tirs de semonce, puis seulement tir sur les moteurs.`;
+    def.brief = `Les douanes signalent un go-fast chargé de contrebande qui file vers la côte ${deL(P.n)}. Il est bien plus rapide que vous : coupez-lui la route. Règles d'engagement : sommation radio, puis tirs de semonce, puis seulement tir sur les moteurs.`;
     def.reward = 11000; def.rep = 60;
   } else if (type === 'escort') {
     const P = pick([pl[1], pl[0], pl[2]]);
@@ -3491,8 +3491,8 @@ function genMission(type, seed) {
     def.center = { x: P.x + Math.cos(ang) * d, z: P.z + Math.sin(ang) * d }; def.island = P.n;
     if (gridH(def.center.x, def.center.z) > -15) def.center = openWaterPoint(P.x, P.z, P.r + 1200, P.r + 2200, 20, 500, r);
     def.patches = ri(4, 6);
-    def.title = `Pollution au large de ${P.n}`;
-    def.brief = `Un dégazage sauvage a laissé une nappe d'hydrocarbures qui dérive vers les plages de ${P.n}. Déployez les barrages flottants et passez lentement dans les nappes (moins de 6 nœuds, sinon les barrages se déchirent).`;
+    def.title = `Pollution au large ${deL(P.n)}`;
+    def.brief = `Un dégazage sauvage a laissé une nappe d'hydrocarbures qui dérive vers les plages ${deL(P.n)}. Déployez les barrages flottants et passez lentement dans les nappes (moins de 6 nœuds, sinon les barrages se déchirent).`;
     def.reward = 10000; def.rep = 55;
   } else if (type === 'medevac') {
     def.boat = pick(BOATNAMES);
@@ -3765,7 +3765,7 @@ M_SETUP.escort = (m, d) => {
   m.total = Math.hypot((route[0].x - start.x), route[0].z - start.z) + (route[1] ? Math.hypot(route[1].x - route[0].x, route[1].z - route[0].z) : 0);
   m.skiffs = []; m.spawnAt = []; for (let i = 0; i < d.skiffs; i++) m.spawnAt.push(0.18 + i * (0.7 / d.skiffs) + rnd() * 0.08);
   m.marks.push({ x: d.dest.x, z: d.dest.z, kind: 'goal', label: d.island }, { v: fer, kind: 'friend', label: 'Étoile du Nord' });
-  addObj(m, 'escort', `Escorter l'Étoile du Nord jusqu'à ${d.island}`); addObj(m, 'stay', 'Rester à moins de 2 km du ferry'); addObj(m, 'repel', `Repousser les embarcations suspectes (0/${d.skiffs})`);
+  addObj(m, 'escort', `Escorter l'Étoile du Nord jusqu'${aL(d.island)}`); addObj(m, 'stay', 'Rester à moins de 2 km du ferry'); addObj(m, 'repel', `Repousser les embarcations suspectes (0/${d.skiffs})`);
   m.far = 0; m.repelled = 0; m.travel = 0;
   m.update = dt => {
     m.cd = Math.max(0, (m.cd || 0) - dt);
@@ -3800,7 +3800,7 @@ M_SETUP.escort = (m, d) => {
     O(m, 'repel').text = `Repousser les embarcations suspectes (${m.repelled}/${d.skiffs})`; setObj(m, 'repel', m.repelled >= d.skiffs ? 'done' : null, m.repelled / d.skiffs);
     const dist = distTo(PLAYER, fer);
     if (dist > 2000) { m.far += dt; m.status = `Trop loin du ferry : ${Math.round(60 - m.far)} s`; if (m.far > 60) return endMission(false, 'Le ferry s\'est retrouvé sans escorte.'); } else { m.far = Math.max(0, m.far - dt * 2); m.status = ''; }
-    if (m.leg === m.route.length - 1 && dw < 520) { setObj(m, 'escort', 'done'); endMission(true, `L'Étoile du Nord est arrivée à ${d.island} sans encombre.`, { bonus: m.repelled >= d.skiffs ? 1500 : 0, note: m.repelled >= d.skiffs ? 'Tous les pillards repoussés' : '' }); }
+    if (m.leg === m.route.length - 1 && dw < 520) { setObj(m, 'escort', 'done'); endMission(true, `L'Étoile du Nord est arrivée ${aL(d.island)} sans encombre.`, { bonus: m.repelled >= d.skiffs ? 1500 : 0, note: m.repelled >= d.skiffs ? 'Tous les pillards repoussés' : '' }); }
   };
   m.actions = () => {
     const near = m.skiffs.filter(sk => sk.mode === 'approach').sort((a, b) => distTo(PLAYER, a) - distTo(PLAYER, b))[0];
@@ -3875,7 +3875,7 @@ M_SETUP.pollution = (m, d) => {
       s.x += (Math.cos(ENV.windDir) * ENV.wind * 0.03 + ENV.current.x) * dt; s.z += (Math.sin(ENV.windDir) * ENV.wind * 0.03 + ENV.current.z) * dt;
       s.mesh.position.set(s.x, 0, s.z); s.mesh.material.uniforms.uAmt.value = clamp(s.amt / s.max, 0, 1) * 0.9 + 0.1 * (s.amt > 0);
       if (P.boom && distTo(P, s) < s.R * 0.9 + 15) { const take = Math.min(s.amt, dt * (0.4 + P.speed * 0.8) * crewEff('bosco')); s.amt -= take; m.got += take; }
-      if (gridH(s.x, s.z) > -2) { m.lostAmt += s.amt; s.amt = 0; vhf('Mairie de ' + d.island, 'Une nappe vient d\'atteindre la plage. Les bénévoles sont mobilisés.', 'alarm'); }
+      if (gridH(s.x, s.z) > -2) { m.lostAmt += s.amt; s.amt = 0; vhf('Mairie ' + deL(d.island), 'Une nappe vient d\'atteindre la plage. Les bénévoles sont mobilisés.', 'alarm'); }
       if (s.amt <= 0) s.mesh.visible = false;
     }
     setObj(m, 'collect', null, m.got / (m.total * 0.75));
@@ -4118,8 +4118,8 @@ M_GEN.fire = (d, r, pl, rank, hard) => {
   if (gridH(d.at.x, d.at.z) > -30) d.at = openWaterPoint(P.x, P.z, P.r + 2200, P.r + 3400, 30, 900, r);
   d.safe = openWaterPoint(d.at.x, d.at.z, 1800, 2400, 35, 1600, r);
   d.name = pick(TANKN); d.fire0 = hard ? 0.55 : 0.4;
-  d.title = `Pétrolier en feu au large de ${P.n}`;
-  d.brief = `Un incendie s'est déclaré dans la salle des machines du pétrolier ${d.name}, privé de propulsion à l'ouest de ${P.n}. Approchez à moins de 150 mètres en restant au vent du navire, qui dérive, ouvrez les lances à eau et noyez le feu avant qu'il n'atteigne les cuves. Une fois l'incendie éteint, remorquez le navire jusqu'au mouillage de sécurité.`;
+  d.title = `Pétrolier en feu au large ${deL(P.n)}`;
+  d.brief = `Un incendie s'est déclaré dans la salle des machines du pétrolier ${d.name}, privé de propulsion à l'ouest ${deL(P.n)}. Approchez à moins de 150 mètres en restant au vent du navire, qui dérive, ouvrez les lances à eau et noyez le feu avant qu'il n'atteigne les cuves. Une fois l'incendie éteint, remorquez le navire jusqu'au mouillage de sécurité.`;
   d.reward = 21000; d.rep = 85; d.limit = 60 * 60;
   d.weather.wind = Math.max(d.weather.wind, 8);
 };
@@ -4752,6 +4752,9 @@ function busySea() {
 }
 const vowel = n => /^[AEIOUYÉÈÂ]/i.test(n);
 const deP = n => (vowel(n) ? 'd\'' : 'de ') + n;   // « de Toulon », « d'Ajaccio »
+// lieux avec article : « des îles Cani », « du cap Blanc », « aux îles Sanguinaires », « au cap Serrat »
+const deL = n => /^les /i.test(n) ? 'des ' + n.slice(4) : /^le /i.test(n) ? 'du ' + n.slice(3) : /^cap /i.test(n) ? 'du ' + n : deP(n);
+const aL = n => /^les /i.test(n) ? 'aux ' + n.slice(4) : /^le /i.test(n) ? 'au ' + n.slice(3) : /^cap /i.test(n) ? 'au ' + n : 'à ' + n;
 function deN(id) { const K = CLASSES[id]; return vowel(K.n) ? 'de l\'' + K.n : (K.kind === 'frigate' || K.kind === 'corvette' ? 'de la ' : 'du ') + K.n; }
 function leN(id) { const K = CLASSES[id]; return vowel(K.n) ? 'l\'' + K.n : (K.kind === 'frigate' || K.kind === 'corvette' ? 'la ' : 'le ') + K.n; }
 function shipCosts(id) {
@@ -4885,7 +4888,12 @@ function helpHTML() {
     <tr><td><kbd>I</kbd></td><td>À bord : marcher dans le navire (Z Q S D, souris, Maj pour courir), <kbd>E</kbd> pour agir, <kbd>V</kbd> pour se voir</td></tr>
     <tr><td><kbd>R</kbd> <kbd>F</kbd></td><td>En hélicoptère ou en sous-marin : monter / descendre (plonger). <kbd>G</kbd> : torpille</td></tr>
     <tr><td><kbd>U</kbd></td><td>Changer de navire en pleine mission : le bâtiment choisi vous rejoint, vous passez à son bord en hélicoptère</td></tr>
-    <tr><td><kbd>O</kbd></td><td>Locaux du bord : à quoi sert chaque local, et s'y rendre (certaines actions ne se font que sur place)</td></tr>
+    <tr><td><kbd>O</kbd></td><td>Locaux du bord : à quoi sert chaque local, et s'y rendre (certaines actions ne se font que sur place). Ligne « Hélicoptère » : aller à la plate-forme ou prendre les commandes</td></tr>
+    <tr><td><kbd>T</kbd></td><td>Vitesse du jeu de ×1 à ×32, à tout moment, même au combat (réglage « Revenir à ×1 sur alerte » dans les Réglages)</td></tr>
+    <tr><td><kbd>Maj</kbd> <kbd>T</kbd></td><td>Transit rapide vers l'objectif ou le point de route : le bâtiment file seul et vous rend la main au moindre événement (<kbd>Espace</kbd>)</td></tr>
+    <tr><td><kbd>F8</kbd></td><td>Mode photo : caméra libre, interface masquée, filtres, capture en PNG</td></tr>
+    <tr><td><kbd>Échap</kbd></td><td>Menu : Réglages (son, cinématiques, sensibilité, texte agrandi, sauvegarde exportable), mode photo</td></tr>
+    <tr><td>Bases</td><td>Toulon, Ajaccio, Cagliari, Bizerte, Alger : choisissez vos bases et répartissez la flotte au bureau des affectations (état-major ou capitainerie), puis rejoignez une autre base en traversée ou en naviguant vous-même</td></tr>
     <tr><td><kbd>Y</kbd></td><td>Groupe aérien du porte-avions (ordres depuis le PCA ou le Central Opérations)</td></tr>
     <tr><td><kbd>L</kbd></td><td>Journal de bord</td></tr>
     <tr><td><kbd>²</kbd></td><td>Codes de triche</td></tr>
@@ -8062,7 +8070,7 @@ M_SETUP.ferry = (m, d) => {
     const P = PLAYER;
     { const drift = (0.42 + ENV.wind * 0.035) * (F.towed ? 0.32 : 1); F.x += Math.cos(ENV.windDir) * drift * dt; F.z += Math.sin(ENV.windDir) * drift * dt; if (!F.towed) F.psi += wrapA(ENV.windDir + Math.PI / 2 - F.psi) * dt * 0.01; }
     if (distTo(P, F) < 900) setObj(m, 'reach', 'done');
-    if (gridH(F.x, F.z) > -F.T - 1) return endMission(false, `Le ${d.name} s'est échoué sur les rochers de ${d.island} : évacuation générale des passagers.`);
+    if (gridH(F.x, F.z) > -F.T - 1) return endMission(false, `Le ${d.name} s'est échoué sur les rochers ${deL(d.island)} : évacuation générale des passagers.`);
     const coast = nearestCoastDist(F.x, F.z, 1500); if (coast < 800 && !m.flags.warn) { m.flags.warn = 1; vhf(d.name, 'Les rochers sont à moins d\'un demi-mille ! Les passagers sont rassemblés sur les ponts, faites vite !', 'alarm'); }
     if (O(m, 'med').state === 'active') { m.cond -= dt / 60 * 2.6; if (m.cond <= 0) { setObj(m, 'med', 'failed'); vhf('Médecin du ferry', 'Le passager n\'a pas tenu. Je suis désolé.', 'alarm'); } }
     m.status = `Ferry à ${Math.round(coast)} m de la côte${O(m, 'med').state === 'active' ? ` · malade : ${Math.max(0, Math.round(m.cond))} %` : ''}`;
@@ -9395,6 +9403,12 @@ function transitCheck() {
   let wp = T.route[T.i]; if (T.i < T.route.length - 1 && Math.hypot(wp.x - P.x, wp.z - P.z) < 350) { T.i++; wp = T.route[T.i]; }
   // cap vers le point suivant, en contournant les terres
   UI.ap = 1; UI.apHdg = avoidHeading(P, headingOf(wp.x - P.x, wp.z - P.z), Math.max(500, P.L * 6));
+  // règle de barre : on laisse les autres navires sur bâbord en venant sur tribord
+  for (const v of VESSELS) {
+    if (v === P || v.removed || v.moored || v.kind === 'rhib' || v.kind === 'raft') continue;
+    const dx = v.x - P.x, dz = v.z - P.z, d = Math.hypot(dx, dz); if (d > Math.max(450, P.L * 6)) continue;
+    if (Math.abs(wrapA(headingOf(dx, dz) - UI.apHdg)) < 0.45) { UI.apHdg = (UI.apHdg + 0.75) % TAU; break; }
+  }
   if (P.tel < 7) P.tel = 7;
 }
 function transitFrame(dt) {
@@ -9442,7 +9456,7 @@ function lifeStep(dt) {
     LIFE.next = rr(300, 700);
     const quiet = !AIR.some(a => !a.dead) && ![...TRACKS.values()].some(t => t.ident === 'hos');
     if (quiet && P.speed > 2 && gridH(P.x, P.z) < -30 && !P.sink) {
-      const side = chance(0.5) ? 1 : -1, n = ri(3, 6), f = P.fwd, sd = { x: -f.z, z: f.x }, pod = { t: 0, life: 70, list: [] };
+      const side = chance(0.5) ? 1 : -1, n = ri(3, 6), pod = { t: 0, life: 70, list: [] };
       for (let i = 0; i < n; i++) { const m = dolphinMesh(); scene.add(m); pod.list.push({ m, off: rr(-12, 12), lat: side * (P.B / 2 + rr(8, 22)), ph: rr(0, TAU), sp: rr(0.9, 1.3) }); }
       LIFE.pods.push(pod);
       vhf('Veille', pick([`Des dauphins à ${side > 0 ? 'tribord' : 'bâbord'}, ils jouent dans la vague d'étrave !`, `Un banc de dauphins nous accompagne par ${side > 0 ? 'tribord' : 'bâbord'}.`]), 'good');
@@ -9725,7 +9739,7 @@ Object.assign(ACT, {
 });
 // la traversée en trois plans : appareillage, pleine mer (le temps file), arrivée
 function travelCine(cls, to, R, done) {
-  const A = PORT, B = portOf(to), V = FLEET[cls] || PLAYER, K = KINDS[CLASSES[cls].kind], spd = R.kn * KN;
+  const A = PORT, B = portOf(to), V = FLEET[cls] || PLAYER, spd = R.kn * KN;
   const hdg0 = headingOf(B.x - A.x, B.z - A.z); let hdg = hdg0;
   // le joueur est tenu à son poste à quai par la simulation du port : on le déplace donc à la main
   const drive = (dt, s) => { V.psi = hdg; V.r = 0; V.v = 0; V.u = s; V.rpm = 0.8; if (V === PLAYER) { V.x += Math.sin(hdg) * s * dt; V.z -= Math.cos(hdg) * s * dt; UI.portSpot = { x: V.x, z: V.z, psi: hdg }; } };
