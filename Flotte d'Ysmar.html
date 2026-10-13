@@ -505,6 +505,15 @@ body.bigtext #vhf p { font-size: 15.5px; } body.bigtext #vhf p span { font-size:
 body.bigtext .dlgx, body.bigtext #hubPanel, body.bigtext #toast, body.bigtext .pwhint, body.bigtext .whint, body.bigtext #tuto b { font-size: 15.5px; }
 body.bigtext .hl, body.bigtext #camBar button, body.bigtext #actions button { font-size: 14px; }
 @media (prefers-reduced-motion: reduce) { .pflash { animation: none; opacity: 0; } }
+/* ===== jeep, liaisons, plan du port ===== */
+#jeepHud { position: absolute; right: 16px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); display: grid; justify-items: end; gap: 0; background: rgba(8,14,20,.62); border: 1px solid var(--line); padding: 6px 12px; border-radius: 8px; }
+#jeepHud[hidden] { display: none; } #jeepHud b { font: 700 30px/1 var(--mono, monospace); color: var(--amber2); } #jeepHud span { font: 600 11px var(--mono, monospace); color: var(--mut); } #jeepHud em { font-style: normal; font-size: 11px; color: var(--mut); margin-top: 2px; }
+#liaHud { position: absolute; left: 14px; top: calc(96px + env(safe-area-inset-top, 0px)); width: min(270px, calc(100vw - 28px)); display: grid; gap: 2px; background: var(--panel2); border: 1px solid #7fd3ff; border-radius: 10px; padding: 8px 12px; }
+#liaHud[hidden] { display: none; } #liaHud .eyebrow { margin: 0; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: #7fd3ff; } #liaHud b { font-weight: 500; font-size: 13.5px; } #liaHud span { font: 700 22px var(--mono, monospace); color: #fff; } #liaHud span.warn { color: var(--bad); } #liaHud em { font-style: normal; font-size: 12px; color: var(--mut); }
+#pmap { position: absolute; right: 14px; top: calc(92px + env(safe-area-inset-top, 0px)); width: 280px; height: 132px; border-radius: 8px; border: 1px solid var(--line); box-shadow: 0 4px 18px rgba(0,0,0,.35); }
+#pmap[hidden] { display: none; }
+@media (max-width: 760px) { #pmap { width: 196px; height: 92px; } }
+.lias { display: grid; gap: 6px; } .lia { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px; } .lia > div { display: grid; gap: 1px; } .lia b { font-weight: 500; font-size: 13px; } .lia span { font-size: 12px; color: var(--mut); } .lia em { font-style: normal; font-size: 11.5px; color: var(--amber2); } .lia i { font-style: normal; font-size: 12px; color: var(--ok); } .lia.done { opacity: .6; }
 </style>
 <canvas id="gl" aria-label="Vue du bâtiment"></canvas>
 <div id="bridgeFrame" hidden></div>
@@ -10490,6 +10499,495 @@ function objMarker() {
 }
 { const base = renderWorld; renderWorld = function () { if (UI.screen === 'sea' || ($('objMark') && !$('objMark').hidden)) objMarker(); base(); }; }
 { const base = clearWorldEntities; clearWorldEntities = function () { if (OBJM.beam) OBJM.beam.visible = false; base(); }; }
+
+// ===== RÉALISME DES PORTS : défenses, échelles, marquages, lampadaires, conteneurs, citernes, poste de garde, parking =====
+// Tout est construit dans le repère local commun aux cinq ports ; les obstacles s'ajoutent à la zone de marche du quai.
+const PDET = { obs: [], lampsByPort: new Map(), trucks: [], ropes: [], boats: [], snd: 0 };
+function pdetObs(x0, x1, z0, z1) { PDET.obs.push([Math.min(x0, x1), Math.max(x0, x1), Math.min(z0, z1), Math.max(z0, z1)]); }
+const PD_Y = 3.3;
+function decalMesh(text, w, h, col, size) {
+  const t = canvasTex(256, Math.round(256 * h / w), (g, W, H) => { g.clearRect(0, 0, W, H); g.fillStyle = col || 'rgba(255,255,255,.85)'; g.font = `700 ${Math.round(H * (size || 0.62))}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, W / 2, H / 2 + 2); });
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: t, transparent: true, roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -2 }));
+  m.rotation.x = -Math.PI / 2; return m;
+}
+function signMesh(lines, w, h, bg, fg) {
+  const t = canvasTex(256, Math.round(256 * h / w), (g, W, H) => { g.fillStyle = bg; g.fillRect(0, 0, W, H); g.strokeStyle = fg; g.lineWidth = 6; g.strokeRect(5, 5, W - 10, H - 10); g.fillStyle = fg; g.textAlign = 'center'; g.textBaseline = 'middle'; lines.forEach((l, i) => { g.font = `700 ${Math.round(H / (lines.length + 1.2) * (i ? 0.62 : 0.8))}px sans-serif`; g.fillText(l, W / 2, H * (i + 1) / (lines.length + 1)); }); });
+  const grp = new THREE.Group(), p = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: t, roughness: 0.7 })); p.position.y = 1.2 + h / 2; grp.add(p);
+  const b = p.clone(); b.rotation.y = Math.PI; b.material = std('#8b8f93'); b.position.z = -0.02; grp.add(b);
+  for (const s of [-1, 1]) grp.add(at(cyl(0.04, 0.04, 1.2 + h, '#8b8f93', 6), s * (w / 2 - 0.08), (1.2 + h) / 2, -0.03));
+  return grp;
+}
+const BRANDS = [['#1d5d9b', 'YSMAR LINES'], ['#b8402c', 'MEDITRANS'], ['#2e6b3a', 'NORDCARGO'], ['#d9a21b', 'CAP CORSE'], ['#6b3b8a', 'SAHEL SHIPPING'], ['#9aa3ab', 'TRITON'], ['#c4622d', 'LIGURIA']];
+let CONTEX = null;
+function containerMats() {
+  if (CONTEX) return CONTEX;
+  CONTEX = BRANDS.map(([c, n]) => {
+    const side = canvasTex(256, 64, (g, W, H) => { g.fillStyle = c; g.fillRect(0, 0, W, H); for (let x = 0; x < W; x += 6) { g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(x, 0, 2, H); g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(x + 3, 0, 1, H); } g.fillStyle = 'rgba(255,255,255,.85)'; g.font = '700 22px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(n, W / 2, H / 2); speckle(g, W, H, 250, 'rgba(90,50,20,A)'); });
+    return new THREE.MeshStandardMaterial({ map: side, roughness: 0.7, metalness: 0.2 });     // un seul matériau : les conteneurs fusionnent
+  });
+  return CONTEX;
+}
+function portDetails(p, seed) {
+  const g = new THREE.Group(), R = mulberry(seed), Y = PD_Y, first = !PDET.obs.length, O = (a, b, c, d) => { if (first) pdetObs(a, b, c, d); };
+  // défenses verticales et échelles contre le quai nord, les quais latéraux et l'appontement
+  const fender = (x, z) => g.add(at(cyl(0.34, 0.34, 2.6, '#1b1b1b', 10, 0.95), x, 1.9, z));
+  for (let x = -290; x <= 290; x += 10) fender(x, -39.62);
+  for (let z = -30; z <= 150; z += 10) { fender(-287.62, z); fender(287.62, z); }
+  for (let z = -2; z <= 82; z += 12) { fender(134.62, z); fender(165.38, z); }
+  const ladder = (x, z, rx) => { const L = new THREE.Group(); for (const s of [-0.22, 0.22]) L.add(at(box(0.05, 3.6, 0.05, '#3a3f44', 0.6, 0.6), s, 1.6, 0)); for (let k = 0; k < 9; k++) L.add(at(box(0.44, 0.04, 0.04, '#3a3f44', 0.6, 0.6), 0, -0.1 + k * 0.4, 0)); L.position.set(x, 0, z); L.rotation.y = rx || 0; g.add(L); };
+  for (let x = -270; x <= 270; x += 54) ladder(x + 5, -39.72);
+  // ligne jaune de sécurité au bord des quais
+  const yel = std('#e3b31f', 0.7); g.add(at(new THREE.Mesh(new THREE.BoxGeometry(600, 0.02, 0.22), yel), 0, Y + 0.012, -42.1));
+  for (const sx of [-1, 1]) g.add(at(new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.02, 198), yel), sx * 289.9, Y + 0.012, 59));
+  // bouées couronnes sur leur poteau
+  for (const x of [-262, -140, -20, 98, 218]) { const b = new THREE.Group(); b.add(at(box(0.12, 1.4, 0.12, '#f0f0ec'), 0, 0.7, 0)); const r = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.08, 8, 16), std('#e8541e', 0.6)); r.position.set(0, 1.25, 0.08); b.add(r); b.position.set(x, Y, -43.6); g.add(b); O(x - 0.15, x + 0.15, -43.75, -43.45); }
+  // bittes d'amarrage : obstacles pour la marche et la jeep
+  for (let k = 0; k < 14; k++) O(-280 + k * 40 - 0.35, -280 + k * 40 + 0.35, -41.35, -40.65);
+  for (const sx of [-1, 1]) for (let k = 0; k < 5; k++) O(sx * 290 - 0.35, sx * 290 + 0.35, -20 + k * 40 - 0.35, -20 + k * 40 + 0.35);
+  // numéros de postes peints sur le quai
+  [-205, -80, 45, 165].forEach((x, i) => { const d = decalMesh(`POSTE ${i + 1}`, 6, 1.6); d.position.set(x, Y + 0.02, -45.5); g.add(d); });
+  for (const sx of [-1, 1]) { const d = decalMesh(`POSTE ${sx < 0 ? 5 : 6}`, 6, 1.6); d.position.set(sx * 299, Y + 0.02, 40); d.rotation.z = sx * Math.PI / 2; g.add(d); }
+  // lampadaires (allumés la nuit) : quai nord et quais latéraux
+  const lampM = new THREE.MeshStandardMaterial({ color: lin('#fff2cf'), emissive: new THREE.Color('#ffd79a'), emissiveIntensity: 0, roughness: 0.4 }); LIT_MATS.push(lampM);
+  const glows = [];
+  const lamp = (x, z, ry) => {
+    const L = new THREE.Group(); L.add(at(cyl(0.11, 0.16, 9, '#5d646b', 8, 0.5, 0.4), 0, 4.5, 0)); L.add(at(box(0.12, 0.12, 1.6, '#5d646b', 0.5, 0.4), 0, 8.9, 0.75));
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.14, 0.7), lampM); head.position.set(0, 8.8, 1.45); L.add(head);
+    L.position.set(x, Y, z); L.rotation.y = ry || 0; g.add(L); L.updateMatrix();
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: GLOWTEX, color: 0xffd79a, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 })); s.position.copy(new THREE.Vector3(0, 8.7, 1.45).applyMatrix4(L.matrix)); s.scale.setScalar(5); s.renderOrder = 6; glows.push(s);
+    O(x - 0.25, x + 0.25, z - 0.25, z + 0.25);
+  };
+  for (let x = -275; x <= 275; x += 50) lamp(x, -58, Math.PI);
+  for (const sx of [-1, 1]) for (const z of [20, 80, 140]) lamp(sx * 306, z, sx * Math.PI / 2);
+  // parc à conteneurs à l'est du quai
+  const CM = containerMats(), cgeo = new THREE.BoxGeometry(12.2, 2.6, 2.44);
+  for (let row = 0; row < 3; row++) for (let i = 0; i < 5; i++) {
+    const n = 1 + Math.floor(R() * 3.2); for (let k = 0; k < n; k++) { const c = new THREE.Mesh(cgeo, CM[Math.floor(R() * CM.length)]); c.position.set(248 + i * 13.2 + (k ? (R() - 0.5) * 0.3 : 0), Y + 1.3 + k * 2.6, -123 + row * 7.2); c.castShadow = true; c.receiveShadow = true; g.add(c); }
+  }
+  O(240.5, 314.5, -125, -105);
+  { const s = signMesh(['PARC À CONTENEURS', 'Port de casque obligatoire'], 2.6, 1.0, '#1d5d9b', '#ffffff'); s.position.set(238, Y, -103); s.rotation.y = -Math.PI / 2; g.add(s); O(237.7, 238.3, -104.4, -101.6); }
+  // citernes de gasoil et manifold d'avitaillement à l'ouest
+  for (const x of [-312, -297]) { g.add(at(cyl(5.6, 5.6, 9, '#e9ebe8', 24, 0.5, 0.2), x, Y + 4.5, -118)); g.add(at(cyl(5.7, 5.7, 0.3, '#b8402c', 24), x, Y + 9.1, -118)); g.add(at(cyl(5.75, 5.75, 0.5, '#9aa3ab', 24), x, Y + 0.25, -118)); O(x - 6, x + 6, -124, -112); }
+  { const s = signMesh(['GASOIL F-76', 'Défense de fumer'], 2.4, 1.0, '#c62828', '#ffffff'); s.position.set(-304.5, Y, -110.5); g.add(s); O(-305.8, -303.2, -110.8, -110.2); }
+  { const m = new THREE.Group(); m.add(at(box(2.2, 1.1, 1.2, '#c62828'), 0, 0.55, 0)); m.add(at(cyl(0.12, 0.12, 2.2, '#3a3a3a', 8), 0, 1.25, 0.55, 0)); m.children[1].rotation.z = Math.PI / 2; for (const s of [-0.7, 0.7]) m.add(at(cyl(0.35, 0.35, 0.3, '#1b1b1b', 12), s, 1.35, 0)); m.position.set(-300, Y, -45); g.add(m); O(-301.3, -298.7, -45.8, -44.2); }
+  // poste de garde, barrière et panneau d'accès
+  { const gp = boxPart(3.2, 2.8, 3.0, { col: '#ece3cf', side: [{ y: 0.45, h: 1.0, w: 2.2, pitch: 2.6, m: 0.4 }], front: [{ y: 0.45, h: 1.0, w: 2.4, pitch: 2.8, m: 0.4 }], roof: '#5f666a' }); gp.position.set(12, Y + 1.4, -118); g.add(gp); g.add(at(box(3.6, 0.2, 3.4, '#5f666a'), 12, Y + 2.9, -118)); O(10.2, 13.8, -119.7, -116.3);
+    const post = at(box(0.35, 1.1, 0.35, '#e8e8e4'), 15, Y + 0.55, -114); g.add(post); O(14.7, 15.3, -114.3, -113.7);
+    const arm = new THREE.Group(); for (let k = 0; k < 6; k++) arm.add(at(box(1.0, 0.12, 0.12, k % 2 ? '#c62828' : '#f2f2f2'), 0.5 + k, 0, 0)); arm.position.set(15.1, Y + 1.0, -114); g.add(arm);
+    const s = signMesh(['BASE NAVALE', 'Accès réglementé · 30 km/h'], 2.8, 1.1, '#18233a', '#ffffff'); s.position.set(23, Y, -120); s.rotation.y = 0.2; g.add(s); O(21.4, 24.6, -120.5, -119.5); }
+  // parking devant l'état-major, voitures garées
+  for (let k = 0; k <= 6; k++) g.add(at(new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.02, 5), std('#f2f2ee', 0.8)), 124 + k * 3.2, Y + 0.012, -121));
+  for (let k = 0; k < 6; k++) { if (R() < 0.2) continue; const car = carMesh(['#d8dde2', '#1f2a36', '#8a1f24', '#3c5a7a', '#c9c2b0', '#2f4a2a'][Math.floor(R() * 6)]); car.position.set(125.6 + k * 3.2, Y, -121); car.rotation.y = R() < 0.5 ? 0 : Math.PI; g.add(car); }
+  O(123.8, 143.4, -123.6, -118.4);
+  // palettes, caisses et glènes devant les magasins
+  for (let k = 0; k < 5; k++) { const x = -270 + k * 60 + R() * 12; const pl = new THREE.Group(); for (let j = 0; j < 2 + Math.floor(R() * 3); j++) pl.add(at(box(1.2, 0.15, 1.0, '#9a7a4e'), 0, 0.075 + j * 0.15, 0)); pl.add(at(box(1.1, 0.9, 0.9, R() < 0.5 ? '#6f6a4e' : '#4a5a6a'), 0, 0.3 + pl.children.length * 0.15 + 0.3, 0)); pl.position.set(x, Y, -86); g.add(pl); O(x - 0.7, x + 0.7, -86.6, -85.4); }
+  // bancs entre les palmiers
+  for (let k = 0; k < 8; k++) { const x = -192 + k * 60; const b = new THREE.Group(); b.add(at(box(1.8, 0.08, 0.45, '#8a6a4a'), 0, 0.45, 0)); b.add(at(box(1.8, 0.4, 0.06, '#8a6a4a'), 0, 0.7, 0.2)); for (const s of [-0.8, 0.8]) b.add(at(box(0.08, 0.45, 0.4, '#3a3f44'), s, 0.22, 0)); b.position.set(x, Y, -73); g.add(b); O(x - 1, x + 1, -73.35, -72.65); }
+  const merged = mergeGroup(g);
+  for (const s of glows) merged.add(s);
+  PDET.lampsByPort.set(p.id, glows);
+  return merged;
+}
+function carMesh(col) {
+  const c = new THREE.Group();
+  c.add(at(box(1.75, 0.6, 4.2, col, 0.35, 0.4), 0, 0.55, 0)); c.add(at(box(1.55, 0.5, 2.1, col, 0.35, 0.4), 0, 1.08, 0.2));
+  c.add(at(box(1.5, 0.42, 2.0, '#1b2733', 0.15, 0.6), 0, 1.09, 0.2));
+  for (const sx of [-0.78, 0.78]) for (const sz of [-1.35, 1.35]) { const w = cyl(0.32, 0.32, 0.24, '#151515', 12); w.rotation.z = Math.PI / 2; w.position.set(sx, 0.32, sz); c.add(w); }
+  c.add(at(box(1.5, 0.12, 0.05, '#f2f2e8'), 0, 0.68, -2.11)); c.add(at(box(1.5, 0.12, 0.05, '#8a1010'), 0, 0.72, 2.11));
+  return c;
+}
+// construction unique, à la première arrivée au port (le monde est déjà là)
+function buildPortDetails() { if (PDET.built) return; PDET.built = true; PORTS.forEach((p, i) => { const d = portDetails(p, 77 + i * 13); d.position.set(p.x, 0, p.z); d.rotation.y = -p.ang; scene.add(d); }); }
+{ const base = pwGeo; pwGeo = function () { const r = base(); r.obs.push(...PDET.obs); return r; }; }
+{ const base = harborEnter; harborEnter = function (spot) { buildPortDetails(); base(spot); }; }
+// lampadaires : halo la nuit, seulement près du port courant
+function portLampsStep() {
+  const dark = 1 - smooth(-0.06, 0.12, sunDir().y);
+  for (const [id, list] of PDET.lampsByPort) { const near = camera.position.distanceTo(_v.set(portOf(id).x, 0, portOf(id).z)) < 4000; for (const s of list) { s.visible = near && dark > 0.03; s.material.opacity = dark * 0.85; } }
+}
+{ const base = cameraStep; cameraStep = function (dt) { base(dt); if (PDET.built) portLampsStep(); }; }
+
+// ===== VIE DU PORT : aussières, camions et chariots, pêcheurs qui rentrent, sons d'ambiance =====
+// ----- aussières : chaque bâtiment à quai est amarré aux bittes les plus proches -----
+function ropesClear() { for (const r of PDET.ropes) dropObj(r); PDET.ropes = []; }
+function moorRopes() {
+  ropesClear();
+  const bol = []; for (let k = 0; k < 14; k++) bol.push(PL(-280 + k * 40, -41)); for (const sx of [-1, 1]) for (let k = 0; k < 5; k++) bol.push(PL(sx * 290, -20 + k * 40));
+  const mat = std('#3b3a33', 0.9), _a = new THREE.Vector3();
+  for (const c in FLEET) {
+    const v = FLEET[c]; if (!v || !v.mesh || c === 'carrier' || v.kind === 'sub') continue; const ud = v.mesh.userData, H = ud.H, sp = ud.sp; if (!H || !sp) continue;
+    if (v.sync) v.sync(); v.mesh.updateMatrixWorld(true);
+    for (const s of [0.08, 0.24, 0.76, 0.92]) {
+      const zl = sp.L / 2 - s * sp.L, y = H.deckH(s) - sp.T + 0.4, hb = H.halfB(s) * 0.92;
+      const pts = [-1, 1].map(sd => _a.set(sd * hb, y, zl).applyMatrix4(v.mesh.matrixWorld).clone());
+      let best = null; for (const P of pts) for (const b of bol) { const d = Math.hypot(P.x - b.x, P.z - b.z); if (d < 45 && (!best || d < best.d)) best = { P, b, d }; }
+      if (!best) continue;
+      const A = best.P, B = new THREE.Vector3(best.b.x, PD_Y + 0.55, best.b.z), M = A.clone().lerp(B, 0.5); M.y -= 0.6 + best.d * 0.03;
+      const r = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([A, M, B]), 12, 0.065, 5, false), mat); r.castShadow = true; scene.add(r); PDET.ropes.push(r);
+    }
+  }
+}
+// ----- véhicules du port : un camion porte-conteneur, une camionnette de la Marine, un chariot élévateur -----
+function truckMesh(kind) {
+  const g = new THREE.Group();
+  if (kind === 'fork') {
+    g.add(at(box(1.3, 1.0, 2.4, '#e2b31f', 0.5), 0, 0.75, 0)); g.add(at(box(1.2, 0.08, 1.2, '#2b2b2b'), 0, 2.2, 0.3));
+    for (const s of [-0.55, 0.55]) { g.add(at(box(0.06, 1.9, 0.06, '#2b2b2b'), s, 1.25, 0.6)); g.add(at(box(0.06, 0.06, 0.06, '#2b2b2b'), s, 2.2, -0.4)); }
+    g.add(at(box(0.12, 2.6, 0.12, '#3a3a3a'), -0.3, 1.5, -1.25)); g.add(at(box(0.12, 2.6, 0.12, '#3a3a3a'), 0.3, 1.5, -1.25)); g.add(at(box(0.9, 0.06, 1.0, '#4a4a4a'), 0, 0.35, -1.8));
+    g.add(at(box(1.0, 0.8, 0.9, '#9a7a4e'), 0, 0.8, -1.8));
+  } else if (kind === 'van') {
+    g.add(at(box(2.0, 1.9, 5.2, '#eef0f2', 0.4), 0, 1.3, 0)); g.add(at(box(1.9, 0.7, 0.05, '#1b2733', 0.2), 0, 1.75, -2.61)); g.add(at(box(2.02, 0.25, 3.0, '#1f4aa8'), 0, 1.0, 0.5));
+  } else {
+    g.add(at(box(2.3, 2.3, 2.2, '#b8402c', 0.45), 0, 1.65, -3.6)); g.add(at(box(2.2, 0.8, 0.05, '#1b2733', 0.2), 0, 2.2, -4.71));
+    g.add(at(box(2.3, 0.35, 8.6, '#2b2b2b'), 0, 0.85, 0.6)); const c = new THREE.Mesh(new THREE.BoxGeometry(2.44, 2.6, 6.1), containerMats()[Math.floor(Math.random() * BRANDS.length)]); c.position.set(0, 2.33, 1.6); c.castShadow = true; g.add(c);
+  }
+  const L = kind === 'fork' ? [[0.6, -0.8], [0.6, 0.7]] : kind === 'van' ? [[1.0, -1.7], [1.0, 1.7]] : [[1.05, -3.5], [1.05, 0.2], [1.05, 3.6]];
+  for (const [x, z] of L) for (const s of [-1, 1]) { const w = cyl(kind === 'fork' ? 0.3 : 0.48, kind === 'fork' ? 0.3 : 0.48, 0.32, '#151515', 12); w.rotation.z = Math.PI / 2; w.position.set(s * x, kind === 'fork' ? 0.3 : 0.48, z); g.add(w); }
+  const amber = new THREE.Mesh(new THREE.SphereGeometry(0.1, 6, 4), new THREE.MeshBasicMaterial({ color: 0xffa020 })); amber.position.set(0, kind === 'fork' ? 2.3 : kind === 'van' ? 2.3 : 2.9, kind === 'truck' ? -3.6 : 0); g.add(amber); g.userData.beacon = amber;
+  g.traverse(o => { if (o.isMesh) o.castShadow = true; });
+  return g;
+}
+// boucle de circulation : vers l'est sur la voie z = -68,5, demi-tour, vers l'ouest sur z = -63
+const LANE = { e: -68.5, w: -63, x0: -295, x1: 295 };
+LANE.r = (LANE.e - LANE.w) / -2; LANE.len = 2 * (LANE.x1 - LANE.x0) + 2 * Math.PI * LANE.r;
+function lanePos(s) {
+  const L = LANE, a = L.x1 - L.x0, c = Math.PI * L.r; s = ((s % L.len) + L.len) % L.len;
+  if (s < a) return { x: L.x0 + s, z: L.e, hx: 1, hz: 0 };
+  s -= a; if (s < c) { const t = s / L.r - Math.PI / 2; return { x: L.x1 + Math.cos(t) * L.r, z: (L.e + L.w) / 2 + Math.sin(t) * L.r, hx: -Math.sin(t), hz: Math.cos(t) }; }
+  s -= c; if (s < a) return { x: L.x1 - s, z: L.w, hx: -1, hz: 0 };
+  s -= a; { const t = s / L.r + Math.PI / 2; return { x: L.x0 + Math.cos(t) * L.r, z: (L.e + L.w) / 2 + Math.sin(t) * L.r, hx: -Math.sin(t), hz: Math.cos(t) }; }
+}
+function trucksClear() { for (const t of PDET.trucks) dropObj(t.m); PDET.trucks = []; }
+function trucksSpawn() {
+  trucksClear();
+  [['truck', 5.2], ['van', 6.5], ['fork', 3.0]].forEach(([k, sp], i) => { const m = truckMesh(k); scene.add(m); PDET.trucks.push({ m, kind: k, s: i * LANE.len / 3 + Math.random() * 60, sp, v: sp, wait: 0, honk: 0, half: k === 'truck' ? 4.8 : k === 'van' ? 2.7 : 1.9 }); });
+}
+function trucksStep(dt) {
+  const walkers = [];
+  if (PW.on && !(typeof JEEP !== 'undefined' && JEEP.on)) walkers.push({ x: PW.x, z: PW.z });
+  if (typeof JEEP !== 'undefined' && JEEP.mesh) walkers.push({ x: JEEP.x, z: JEEP.z, r: 2.4 });
+  for (const p of PED.list) walkers.push({ x: p.x, z: p.z });
+  for (const t of PDET.trucks) {
+    const q = lanePos(t.s), w = PL(q.x, q.z), dir = PL(q.x + q.hx, q.z + q.hz); const fx = dir.x - w.x, fz = dir.z - w.z;
+    let blocked = false;
+    for (const o of walkers) { const dx = o.x - w.x, dz = o.z - w.z, ahead = dx * fx + dz * fz, lat = Math.abs(-dx * fz + dz * fx); if (ahead > 0 && ahead < t.half + 6 && lat < 2.2 + (o.r || 0)) { blocked = true; break; } }
+    for (const u of PDET.trucks) if (u !== t) { const d = ((u.s - t.s) % LANE.len + LANE.len) % LANE.len; if (d > 0 && d < t.half + u.half + 4) blocked = true; }
+    t.v = lerp(t.v, blocked ? 0 : t.sp, clamp(dt * (blocked ? 3 : 0.8), 0, 1));
+    if (blocked) { t.wait += dt; if (t.wait > 3 && !t.honk) { t.honk = 1; portBeep(t.kind === 'fork' ? 900 : 420, w); } } else { t.wait = 0; t.honk = 0; }
+    t.s += t.v * dt;
+    t.m.position.set(w.x, pwGround(w.x, w.z), w.z); t.m.rotation.y = Math.atan2(-fx, -fz);
+    if (t.m.userData.beacon) t.m.userData.beacon.visible = Math.sin(GFX.t * 8) > 0;
+    t.wx = w.x; t.wz = w.z;
+  }
+}
+// ----- bateaux de pêche qui entrent et sortent du bassin -----
+function portBoats() {
+  for (let i = 0; i < 2; i++) {
+    const a = PL(-80 + i * 60, 180 + i * 40), b = PL(-10 + i * 30, 1150 + i * 200), st = i ? b : a;
+    const v = new Vessel('trawler', buildTrawler(pick(BOATNAMES)), st.x, st.z, PORT.sea + (i ? Math.PI : 0), { name: pick(BOATNAMES) });
+    v.ai = { mode: 'shuttle', a, b, leg: i ? 0 : 1 }; v.ambient = true; v.ais = true; v.u = 2;
+  }
+}
+// ----- sons d'ambiance du port -----
+function portBeep(f, pos) {
+  if (!AU.on) return; const c = AU.ctx, t = c.currentTime, d = pos && PW.on ? Math.hypot(pos.x - PW.x, pos.z - PW.z) : 0, vol = 0.05 * clamp(1 - d / 160, 0.05, 1);
+  for (const k of [0, 0.28]) { const o = c.createOscillator(), g = c.createGain(); o.type = 'square'; o.frequency.value = f; g.gain.setValueAtTime(0, t + k); g.gain.linearRampToValueAtTime(vol, t + k + 0.02); g.gain.setValueAtTime(vol, t + k + 0.18); g.gain.linearRampToValueAtTime(0, t + k + 0.22); o.connect(g); g.connect(AU.master); o.start(t + k); o.stop(t + k + 0.25); }
+}
+function portAmbience(dt) {
+  if (!AU.on || !PW.on || HQ.on || UI.screen !== 'port') return;
+  PDET.snd -= dt; if (PDET.snd > 0) return; PDET.snd = rr(4, 11);
+  const c = AU.ctx, t = c.currentTime, M = AU.master, r = Math.random();
+  if (r < 0.45) { // mouettes : deux ou trois cris qui glissent vers le grave
+    const n = ri(2, 4); for (let i = 0; i < n; i++) { const o = c.createOscillator(), g = c.createGain(), t0 = t + i * rr(0.18, 0.3); o.type = 'triangle'; o.frequency.setValueAtTime(rr(1500, 1900), t0); o.frequency.exponentialRampToValueAtTime(rr(700, 900), t0 + 0.16); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(0.025, t0 + 0.02); g.gain.linearRampToValueAtTime(0, t0 + 0.17); o.connect(g); g.connect(M); o.start(t0); o.stop(t0 + 0.2); }
+  } else if (r < 0.75) { // chocs métalliques au parc à conteneurs
+    for (let i = 0; i < ri(1, 3); i++) { const s = c.createBufferSource(); s.buffer = AU.white; const f = c.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = rr(700, 1500); f.Q.value = 6; const g = c.createGain(), t0 = t + i * rr(0.15, 0.4); g.gain.setValueAtTime(0.06, t0); g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.35); s.connect(f); f.connect(g); g.connect(M); s.start(t0); s.stop(t0 + 0.4); }
+  } else if (r < 0.88) { // corne lointaine d'un navire
+    const o = c.createOscillator(), o2 = c.createOscillator(), f = c.createBiquadFilter(), g = c.createGain(); o.type = 'sawtooth'; o2.type = 'sawtooth'; o.frequency.value = 98; o2.frequency.value = 147; f.type = 'lowpass'; f.frequency.value = 500;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.022, t + 0.3); g.gain.setValueAtTime(0.022, t + 1.6); g.gain.linearRampToValueAtTime(0, t + 2.1); o.connect(f); o2.connect(f); f.connect(g); g.connect(M); o.start(t); o2.start(t); o.stop(t + 2.2); o2.stop(t + 2.2);
+  } else sfx('bell');
+}
+{ const base = harborEnter; harborEnter = function (spot) { base(spot); try { moorRopes(); trucksSpawn(); portBoats(); } catch (e) { console.error(e); } }; }
+{ const base = clearWorldEntities; clearWorldEntities = function () { ropesClear(); trucksClear(); base(); }; }
+{ const base = cameraStep; cameraStep = function (dt) { base(dt); if (UI.screen === 'port' && PDET.trucks.length) trucksStep(paused ? 0 : dt); portAmbience(dt); }; }
+
+// ===== LA JEEP DE SERVICE : se déplacer vite sur les quais (Z/S accélérer-freiner, Q/D braquer, Espace frein à main, H klaxon, E descendre) =====
+const JEEP = { mesh: null, on: false, x: 0, z: 0, a: 0, v: 0, steer: 0, y: PD_Y, pitch: 0, orbit: 0, lastYaw: 0, eng: null, shake: 0, wheels: [], fronts: [], driver: null, hud: null, roll: 0 };
+const JEEP_VMAX = 19.5, JEEP_WB = 2.45;
+function buildJeep() {
+  const g = new THREE.Group(), body = '#56636c', dark = '#2a3036';
+  g.add(at(box(1.62, 0.42, 3.9, body, 0.55, 0.25), 0, 0.78, 0));                       // caisse
+  g.add(at(box(1.58, 0.36, 1.3, body, 0.55, 0.25), 0, 1.15, -1.32));                   // capot
+  g.add(at(box(1.66, 0.5, 1.95, body, 0.55, 0.25), 0, 1.22, 0.95));                    // baquet arrière
+  for (const s of [-1, 1]) { g.add(at(box(0.3, 0.12, 1.0, dark), s * 0.86, 1.02, -1.25)); g.add(at(box(0.3, 0.12, 1.0, dark), s * 0.86, 1.02, 1.25)); }   // ailes
+  g.add(at(box(1.5, 0.5, 0.08, '#1b1f23'), 0, 1.0, -1.98));                            // calandre
+  for (let k = -3; k <= 3; k++) g.add(at(box(0.04, 0.42, 0.02, '#4a5056'), k * 0.18, 1.0, -2.03));
+  g.add(at(box(1.8, 0.14, 0.18, dark), 0, 0.62, -2.02)); g.add(at(box(1.8, 0.14, 0.18, dark), 0, 0.62, 2.0));   // pare-chocs
+  const lightM = new THREE.MeshStandardMaterial({ color: lin('#fff8e6'), emissive: new THREE.Color('#fff3d0'), emissiveIntensity: 0.4 });
+  for (const s of [-0.58, 0.58]) { const h = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.08, 12), lightM); h.rotation.x = Math.PI / 2; h.position.set(s, 1.08, -2.03); g.add(h); g.add(at(box(0.16, 0.08, 0.04, '#b0141a'), s + (s < 0 ? 0.1 : -0.1), 1.0, 2.0)); }
+  // pare-brise rabattable, arceau, sièges, roue de secours, antenne
+  for (const s of [-0.76, 0.76]) g.add(at(box(0.05, 0.62, 0.05, dark), s, 1.65, -0.62));
+  g.add(at(box(1.57, 0.05, 0.05, dark), 0, 1.96, -0.62)); g.add(at(box(1.57, 0.05, 0.05, dark), 0, 1.36, -0.62));
+  { const gl = new THREE.Mesh(new THREE.PlaneGeometry(1.45, 0.56), new THREE.MeshStandardMaterial({ color: '#bcd6e6', transparent: true, opacity: 0.25, roughness: 0.05, side: THREE.DoubleSide, depthWrite: false })); gl.position.set(0, 1.66, -0.62); gl.rotation.x = -0.12; g.add(gl); }
+  for (const s of [-0.74, 0.74]) { g.add(at(cyl(0.035, 0.035, 0.85, dark, 6), s, 1.85, 0.35)); }
+  { const t = cyl(0.035, 0.035, 1.48, dark, 6); t.rotation.z = Math.PI / 2; t.position.set(0, 2.27, 0.35); g.add(t); }
+  for (const s of [-0.4, 0.4]) { g.add(at(box(0.5, 0.12, 0.5, '#2c2a26'), s, 1.08, 0.05)); g.add(at(box(0.5, 0.55, 0.1, '#2c2a26'), s, 1.38, 0.32)); }
+  { const sp = cyl(0.38, 0.38, 0.24, '#151515', 14); sp.rotation.x = Math.PI / 2; sp.position.set(0, 1.25, 2.12); g.add(sp); }
+  g.add(at(cyl(0.012, 0.012, 1.6, '#111', 4), 0.72, 2.0, 1.75));
+  { const t = canvasTex(256, 64, (c, W, H) => { c.clearRect(0, 0, W, H); c.fillStyle = '#f2f2ee'; c.font = '700 34px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('MARINE', W / 2, H / 2 + 2); });
+    for (const s of [-1, 1]) { const p = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.22), new THREE.MeshStandardMaterial({ map: t, transparent: true, roughness: 0.6 })); p.position.set(s * 0.835, 0.82, -0.6); p.rotation.y = s * Math.PI / 2; g.add(p); } }
+  // roues (les avant braquent)
+  JEEP.wheels = []; JEEP.fronts = [];
+  for (const [x, z] of [[-0.82, -1.25], [0.82, -1.25], [-0.82, 1.25], [0.82, 1.25]]) {
+    const piv = new THREE.Group(); piv.position.set(x, 0.38, z); g.add(piv);
+    const w = new THREE.Group(); piv.add(w); const tyre = cyl(0.38, 0.38, 0.28, '#151515', 14, 0.95); tyre.rotation.z = Math.PI / 2; w.add(tyre); const hub = cyl(0.17, 0.17, 0.3, '#56636c', 8); hub.rotation.z = Math.PI / 2; w.add(hub);
+    JEEP.wheels.push(w); if (z < 0) JEEP.fronts.push(piv);
+  }
+  // le commandant au volant
+  const d = buildHuman(Object.assign({}, COMMANDER, { sit: true })); d.position.set(-0.4, 0.62, 0.02); g.add(d); JEEP.driver = d;
+  const wh = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.025, 6, 16), std('#151515')); wh.position.set(-0.4, 1.45, -0.42); wh.rotation.x = -1.0; g.add(wh);
+  g.traverse(o => { if (o.isMesh) { o.castShadow = true; } });
+  // phares de nuit : une flaque de lumière au sol (pas de vraie lampe, qui ferait recompiler tous les matériaux)
+  const pool = new THREE.Mesh(new THREE.PlaneGeometry(7, 13), new THREE.MeshBasicMaterial({ map: GLOWTEX, color: 0xfff0c8, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+  pool.rotation.x = -Math.PI / 2; pool.position.set(0, 0.06, -8.5); pool.renderOrder = 3; g.add(pool); g.userData.pool = pool; g.userData.lightM = lightM;
+  return g;
+}
+// coins de la jeep dans le monde (pour les collisions)
+function jeepCorners(x, z, a) {
+  const fx = -Math.sin(a), fz = -Math.cos(a), rx = Math.cos(a), rz = -Math.sin(a), out = [];
+  for (const [cx, cz] of [[-0.85, -2.05], [0.85, -2.05], [-0.85, 2.05], [0.85, 2.05], [-0.85, 0], [0.85, 0]]) out.push({ x: x + rx * cx - fx * cz, z: z + rz * cx - fz * cz });
+  return out;
+}
+function jeepFree(x, z, a) {
+  for (const c of jeepCorners(x, z, a)) if (!pwWalkable(c.x, c.z)) return 'mur';
+  for (const t of PDET.trucks) if (t.wx != null && Math.hypot(t.wx - x, t.wz - z) < 2.0 + t.half * 0.75) return 'véhicule';
+  for (const p of PED.list) if (Math.hypot(p.x - x, p.z - z) < 2.3) return 'piéton';
+  return null;
+}
+// place de stationnement près de l'état-major, orientée le long du quai
+function jeepPark() {
+  if (!JEEP.mesh) { JEEP.mesh = buildJeep(); }
+  if (!JEEP.mesh.parent) scene.add(JEEP.mesh);
+  const p = PL(62, -88), q = PL(63, -88); JEEP.x = p.x; JEEP.z = p.z; JEEP.a = Math.atan2(-(q.x - p.x), -(q.z - p.z)); JEEP.v = 0; JEEP.steer = 0; JEEP.on = false;
+  if (!pwWalkable(p.x, p.z)) { const r = PL(30, -70); JEEP.x = r.x; JEEP.z = r.z; }
+  jeepPlace(0);
+}
+function jeepPlace(dt) {
+  const J = JEEP, m = J.mesh; if (!m) return;
+  const f = { x: -Math.sin(J.a), z: -Math.cos(J.a) }, gF = pwGround(J.x + f.x * 1.25, J.z + f.z * 1.25), gB = pwGround(J.x - f.x * 1.25, J.z - f.z * 1.25);
+  J.y = lerp(J.y, (gF + gB) / 2, dt ? clamp(dt * 10, 0, 1) : 1); J.pitch = lerp(J.pitch, Math.atan2(gF - gB, 2.5), dt ? clamp(dt * 8, 0, 1) : 1);
+  J.roll = lerp(J.roll, -J.steer * clamp(J.v / JEEP_VMAX, -1, 1) * 0.06, dt ? clamp(dt * 5, 0, 1) : 1);
+  m.position.set(J.x, J.y - 0.02 + (J.shake > 0 ? Math.sin(GFX.t * 60) * 0.03 * J.shake : 0), J.z); m.rotation.set(J.pitch, J.a, J.roll, 'YXZ');
+  for (const w of J.wheels) w.rotation.x -= J.v * (dt || 0) / 0.38;
+  for (const p of J.fronts) p.rotation.y = J.steer;
+  J.driver.visible = J.on;
+  const dark = 1 - smooth(-0.06, 0.12, sunDir().y); m.userData.pool.material.opacity = J.on ? dark * 0.55 : 0; m.userData.lightM.emissiveIntensity = 0.3 + dark * 2;
+}
+function jeepEnter() {
+  const J = JEEP; if (!J.mesh || J.on) return;
+  J.on = true; J.orbit = 0; J.lastYaw = PW.yaw; PW.av.visible = false; sfx('door'); PW.snap = 1;
+  jeepEngine(true);
+  if (!J.told) { J.told = true; toast('Jeep : Z/S accélérer et freiner, Q/D braquer, Espace frein à main, H klaxon, E descendre (devant un lieu : on y entre directement).'); }
+}
+// descendre : côté conducteur si possible, sinon côté passager ; devant un lieu, on y entre directement
+function jeepExit() {
+  const J = JEEP; if (!J.on) return;
+  const near = jeepNearPlace();
+  const rx = Math.cos(J.a), rz = -Math.sin(J.a); let ok = false;
+  if (Math.abs(J.v) > 4) { toast('Ralentissez avant de descendre.'); return; }
+  for (const side of [-1, 1]) for (const d of [1.5, 2.2, 3]) { const x = J.x + rx * side * d, z = J.z + rz * side * d; if (!ok && pwWalkable(x, z)) { PW.x = x; PW.z = z; ok = true; } }
+  if (!ok) { toast('Pas de place pour descendre ici.'); return; }
+  J.on = false; J.v = 0; jeepEngine(false); PW.yaw = J.a; PW.snap = 1; PW.y = pwGround(PW.x, PW.z); sfx('door');
+  if (near) {
+    let x = near.x, z = near.z; if (!pwWalkable(x, z)) { for (let t = 1; t >= 0; t -= 0.1) { const xx = lerp(J.x, near.x, t), zz = lerp(J.z, near.z, t); if (pwWalkable(xx, zz)) { x = xx; z = zz; break; } } }
+    PW.x = x; PW.z = z; PW.yaw = Math.atan2(-(near.x - J.x), -(near.z - J.z)); pwStep(0); if (PW.hint) pwAct();
+  }
+}
+function jeepNearPlace() { let best = null, bd = 16; for (const p of pwPlaces()) { if (p.id === 'jeep') continue; const d = Math.hypot(p.x - JEEP.x, p.z - JEEP.z); if (d < bd) { bd = d; best = p; } } return best; }
+function jeepStep(dt) {
+  const J = JEEP, k = KEYS, mv = PW.mv || {}, busy = COMMS.open || UI.help || UI.screen !== 'port' || CINE.on || HUB.place !== 'over';
+  const thr = busy ? 0 : (k.KeyW || k.ArrowUp || mv.f ? 1 : 0), brk = busy ? 0 : (k.KeyS || k.ArrowDown || mv.b ? 1 : 0);
+  const st = busy ? 0 : (k.KeyA || k.ArrowLeft || mv.l ? 1 : 0) - (k.KeyD || k.ArrowRight || mv.r ? 1 : 0), hb = !busy && k.Space;
+  const want = st * 0.55 * (1 - 0.6 * clamp(Math.abs(J.v) / JEEP_VMAX, 0, 1)); J.steer = lerp(J.steer, want, clamp(dt * 5, 0, 1));
+  if (thr) J.v += (J.v < -0.2 ? 14 : 6.2 * (1 - 0.55 * J.v / JEEP_VMAX)) * dt;
+  if (brk) J.v -= (J.v > 0.3 ? 13 : 4) * dt;
+  J.v -= Math.sign(J.v) * Math.min(Math.abs(J.v), (0.45 + 0.004 * J.v * J.v + (thr || brk ? 0 : 0.9)) * dt);
+  if (hb) J.v *= Math.exp(-dt * 3.2);
+  J.v = clamp(J.v, -6, JEEP_VMAX);
+  const yr = J.v / JEEP_WB * Math.tan(J.steer), na = J.a + yr * dt, nx = J.x - Math.sin(na) * J.v * dt, nz = J.z - Math.cos(na) * J.v * dt;
+  const why = jeepFree(nx, nz, na);
+  if (!why) { J.x = nx; J.z = nz; J.a = na; }
+  else {
+    if (Math.abs(J.v) > 4) { J.shake = 1; if (why === 'mur' || why === 'véhicule') sfx('crash'); }
+    if (why === 'piéton' && Math.abs(J.v) > 1.5) jeepHorn();
+    // on glisse le long de l'obstacle si possible
+    if (!jeepFree(J.x, J.z, na)) J.a = na;
+    J.v = why === 'piéton' ? 0 : -J.v * 0.2;
+  }
+  J.shake = Math.max(0, J.shake - dt * 2.5);
+  jeepPlace(dt);
+  jeepEngineStep(thr);
+  PW.x = J.x; PW.z = J.z;
+}
+// moteur : deux oscillateurs filtrés dont la hauteur suit la vitesse
+function jeepEngine(on) {
+  const J = JEEP;
+  if (!on) { if (J.eng) { const t = AU.ctx.currentTime; J.eng.g.gain.setTargetAtTime(0, t, 0.1); const e = J.eng; setTimeout(() => { try { e.o1.stop(); e.o2.stop(); } catch (er) { } }, 600); J.eng = null; } return; }
+  if (!AU.on || J.eng) return;
+  const c = AU.ctx, o1 = c.createOscillator(), o2 = c.createOscillator(), f = c.createBiquadFilter(), g = c.createGain();
+  o1.type = 'sawtooth'; o2.type = 'square'; o1.frequency.value = 38; o2.frequency.value = 19; f.type = 'lowpass'; f.frequency.value = 420; g.gain.value = 0;
+  o1.connect(f); o2.connect(f); f.connect(g); g.connect(AU.master); o1.start(); o2.start(); g.gain.setTargetAtTime(0.045, c.currentTime, 0.2); J.eng = { o1, o2, f, g };
+}
+function jeepEngineStep(thr) {
+  const e = JEEP.eng; if (!e) return; const t = AU.ctx.currentTime, r = Math.abs(JEEP.v) / JEEP_VMAX, gear = (r * 3.2) % 1;
+  const f = 34 + gear * 46 + r * 30 + thr * 8; e.o1.frequency.setTargetAtTime(f, t, 0.08); e.o2.frequency.setTargetAtTime(f / 2, t, 0.08); e.f.frequency.setTargetAtTime(380 + r * 900 + thr * 300, t, 0.1); e.g.gain.setTargetAtTime(0.035 + r * 0.04 + thr * 0.02, t, 0.15);
+}
+function jeepHorn() { if (JEEP.hornT && GFX.t - JEEP.hornT < 0.8) return; JEEP.hornT = GFX.t; portBeep(470, null); for (const p of PED.list) if (!p.kind && Math.hypot(p.x - JEEP.x, p.z - JEEP.z) < 18) { p.wait = 0; const q = pedPoint(); if (q) { p.tx = q.x; p.tz = q.z; } } }
+const _jv = new THREE.Vector3();
+function jeepCamera(dt) {
+  const J = JEEP; jeepStep(dt);
+  // la souris décale la caméra, qui revient d'elle-même derrière la jeep
+  const dy = PW.yaw - J.lastYaw; J.lastYaw = PW.yaw; J.orbit = wrapA(J.orbit + dy); if (Math.abs(dy) < 1e-4 && Math.abs(J.v) > 2) J.orbit *= Math.exp(-dt * 1.2);
+  const fx = -Math.sin(J.a), fz = -Math.cos(J.a);
+  if (PW.tp) {
+    const cy = J.a + J.orbit, back = 7.2 + Math.abs(J.v) * 0.12, h = 2.7 - Math.sin(clamp(PW.pitch, -0.6, 0.4)) * 3;
+    let x = J.x + Math.sin(cy) * back, z = J.z + Math.cos(cy) * back; const y = Math.max(J.y + h, terrainH(x, z) + 1.2);
+    camera.position.lerp(_jv.set(x, y, z), PW.snap ? 1 : clamp(dt * 7, 0, 1)); PW.snap = 0;
+    camera.lookAt(J.x + fx * 4, J.y + 1.4, J.z + fz * 4);
+  } else {
+    const rx = Math.cos(J.a), rz = -Math.sin(J.a);
+    camera.position.set(J.x + rx * -0.4 + fx * -0.05, J.y + 1.62, J.z + rz * -0.4 + fz * -0.05);
+    camera.rotation.set(clamp(PW.pitch, -0.6, 0.4) + J.pitch, J.a + J.orbit, J.roll, 'YXZ');
+  }
+  camera.fov = lerp(camera.fov, 62 + Math.abs(J.v) * 0.45, 0.1); camera.updateProjectionMatrix();
+  $('bridgeFrame').hidden = true; $('bino').hidden = true;
+  // indication : descendre (et entrer) ; vitesse
+  const near = jeepNearPlace();
+  PW.hint = { id: 'jeepout', label: near ? `Descendre · ${near.label}` : 'Descendre de la jeep', x: J.x, z: J.z };
+  pwHUD(dt);
+  let el = $('jeepHud'); if (!el) { el = document.createElement('div'); el.id = 'jeepHud'; $('pwUI').appendChild(el); }
+  const s = `<b>${Math.round(Math.abs(J.v) * 3.6)}</b><span>km/h</span><em>${J.v < -0.3 ? 'marche arrière' : 'Z/S · Q/D · Espace · H klaxon'}</em>`; if (el._s !== s) { el._s = s; el.innerHTML = s; } el.hidden = false;
+}
+// branchements dans le port à pied
+{ const base = pwPlaces; pwPlaces = function () { const L = base(); if (JEEP.mesh && !JEEP.on && !HQ.on) { const rx = Math.cos(JEEP.a), rz = -Math.sin(JEEP.a); L.push({ id: 'jeep', label: 'Prendre la jeep de service', x: JEEP.x - rx * 1.4, z: JEEP.z - rz * 1.4 }); } return L; }; }
+{ const base = pwAct; pwAct = function () { if (JEEP.on) return jeepExit(); if (PW.hint && PW.hint.id === 'jeep' && UI.screen === 'port') return jeepEnter(); base(); }; }
+{ const base = pwCamera; pwCamera = function (dt) { if (JEEP.on && !HQ.on) { jeepCamera(dt); return; } const el = $('jeepHud'); if (el) el.hidden = true; if (JEEP.mesh) jeepPlace(dt); base(dt); }; }
+{ const base = harborEnter; harborEnter = function (spot) { base(spot); try { jeepPark(); } catch (e) { console.error(e); } }; }
+{ const base = harborLeave; harborLeave = function () { if (JEEP.on) { JEEP.on = false; jeepEngine(false); } if (JEEP.mesh && JEEP.mesh.parent) scene.remove(JEEP.mesh); base(); }; }
+KEYHOOK.push(e => { if (e.code === 'KeyH' && JEEP.on && PW.on && UI.screen === 'port' && !e.repeat) { jeepHorn(); return true; } return false; });
+
+// ===== GAMEPLAY AU PORT : liaisons chronométrées, plan du port, entraînement de l'équipage ; photos de dauphins en mer =====
+// ----- liaisons : plis urgents, pièces de rechange, rondes de sûreté, officiers à conduire -----
+const LIA = { cur: null, beam: null, ring: null };
+function liaSpots() {
+  const S = (lx, lz, label) => Object.assign(PL(lx, lz), { label });
+  return { garde: S(17, -110, 'le poste de garde'), citernes: S(-300, -106, 'les citernes de gasoil'), conteneurs: S(234, -112, 'le parc à conteneurs'), ouest: S(-300, 110, 'le quai ouest'), est: S(300, 110, 'le quai est'), grue: S(-60, -55, 'la grue du poste 2'), magasins: S(-200, -80, 'les magasins') };
+}
+function liaPlace(id) { const p = pwPlaces().find(q => q.id === id); return p ? { x: p.x, z: p.z, label: { em: 'l\'état-major', capit: 'la capitainerie', carre: 'le carré', arsenal: 'l\'arsenal' }[id] || p.label } : null; }
+function liaisonOffers() {
+  const C = CAREER; if (!C || !PWG) return [];
+  const R = mulberry(C.day * 131 + PORT.id.charCodeAt(0) * 7 + PORT.id.length), S = liaSpots(), out = [];
+  const ship = C.ship, g = gangway(ship), gw = { x: g.x, z: g.z, label: `la coupée ${deN(ship)}` };
+  const dest = ['arsenal', 'carre', 'capit'][Math.floor(R() * 3)];
+  out.push({ id: 'pli', title: `Pli urgent pour ${liaPlace(dest).label}`, desc: 'Un pli classé à remettre en main propre, le plus vite possible.', cps: [liaPlace(dest)], reward: 600, xp: 60 });
+  out.push({ id: 'piece', title: `Pièce de rechange pour ${leN(ship)}`, desc: 'Récupérez la pièce à l\'arsenal et livrez-la à la coupée : le chef mécanicien attend.', cps: [liaPlace('arsenal'), gw], reward: 900, xp: 90, morale: 'meca' });
+  const keys = Object.keys(S).sort(() => R() - 0.5).slice(0, 4);
+  out.push({ id: 'ronde', title: 'Ronde de sûreté', desc: 'Passez aux quatre points de contrôle dans l\'ordre et signalez tout ce qui cloche.', cps: keys.map(k => S[k]), reward: 1100, xp: 120 });
+  const a = R() < 0.5, o1 = liaPlace(a ? 'capit' : 'em'), o2 = liaPlace(a ? 'em' : 'capit');
+  out.push({ id: 'officier', title: `Conduire un officier à ${o2.label}`, desc: `Prenez l'officier de permanence à ${o1.label} et déposez-le à ${o2.label}.`, cps: [o1, o2], reward: 700, xp: 70 });
+  return out;
+}
+function liaDone() { const C = CAREER; if (!C.lia || C.lia.day !== C.day || C.lia.port !== PORT.id) C.lia = { day: C.day, port: PORT.id, done: [] }; return C.lia.done; }
+function liaisonStart(i) {
+  const d = liaisonOffers()[i]; if (!d || liaDone().includes(d.id)) return;
+  let L = 0, p = { x: PW.x, z: PW.z }; for (const c of d.cps) { L += Math.hypot(c.x - p.x, c.z - p.z); p = c; }
+  const limit = Math.round(L / 10.5 + d.cps.length * 9 + 18);
+  LIA.cur = { def: d, i: 0, t: 0, limit }; HUB.openAt = null; hubGo('over'); sfx('tel');
+  toast(`${d.title} : ${Math.floor(limit / 60)} min ${String(limit % 60).padStart(2, '0')} s. La jeep de service est devant l'état-major.`);
+}
+function liaisonStop(msg) { LIA.cur = null; if (LIA.beam) LIA.beam.visible = false; if (LIA.ring) LIA.ring.visible = false; const el = $('liaHud'); if (el) el.hidden = true; if (msg) toast(msg); }
+function liaisonStep(dt) {
+  const L = LIA.cur; if (!L) return;
+  if (!PW.on || UI.screen !== 'port') { if (UI.screen === 'sea') liaisonStop(); return; }
+  if (!paused && !HQ.on && HUB.place === 'over') L.t += dt;
+  const cp = L.def.cps[L.i], x = JEEP.on ? JEEP.x : PW.x, z = JEEP.on ? JEEP.z : PW.z, d = Math.hypot(cp.x - x, cp.z - z);
+  if (!LIA.beam) {
+    const bg = new THREE.CylinderGeometry(1.4, 1.4, 60, 12, 1, true); bg.translate(0, 30, 0);
+    LIA.beam = new THREE.Mesh(bg, new THREE.MeshBasicMaterial({ color: '#7fd3ff', transparent: true, opacity: 0.28, depthWrite: false, side: THREE.DoubleSide, toneMapped: false })); LIA.beam.renderOrder = 5;
+    LIA.ring = new THREE.Mesh(new THREE.RingGeometry(3.2, 3.8, 32), new THREE.MeshBasicMaterial({ color: '#7fd3ff', transparent: true, opacity: 0.7, depthWrite: false, side: THREE.DoubleSide, toneMapped: false })); LIA.ring.rotation.x = -Math.PI / 2;
+  }
+  if (!LIA.beam.parent) { scene.add(LIA.beam); scene.add(LIA.ring); }
+  const gy = pwGround(cp.x, cp.z); LIA.beam.position.set(cp.x, gy, cp.z); LIA.ring.position.set(cp.x, gy + 0.05, cp.z); LIA.ring.scale.setScalar(1 + Math.sin(GFX.t * 4) * 0.08);
+  LIA.beam.visible = LIA.ring.visible = !HQ.on;
+  if (d < 6.5) {
+    L.i++; sfx('click');
+    if (L.i >= L.def.cps.length) {
+      const C = CAREER, left = L.limit - L.t, bonus = left > L.limit * 0.3 ? Math.round(L.def.reward * 0.5) : 0, pay = L.def.reward + bonus;
+      C.credits += pay; liaDone().push(L.def.id); if (L.def.morale) { const c = crew(L.def.morale); if (c) c.morale = Math.min(100, c.morale + 6); }
+      if (typeof addXP === 'function') addXP(L.def.xp, 'Liaison au port'); saveCareer(); jingle('xp');
+      pop('Liaison réussie', `${L.def.title} · ${fmtCr(pay)}${bonus ? ' (dont prime de rapidité)' : ''}`, true);
+      liaisonStop(); hubRender(); return;
+    }
+    const nx = L.def.cps[L.i]; toast(L.def.id === 'piece' && L.i === 1 ? 'Pièce récupérée : direction la coupée !' : L.def.id === 'officier' && L.i === 1 ? 'L\'officier est à bord : en route.' : `Point suivant : ${nx.label}.`);
+  }
+  if (L.t > L.limit) { liaisonStop(`Trop tard : « ${L.def.title} » est confiée à quelqu'un d'autre.`); return; }
+  let el = $('liaHud'); if (!el) { el = document.createElement('div'); el.id = 'liaHud'; $('pwUI').appendChild(el); }
+  const rem = Math.max(0, L.limit - L.t), s = `<p class="eyebrow">Liaison · ${L.i + 1}/${L.def.cps.length}</p><b>${escH(L.def.title)}</b><span class="${rem < 15 ? 'warn' : ''}">${Math.floor(rem / 60)}:${String(Math.floor(rem % 60)).padStart(2, '0')}</span><em>Vers ${escH(cp.label)} · ${Math.round(d)} m</em>`;
+  if (el._s !== s) { el._s = s; el.innerHTML = s; } el.hidden = HQ.on;
+}
+function liaisonHTML() {
+  const C = CAREER, offers = liaisonOffers(), done = liaDone();
+  return `<h4>Liaisons au port (jeep conseillée)</h4><div class="lias">${offers.map((d, i) => `<div class="lia ${done.includes(d.id) ? 'done' : ''}"><div><b>${escH(d.title)}</b><span>${escH(d.desc)}</span><em>${fmtCr(d.reward)} · +${d.xp} XP · prime si rapide</em></div>${done.includes(d.id) ? '<i>Fait</i>' : LIA.cur ? (LIA.cur.def.id === d.id ? '<button class="btn sm ghost" data-act="liastop">Abandonner</button>' : '') : `<button class="btn sm" data-act="liago" data-i="${i}">Accepter</button>`}</div>`).join('')}</div><p class="small">Nouvelles liaisons chaque jour, dans chaque base.${C && C.lia && C.lia.done.length ? ` Aujourd'hui : ${C.lia.done.length}/4.` : ''}</p>`;
+}
+Object.assign(ACT, { liago: d => liaisonStart(+d.i), liastop: () => { liaisonStop('Liaison abandonnée.'); hubRender(); } });
+// ----- entraînement de l'équipage au carré -----
+{ const base = ACT.train; ACT.train = d => { const c = crew(d.id); if (!c) return; const before = c.skill; base(d); if (c.skill > before) { c.morale = Math.max(10, c.morale - 6); saveCareer(); toast(`${c.n} : exercice réussi, compétence ${c.skill}/5.`); } if (UI.screen === 'port') hubRender(); }; }
+{ const base = panelHTML; panelHTML = function () {
+  let h = base();
+  if (HUB.place === 'carre' && CAREER) h = h.replace(/data-act="msgto" data-c="(\w+)">Écrire<\/button>/g, (m, id) => { const c = crew(id); if (!c) return m; const cost = 3000 * c.skill; return `${m}<button class="btn sm" data-act="train" data-id="${id}" ${c.skill >= 5 || CAREER.credits < cost ? 'disabled' : ''} title="Exercice d'entraînement : compétence +1, un peu de fatigue">${c.skill >= 5 ? 'Au maximum' : `Entraîner (${fmtCr(cost)})`}</button>`; });
+  if (HUB.place === 'capit' && CAREER && !(HUB.sub && (HUB.sub.free || HUB.sub.quick))) h = h.replace('<h4>Livre de bord</h4>', liaisonHTML() + '<h4>Livre de bord</h4>');
+  return h;
+}; }
+// ----- plan du port (touche M) -----
+if (SET.pmap == null) SET.pmap = true;
+function portMapDraw() {
+  let cv = $('pmap'); if (!cv) { cv = document.createElement('canvas'); cv.id = 'pmap'; cv.setAttribute('aria-label', 'Plan du port'); $('pwUI').appendChild(cv); }
+  const show = SET.pmap && PW.on && !HQ.on && UI.screen === 'port' && PWG; cv.hidden = !show; if (!show) return;
+  const k = Math.min(2, devicePixelRatio || 1), W = 280, H = 132; if (cv.width !== W * k) { cv.width = W * k; cv.height = H * k; }
+  const g = cv.getContext('2d'); g.setTransform(k, 0, 0, k, 0, 0);
+  const x0 = -335, x1 = 335, z0 = -135, z1 = 175, s = Math.min(W / (x1 - x0), H / (z1 - z0)), ox = (W - (x1 - x0) * s) / 2, oy = (H - (z1 - z0) * s) / 2;
+  const P = (lx, lz) => [ox + (lx - x0) * s, oy + (z1 - lz) * s];
+  const toL = (x, z) => portL(PORT, x, z);
+  g.fillStyle = '#16384a'; g.fillRect(0, 0, W, H);
+  g.fillStyle = '#5d6a62'; { const b = P(x0, -64)[1]; g.fillRect(0, b, W, H - b); }
+  g.fillStyle = '#a4a39a'; for (const r of PWG.walk) { const [a, b] = P(r[0], r[3]), [c, d] = P(r[1], r[2]); g.fillRect(a, b, c - a, d - b); }
+  g.fillStyle = '#6f6e66'; for (const r of PWG.obs) { const [a, b] = P(r[0], r[3]), [c, d] = P(r[1], r[2]); if (c - a > 1.5 || d - b > 1.5) g.fillRect(a, b, Math.max(1, c - a), Math.max(1, d - b)); }
+  g.fillStyle = '#b9b3a3'; for (const bw of PORT.bwL) { const [a, b] = P(bw[0], bw[1]), [c, d] = P(bw[2], bw[3]); g.strokeStyle = '#b9b3a3'; g.lineWidth = 3; g.beginPath(); g.moveTo(a, b); g.lineTo(c, d); g.stroke(); }
+  // bâtiments à quai
+  for (const c in FLEET) { const v = FLEET[c]; if (!v) continue; const l = toL(v.x, v.z), [a, b] = P(l.x, l.z), ang = v.psi - PORT.ang, L = v.L * s / 2; g.strokeStyle = c === CAREER.ship ? '#ffd27a' : '#dfe6ea'; g.lineWidth = Math.max(2, v.B * s); g.beginPath(); g.moveTo(a - Math.sin(ang) * L, b + Math.cos(ang) * L); g.lineTo(a + Math.sin(ang) * L, b - Math.cos(ang) * L); g.stroke(); }
+  // lieux
+  g.font = '700 9px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  for (const [id, t] of [['em', 'EM'], ['arsenal', 'AR'], ['carre', 'CA'], ['capit', 'CP']]) { const p = liaPlace(id); if (!p) continue; const l = toL(p.x, p.z), [a, b] = P(l.x, l.z); g.fillStyle = '#18233a'; g.beginPath(); g.arc(a, b, 6, 0, TAU); g.fill(); g.fillStyle = '#ffd27a'; g.fillText(t, a, b + 0.5); }
+  for (const t of PDET.trucks) if (t.wx != null) { const l = toL(t.wx, t.wz), [a, b] = P(l.x, l.z); g.fillStyle = '#e8a320'; g.fillRect(a - 1.5, b - 1.5, 3, 3); }
+  if (LIA.cur) { const cp = LIA.cur.def.cps[LIA.cur.i], l = toL(cp.x, cp.z), [a, b] = P(l.x, l.z); g.strokeStyle = '#7fd3ff'; g.lineWidth = 2; g.beginPath(); g.arc(a, b, 5 + Math.sin(GFX.t * 5) * 1.5, 0, TAU); g.stroke(); }
+  if (JEEP.mesh) { const l = toL(JEEP.x, JEEP.z), [a, b] = P(l.x, l.z); g.fillStyle = JEEP.on ? '#ffd27a' : '#8fa0aa'; g.fillRect(a - 2.5, b - 2.5, 5, 5); }
+  { const l = toL(PW.x, PW.z), [a, b] = P(l.x, l.z), yaw = (JEEP.on ? JEEP.a : PW.yaw) + PORT.ang; g.save(); g.translate(a, b); g.rotate(-yaw); g.fillStyle = '#ff5a4a'; g.beginPath(); g.moveTo(0, -6); g.lineTo(4, 4); g.lineTo(0, 2); g.lineTo(-4, 4); g.closePath(); g.fill(); g.restore(); }
+  g.fillStyle = 'rgba(255,255,255,.8)'; g.font = '600 9px sans-serif'; g.textAlign = 'left'; g.fillText(`${PORT.n.toUpperCase()} · M`, 6, 9);
+}
+KEYHOOK.push(e => { if (e.code === 'KeyM' && PW.on && UI.screen === 'port' && !HQ.on && !e.repeat && !(e.target.matches && e.target.matches('input, textarea'))) { SET.pmap = !SET.pmap; saveSettings(); return true; } return false; });
+{ const base = cameraStep; cameraStep = function (dt) { base(dt); if (UI.screen === 'port' || LIA.cur) liaisonStep(dt); if (UI.screen === 'port' && (frameN % 4 === 0 || !$('pmap'))) portMapDraw(); else if ($('pmap') && UI.screen !== 'port') $('pmap').hidden = true; }; }
+{ const base = clearWorldEntities; clearWorldEntities = function () { if (LIA.beam && LIA.beam.parent) { scene.remove(LIA.beam); scene.remove(LIA.ring); } base(); }; }
+
+// ----- en mer : photographier les dauphins pour le réseau d'observation -----
+{ const base = photoShot; photoShot = function () {
+  base();
+  if (UI.screen !== 'sea' || !CAREER || CAREER.temp) return;
+  camera.updateMatrixWorld(); const fr = new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+  for (const pod of LIFE.pods) {
+    if (pod.shot) continue;
+    const n = pod.list.filter(d => d.m.visible && fr.containsPoint(d.m.position) && camera.position.distanceTo(d.m.position) < 160).length;
+    if (n >= 1) { pod.shot = true; const pay = 250 + n * 80; CAREER.credits += pay; if (typeof addXP === 'function') addXP(30 + n * 10, 'Observation de cétacés'); saveCareer(); setTimeout(() => pop('Belle photo !', `${n} dauphin${n > 1 ? 's' : ''} dans le cadre · le réseau d'observation vous verse ${fmtCr(pay)}`, true), 500); break; }
+  }
+}; }
 
 </script>
 
