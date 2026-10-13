@@ -6,8 +6,12 @@ Flotte d'Ysmar puts you in command of a naval force operating in a dynamic Medit
 
 ## 🎮 Features
 
+- **Story mode, season 1 "Sillage"** — A full narrative campaign: a prologue, ten chapters and an epilogue. Your grandfather's name weighs heavy in Toulon, a rival officer wants the frigate you are after, a journalist wants your quotes, and a secret from 1987 resurfaces. Dialogue scenes let you answer in a calm, frank or fiery tone; your choices shape your temperament, the admiral's trust, your rivalry, your family and your follower count, and they change later scenes, missions, press front pages and the ending. Your progress is in the "★ Story" panel.
+- **Start in the headquarters** — The game now opens inside the staff headquarters, and the story prologue plays in the admiral's office.
+- **Advanced training** — A full day aboard a borrowed frigate (from the harbour office, and chapter 1 of the story): game speed, chart and autopilot, fast transit, operations room, flying the helicopter to a buoy and landing it, launching the RHIB, walking to the bridge, reporting by message and taking a photo.
+- **Better visuals** — Rounded characters with faces and hands, drifting volumetric clouds, sun glare and lens flare that the terrain and weather can hide, richer colour grading and a new loading screen.
 - **Naval operations** — Control your ships and navigate through the Mediterranean.
-- **Campaign system** — Complete missions and progress through a broader operational storyline.
+- **Campaign system** — Complete missions and progress through a broader operational storyline, or follow the story mode.
 - **Multiple vessel types** — Command a fleet featuring different surface ships and a submarine.
 - **Tactical combat** — Track targets, manage weapons, and make decisions during engagements.
 - **Navigation systems** — Use the radar, tactical map, compass, and helm controls.
