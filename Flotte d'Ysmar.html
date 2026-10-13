@@ -11081,6 +11081,16 @@ function gtSpawn(minD, maxD) {
   }
   return false;
 }
+function gtThreat(v) {
+  const fx = Math.sin(v.psi), fz = -Math.cos(v.psi); let best = null, bd = 1e9;
+  for (const o of VESSELS) {
+    if (o === v || o.removed || o.sinking || o.ghost || o.kind === 'rhib') continue;
+    const dx = o.x - v.x, dz = o.z - v.z, d = Math.hypot(dx, dz); if (d > 1800 || d < 1) continue;
+    const ahead = dx * fx + dz * fz, lat = Math.abs(dx * fz - dz * fx);
+    if (ahead > 0 && ahead / d > 0.5 && lat < 260 + (o.L || 40) && d < bd) { bd = d; best = o; }
+  }
+  return best;
+}
 function gtStep(dt) {
   const P = PLAYER; if (!P || UI.screen !== 'sea' || !MS.cur) return;
   GTRAF.list = GTRAF.list.filter(v => !v.removed);
@@ -11088,8 +11098,11 @@ function gtStep(dt) {
     const g = v.gtraf; if (!g || v.dead || v.sinking || v.towed || v.cai) continue;
     const wp = g.L.P[g.i]; const d = Math.hypot(wp.x - v.x, wp.z - v.z);
     if (d < 900) { const ni = g.i + g.dir; if (ni < 0 || ni >= g.L.P.length) { g.end = true; } else g.i = ni; }
-    const tgt = g.L.P[g.i], hdg = g.end ? v.psi : headingOf(tgt.x - v.x, tgt.z - v.z);
-    steerTo(v, avoidHeading(v, hdg, Math.max(1500, v.L * 8)), g.sp, dt);
+    const tgt = g.L.P[g.i]; let hdg = g.end ? v.psi : headingOf(tgt.x - v.x, tgt.z - v.z), sp = g.sp;
+    // règle de barre : un navire devant, sur la route, on vient franchement sur tribord et on réduit l'allure
+    g.chk = (g.chk || 0) - dt; if (g.chk <= 0) { g.chk = 1; g.thr = gtThreat(v); }
+    if (g.thr && !g.thr.removed) { hdg = v.psi + 0.8; sp = g.sp * 0.5; }
+    steerTo(v, avoidHeading(v, hdg, Math.max(1500, v.L * 8)), sp, dt);
   }
   GTRAF.t -= dt; if (GTRAF.t > 0) return; GTRAF.t = 4;
   // on retire les navires trop loin (ou arrivés au bout de leur route) et on en fait apparaître d'autres
