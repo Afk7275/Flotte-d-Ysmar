@@ -482,6 +482,8 @@ i.fl.it { background: linear-gradient(90deg, #1b9a4b 33.3%, #fff 33.3% 66.6%, #d
 i.fl.tn { background: radial-gradient(circle at 50% 50%, #e70013 2.4px, #fff 2.6px 4.4px, #e70013 4.6px); }
 i.fl.dz { background: radial-gradient(circle at 52% 50%, #d21034 2.2px, transparent 2.4px), linear-gradient(90deg, #006233 50%, #fff 50%); }
 .fleetmap { display: grid; gap: 6px; } .fleetmap .fm { display: grid; gap: 4px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; } .fleetmap .fm > div:first-child { display: flex; justify-content: space-between; gap: 8px; } .fleetmap .fm span { font-size: 12px; color: var(--mut); }
+#hqRoom { position: absolute; left: 14px; bottom: calc(44px + env(safe-area-inset-bottom, 0px)); font: 600 11px var(--mono, monospace); letter-spacing: .08em; text-transform: uppercase; color: var(--amber2); background: rgba(8,14,20,.6); padding: 4px 10px; border-radius: 6px; pointer-events: none; }
+#hqRoom[hidden] { display: none; }
 </style>
 <canvas id="gl" aria-label="Vue du bâtiment"></canvas>
 <div id="bridgeFrame" hidden></div>
@@ -9983,6 +9985,282 @@ function seaGullStep(dt) {
 { const base = harborEnter; harborEnter = function (spot) { base(spot); try { pedSpawn(); } catch (e) { } }; }
 { const base = clearWorldEntities; clearWorldEntities = function () { pedClear(); for (const g of PED.seaGulls) dropObj(g.m); PED.seaGulls = []; base(); }; }
 { const base = cameraStep; cameraStep = function (dt) { base(dt); if (UI.screen === 'port' && PED.list.length) pedStep(dt); seaGullStep(dt); }; }
+
+// ===== L'ÉTAT-MAJOR À PIED : hall d'honneur, bureau de l'amirale, salle des opérations, CROSS, bureau des affectations, salle d'honneur =====
+// Repère de l'intérieur : x vers l'est, z vers le sud ; la porte d'entrée est en (0, 0) et l'on entre vers -z.
+const HQ = { on: false, scene: null, built: false, x: 0, z: -1.2, hint: null, back: null, tex: {}, phase: 0, npcs: [], inter: [], obs: [], told: false };
+const HQ_H = 3.4;
+const HQ_ROOMS = [
+  { id: 'hall', n: 'Hall d\'honneur', r: [-7, 7, -10, 0], floor: '#b8b0a2', wall: '#ebe6da', light: '#fff1dc', doors: [{ side: 's', a: -1.1, b: 1.1, out: true }, { side: 'n', a: -1.4, b: 1.4 }] },
+  { id: 'couloir', n: 'Couloir de l\'état-major', r: [-16, 16, -13, -10], floor: '#8b7d6b', wall: '#ece7dc', light: '#fff1dc', doors: [{ side: 's', a: -1.4, b: 1.4 }, { side: 'n', a: 8.3, b: 9.7 }, { side: 'n', a: -8.7, b: -7.3 }, { side: 'e', a: -12.3, b: -10.7 }, { side: 'w', a: -12.3, b: -10.7 }, { side: 's', a: 11, b: 12.4 }] },
+  { id: 'amirale', n: 'Bureau de l\'amirale', r: [4, 14, -22, -13], floor: '#6d4c35', wall: '#dcd3c2', light: '#ffe9c9', doors: [{ side: 's', a: 8.3, b: 9.7 }] },
+  { id: 'ops', n: 'Salle des opérations', r: [-15, -2, -24, -13], floor: '#3e444b', wall: '#38404c', light: '#cfe0ff', dim: true, doors: [{ side: 's', a: -8.7, b: -7.3 }] },
+  { id: 'cross', n: 'CROSS et liaisons', r: [16, 24, -17, -6], floor: '#757b83', wall: '#d9dee2', light: '#eef4ff', doors: [{ side: 'w', a: -12.3, b: -10.7 }] },
+  { id: 'affect', n: 'Bureau des affectations', r: [-24, -16, -17, -6], floor: '#8b7d6b', wall: '#e3dccb', light: '#fff1dc', doors: [{ side: 'e', a: -12.3, b: -10.7 }] },
+  { id: 'honneur', n: 'Salle d\'honneur', r: [7.2, 16, -10, -2], floor: '#5e2f2a', wall: '#e8e0cf', light: '#ffe2b8', doors: [{ side: 'n', a: 11, b: 12.4 }] }
+];
+const hqRoomAt = (x, z) => HQ_ROOMS.find(R => x >= R.r[0] && x <= R.r[1] && z >= R.r[2] && z <= R.r[3]);
+function hqWalkable(x, z) {
+  const m = 0.45;
+  let ok = HQ_ROOMS.some(R => x > R.r[0] + m && x < R.r[1] - m && z > R.r[2] + m && z < R.r[3] - m);
+  if (!ok) for (const R of HQ_ROOMS) for (const d of R.doors) {
+    if (d.out) continue; const line = d.side === 'n' ? R.r[2] : d.side === 's' ? R.r[3] : d.side === 'w' ? R.r[0] : R.r[1];
+    if ((d.side === 'n' || d.side === 's') && x > d.a + 0.3 && x < d.b - 0.3 && Math.abs(z - line) < 0.75) ok = true;
+    if ((d.side === 'e' || d.side === 'w') && z > d.a + 0.3 && z < d.b - 0.3 && Math.abs(x - line) < 0.75) ok = true;
+  }
+  if (!ok) return false;
+  const p = 0.28; return !HQ.obs.some(o => x > o[0] - p && x < o[1] + p && z > o[2] - p && z < o[3] + p);
+}
+// ----- construction -----
+function hqBox(g, w, h, d, c, x, y, z, emi) { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), lam(c, emi)); m.position.set(x, y + h / 2, z); g.add(m); return m; }
+function hqObs(x0, x1, z0, z1) { HQ.obs.push([Math.min(x0, x1), Math.max(x0, x1), Math.min(z0, z1), Math.max(z0, z1)]); }
+function hqTex(key, w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; HQ.tex[key] = { c, g: c.getContext('2d'), t }; return HQ.tex[key]; }
+function hqPlane(g, tex, w, h, x, y, z, ry, basic) { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), basic ? new THREE.MeshBasicMaterial({ map: tex.t || tex, toneMapped: false }) : new THREE.MeshLambertMaterial({ map: tex.t || tex })); m.position.set(x, y, z); m.rotation.y = ry || 0; g.add(m); return m; }
+function hqWalls(g, R) {
+  const [x0, x1, z0, z1] = R.r, T = 0.2, mat = R.wall;
+  const seg = (side, from, to) => {
+    const gaps = R.doors.filter(d => d.side === side).sort((a, b) => a.a - b.a); let cur = from; const parts = [];
+    for (const d of gaps) { if (d.a > cur) parts.push([cur, d.a, 0, HQ_H]); parts.push([d.a, d.b, 2.35, HQ_H]); cur = d.b; }
+    if (cur < to) parts.push([cur, to, 0, HQ_H]);
+    for (const [a, b, y0, y1] of parts) {
+      const L = b - a, c = (a + b) / 2, h = y1 - y0;
+      if (side === 'n') hqBox(g, L, h, T, mat, c, y0, z0 + T / 2); else if (side === 's') hqBox(g, L, h, T, mat, c, y0, z1 - T / 2);
+      else if (side === 'w') hqBox(g, T, h, L, mat, x0 + T / 2, y0, c); else hqBox(g, T, h, L, mat, x1 - T / 2, y0, c);
+    }
+    // plinthe sombre
+    for (const [a, b, y0] of parts) if (!y0) { const L = b - a, c = (a + b) / 2; if (side === 'n') hqBox(g, L, 0.14, 0.03, '#4a3b2c', c, 0, z0 + T + 0.015); else if (side === 's') hqBox(g, L, 0.14, 0.03, '#4a3b2c', c, 0, z1 - T - 0.015); else if (side === 'w') hqBox(g, 0.03, 0.14, L, '#4a3b2c', x0 + T + 0.015, 0, c); else hqBox(g, 0.03, 0.14, L, '#4a3b2c', x1 - T - 0.015, 0, c); }
+  };
+  seg('n', x0, x1); seg('s', x0, x1); seg('w', z0, z1); seg('e', z0, z1);
+  // sol, plafond, plafonnier
+  const w = x1 - x0, d = z1 - z0, cx = (x0 + x1) / 2, cz = (z0 + z1) / 2;
+  hqBox(g, w, 0.05, d, R.floor, cx, -0.05, cz); hqBox(g, w, 0.05, d, R.dim ? '#2a3038' : '#f4f1ea', cx, HQ_H, cz);
+  for (let i = 0; i < Math.max(1, Math.round(w / 6)); i++) for (let j = 0; j < Math.max(1, Math.round(d / 6)); j++) hqBox(g, 1.2, 0.04, 0.5, R.dim ? '#9fb6d8' : '#fffaf0', x0 + (i + 0.5) * w / Math.max(1, Math.round(w / 6)), HQ_H - 0.04, z0 + (j + 0.5) * d / Math.max(1, Math.round(d / 6)), R.dim ? '#4a6a9a' : '#fff6e0');
+  const L = new THREE.PointLight(R.light, R.dim ? 0.6 : 0.85, Math.max(w, d) * 1.6, 1.4); L.position.set(cx, HQ_H - 0.4, cz); g.add(L);
+}
+function hqHuman(g, look, x, z, yaw, o) {
+  const m = buildHuman(Object.assign({}, look, o && o.sit ? { sit: true } : {})); m.position.set(x, 0, z); m.rotation.y = yaw; g.add(m);
+  if (o && o.sit) { hqBox(g, 0.5, 0.45, 0.5, '#2b2f36', x, 0, z + 0.05 * Math.cos(yaw)); hqObs(x - 0.35, x + 0.35, z - 0.35, z + 0.35); } else hqObs(x - 0.25, x + 0.25, z - 0.25, z + 0.25);
+  const n = { m, x, z, yaw, t: Math.random() * 9, who: o && o.who }; HQ.npcs.push(n); return n;
+}
+function hqAt(x, z, label, run) { HQ.inter.push({ x, z, label, run }); }
+function hqBuild() {
+  const S = HQ.scene = new THREE.Scene(); S.background = new THREE.Color('#1b1d20');
+  S.add(new THREE.HemisphereLight('#fff6e8', '#5a4a3a', 0.55)); S.add(new THREE.AmbientLight('#ffffff', 0.18));
+  const g = new THREE.Group(); S.add(g); HQ.g = g; HQ.obs = []; HQ.npcs = []; HQ.inter = [];
+  for (const R of HQ_ROOMS) hqWalls(g, R);
+  // ---------- hall d'honneur ----------
+  hqBox(g, 1.6, 0.012, 9.6, '#8a1f24', 0, 0, -5);                                   // tapis rouge
+  for (const sx of [-1, 1]) { hqBox(g, 0.5, 0.45, 2.2, '#5b3a26', sx * 6.35, 0, -3); hqObs(sx * 6.35 - 0.25, sx * 6.35 + 0.25, -4.1, -1.9); }
+  hqBox(g, 2.8, 1.05, 0.9, '#4a3324', -4.3, 0, -5.5); hqBox(g, 2.9, 0.05, 1.0, '#2a1d14', -4.3, 1.05, -5.5); hqObs(-5.7, -2.9, -5.95, -5.05);   // accueil
+  hqHuman(g, { uni: '#22324d', shirt: '#eef0f2', hair: '#3a2a1e', long: true }, -4.3, -6.4, Math.PI, { sit: true });
+  hqAt(-4.3, -4.5, 'Accueil : le planton vous indique les bureaux', () => { toast('Bureau de l\'amirale et salle des opérations au fond du couloir, CROSS à droite, affectations à gauche, salle d\'honneur à droite du hall.'); });
+  // maquette sous vitrine
+  hqBox(g, 2.0, 0.9, 1.0, '#3a2a1e', 4.4, 0, -5.5); hqObs(3.4, 5.4, -6.0, -5.0);
+  { const hull = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.16, 0.26), lam('#5d6772')); hull.position.set(4.4, 1.02, -5.5); g.add(hull); hqBox(g, 0.5, 0.18, 0.18, '#d8dde2', 4.25, 1.1, -5.5); hqBox(g, 0.05, 0.3, 0.05, '#c9ced4', 4.2, 1.28, -5.5);
+    const glass = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.62, 0.9), new THREE.MeshLambertMaterial({ color: '#cfe6ff', transparent: true, opacity: 0.18, depthWrite: false })); glass.position.set(4.4, 1.21, -5.5); g.add(glass); }
+  hqAt(4.4, -4.4, 'Maquette : la flotte d\'Ysmar', () => toast(`Maquette au 1/100 ${deN(CAREER ? CAREER.ship : 'opv')}, offerte par l'arsenal. Une plaque rappelle les sauvetages de l'hiver dernier.`));
+  // pavillons de part et d'autre de la porte du fond
+  HQ.flags = [];
+  for (const sx of [-1, 1]) { hqBox(g, 0.05, 2.6, 0.05, '#c9a646', sx * 2.4, 0, -9.5); const t = hqTex('flag' + sx, 192, 128); const f = hqPlane(g, t, 1.05, 0.7, sx * 2.4 + sx * 0.55, 2.2, -9.5, 0); f.material.side = THREE.DoubleSide; HQ.flags.push(f); }
+  { const t = hqTex('plaque', 512, 96); hqPlane(g, t, 2.8, 0.52, 0, 2.85, -9.78, 0); }
+  { const t = hqTex('board', 256, 192); hqPlane(g, t, 1.4, 1.05, -6.78, 1.6, -8.2, Math.PI / 2); hqAt(-6.1, -8.2, 'Tableau des ordres du jour', () => { HUB.openAt = { x: HQ.x, z: HQ.z }; hubGo('em'); HUB.dlg = { who: 'amirale', lines: [say('amirale', 'Les ordres du jour sont affichés. Passez me voir pour les détails.')] }; hubRender(); }); }
+  hqHuman(g, { uni: '#22324d', pants: '#22324d', cap: '#f2f2ee', shirt: '#eef0f2' }, 1.9, -1.3, Math.PI, { who: 'guard' });
+  hqAt(0, -0.8, 'Sortir sur le quai', () => hqExit());
+  // ---------- couloir : portraits, plantes ----------
+  for (const [x, z, ry] of [[-12, -10.22, Math.PI], [-5.5, -10.22, Math.PI], [5.5, -10.22, Math.PI], [-12.5, -12.78, 0], [-3.5, -12.78, 0], [3, -12.78, 0], [13.5, -12.78, 0]]) {
+    const t = hqTex('pf' + x + z, 128, 160); hqPainting(t.g, 128, 160, Math.abs(x * 7 + z) | 0); t.t.needsUpdate = true; const p = hqPlane(g, t, 0.75, 0.95, x, 1.75, z, ry); p.position.z += ry ? -0.01 : 0.01;
+    hqBox(g, 0.85, 1.05, 0.03, '#8a6a2a', x, 1.225, z + (ry ? 0.02 : -0.02));
+  }
+  for (const x of [-15.3, 15.3]) { hqBox(g, 0.5, 0.45, 0.5, '#7a4a2a', x, 0, -10.6); const s = new THREE.Mesh(new THREE.SphereGeometry(0.45, 8, 6), lam('#3f6b35')); s.position.set(x, 0.95, -10.6); g.add(s); hqObs(x - 0.3, x + 0.3, -10.9, -10.3); }
+  // ---------- bureau de l'amirale ----------
+  hqBox(g, 2.6, 0.76, 1.1, '#4a2e1c', 9, 0, -19); hqBox(g, 2.7, 0.05, 1.2, '#2a1a10', 9, 0.76, -19); hqObs(7.65, 10.35, -19.6, -18.4);
+  hqBox(g, 0.42, 0.04, 0.3, '#e9e4d8', 8.6, 0.81, -19.1); hqBox(g, 0.5, 0.32, 0.03, '#1b2533', 9.6, 0.82, -19.3);
+  for (const x of [8.2, 9.8]) { hqBox(g, 0.5, 0.45, 0.5, '#6a1f22', x, 0, -17.5); hqBox(g, 0.5, 0.5, 0.08, '#6a1f22', x, 0.45, -17.27); hqObs(x - 0.3, x + 0.3, -17.8, -17.2); }
+  hqBox(g, 0.45, 2.4, 4.2, '#4a2e1c', 4.45, 0, -17.6); hqObs(4.2, 4.75, -19.7, -15.5);
+  for (let r = 0; r < 4; r++) for (let k = 0; k < 9; k++) hqBox(g, 0.28, 0.32 + ((k * 7 + r) % 3) * 0.04, 0.1 + (k % 3) * 0.03, ['#7a2f2f', '#2f4a7a', '#4a6b35', '#8a6a2a', '#3a3a3a'][(k + r) % 5], 4.55, 0.12 + r * 0.58, -19.4 + k * 0.45);
+  { const t = hqTex('mapA', 1024, 640); hqPlane(g, t, 4.6, 2.9, 13.76, 1.75, -17.5, -Math.PI / 2); hqBox(g, 0.04, 3.05, 4.75, '#8a6a2a', 13.8, 0.22, -17.5); }
+  { const w = hqTex('window', 256, 160); const gg = w.g, gr = gg.createLinearGradient(0, 0, 0, 160); gr.addColorStop(0, '#9cc7ea'); gr.addColorStop(0.62, '#d8ecf7'); gr.addColorStop(0.63, '#3f7aa3'); gr.addColorStop(1, '#2c5d82'); gg.fillStyle = gr; gg.fillRect(0, 0, 256, 160); gg.fillStyle = '#6d7f73'; gg.beginPath(); gg.moveTo(0, 100); gg.lineTo(60, 88); gg.lineTo(120, 96); gg.lineTo(170, 84); gg.lineTo(256, 98); gg.lineTo(256, 102); gg.lineTo(0, 102); gg.fill(); gg.strokeStyle = '#f2f2f2'; gg.lineWidth = 6; gg.strokeRect(3, 3, 250, 154); gg.beginPath(); gg.moveTo(128, 0); gg.lineTo(128, 160); gg.moveTo(0, 80); gg.lineTo(256, 80); gg.stroke(); w.t.needsUpdate = true; hqPlane(g, w, 3.2, 2.0, 9, 1.9, -21.78, 0, true); }
+  hqBox(g, 0.05, 2.2, 0.05, '#c9a646', 11.6, 0, -21.2); { const f = hqPlane(g, hqTex('flagA', 192, 128), 0.9, 0.6, 12.07, 1.8, -21.2, 0); f.material.side = THREE.DoubleSide; HQ.flagA = f; }
+  HQ.amirale = hqHuman(g, { uni: '#18233a', shirt: '#eef0f2', boards: 5, cap: '#f2f2ee', hair: '#5a3b26', long: true, skin: '#d9a585' }, 9, -20.2, Math.PI, { who: 'amirale' });
+  hqAt(9, -17.9, 'Parler à l\'amirale Le Dantec : ordres de mission', () => { HUB.openAt = { x: HQ.x, z: HQ.z }; hubGo('em'); });
+  // ---------- salle des opérations ----------
+  hqBox(g, 5.2, 0.9, 3.2, '#22272e', -8.5, 0, -19.2); hqObs(-11.1, -5.9, -20.8, -17.6);
+  { const t = hqTex('opsTable', 1024, 640); const m = hqPlane(g, t, 5.0, 3.0, -8.5, 0.91, -19.2, 0, true); m.rotation.x = -Math.PI / 2; HQ.opsTable = m; }
+  for (let i = 0; i < 3; i++) { const t = hqTex('scr' + i, 256, 160); hqPlane(g, t, 2.6, 1.6, -12 + i * 3.4, 2.0, -23.78, 0, true); hqBox(g, 2.75, 1.75, 0.05, '#0d1014', -12 + i * 3.4, 1.12, -23.82); }
+  hqBox(g, 1.1, 0.8, 7.0, '#2b313a', -14.25, 0, -18.5); hqObs(-14.8, -13.7, -22, -15);
+  for (let k = 0; k < 3; k++) { hqBox(g, 0.05, 0.42, 0.62, '#0b1622', -13.74, 0.8, -21 + k * 2.4, '#163a5a'); hqHuman(g, [{ uni: '#2e4a78', hair: '#2a1d14' }, { uni: '#2e4a78', hair: '#c9a46a', long: true }, { uni: '#2e4a78', hair: '#1a120c', skin: '#8d5a3d' }][k], -13.0, -21 + k * 2.4, Math.PI / 2, { sit: true }); }
+  hqHuman(g, { uni: '#22324d', shirt: '#eef0f2', boards: 3, cap: '#f2f2ee', hair: '#9b9b9b' }, -8.5, -21.3, Math.PI, { who: 'ops' });
+  hqAt(-8.5, -17.0, 'Table des opérations : situation et grande opération', () => { HUB.openAt = { x: HQ.x, z: HQ.z }; hubGo('em'); HUB.dlg = { who: 'amirale', lines: [say('amirale', `Situation au large ${deP(PORT.n)} : tout est sur la table. Les ordres du jour sont à droite, l'opération en cours en haut.`)] }; hubRender(); });
+  // ---------- CROSS et liaisons ----------
+  hqBox(g, 1.0, 0.85, 7.0, '#3a4048', 23.2, 0, -11.5); hqObs(22.6, 23.8, -15.1, -7.9);
+  for (let k = 0; k < 6; k++) { hqBox(g, 0.4, 0.28, 0.9, '#20262d', 23.25, 0.85, -14.6 + k * 1.2); hqBox(g, 0.02, 0.05, 0.12, k % 2 ? '#2a8a3a' : '#c9a646', 23.04, 0.98, -14.6 + k * 1.2, k % 2 ? '#2aff5a' : '#ffd23a'); }
+  { const t = hqTex('crossScr', 256, 160); hqPlane(g, t, 2.4, 1.5, 23.78, 2.1, -11.5, -Math.PI / 2, true); }
+  hqHuman(g, { uni: '#22324d', shirt: '#eef0f2', boards: 3, hair: '#6b6b6b', beard: true }, 20.2, -13.2, Math.PI / 2, { who: 'cross' });
+  hqHuman(g, { uni: '#2e4a78', hair: '#2a1d14' }, 22.3, -9.2, -Math.PI / 2, { sit: true });
+  hqAt(18.9, -12.9, 'CF Morvan (CROSS) : sauvetages et assistance', () => { HUB.openAt = { x: HQ.x, z: HQ.z }; hubGo('em'); ACT.emtalk({ c: 'cross' }); });
+  // ---------- bureau des affectations ----------
+  hqBox(g, 2.2, 0.76, 1.0, '#5a3f2a', -20, 0, -13); hqBox(g, 2.3, 0.05, 1.1, '#3a2a1e', -20, 0.76, -13); hqObs(-21.15, -18.85, -13.55, -12.45);
+  for (let k = 0; k < 4; k++) { hqBox(g, 0.8, 1.3, 0.55, '#7d858c', -23 + k * 0.9, 0, -16.45); } hqObs(-23.5, -19.8, -16.8, -16.1);
+  { const t = hqTex('mapB', 1024, 640); hqPlane(g, t, 4.8, 3.0, -23.76, 1.8, -11.5, Math.PI / 2); hqBox(g, 0.04, 3.15, 4.95, '#8a6a2a', -23.8, 0.22, -11.5); }
+  hqHuman(g, { uni: '#22324d', shirt: '#eef0f2', boards: 2, hair: '#3a2a1e' }, -20, -14.1, Math.PI, { sit: true, who: 'clerk' });
+  hqAt(-20, -11.7, 'Bureau des affectations : bases, flotte et traversées', () => { HUB.openAt = { x: HQ.x, z: HQ.z }; hubGo('affect'); });
+  // ---------- salle d'honneur ----------
+  hqBox(g, 3.2, 0.95, 1.1, '#3a2a1e', 11.6, 0, -6); hqObs(9.95, 13.25, -6.6, -5.4);
+  { const t = hqTex('medals', 512, 160); const m = hqPlane(g, t, 3.0, 0.95, 11.6, 0.97, -6, 0); m.rotation.x = -Math.PI / 2;
+    const glass = new THREE.Mesh(new THREE.BoxGeometry(3.1, 0.35, 1.0), new THREE.MeshLambertMaterial({ color: '#cfe6ff', transparent: true, opacity: 0.16, depthWrite: false })); glass.position.set(11.6, 1.13, -6); g.add(glass); }
+  for (const z of [-3.6, -8.4]) { hqBox(g, 0.7, 1.0, 0.7, '#e9e4d8', 15.2, 0, z); hqObs(14.8, 15.6, z - 0.4, z + 0.4); const h = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.12, 0.62), lam('#5d6772')); h.position.set(15.2, 1.08, z); g.add(h); hqBox(g, 0.12, 0.12, 0.16, '#d8dde2', 15.2, 1.12, z + 0.05); }
+  { const t = hqTex('painting', 320, 200); hqSeaPainting(t.g, 320, 200); t.t.needsUpdate = true; hqPlane(g, t, 2.4, 1.5, 11.6, 1.9, -2.24, Math.PI); hqBox(g, 2.6, 1.7, 0.04, '#8a6a2a', 11.6, 1.05, -2.2); }
+  hqAt(11.6, -7.3, 'Vitrine : votre dossier, vos médailles et vos défis', () => { if (ACT.career) ACT.career(); else { HUB.openAt = { x: HQ.x, z: HQ.z }; hubGo('em'); ACT.emcareer(); } });
+  // avatar du commandant
+  HQ.av = buildHuman(COMMANDER); S.add(HQ.av);
+  HQ.built = true;
+}
+// petits tableaux : portraits d'anciens amiraux et marines
+function hqPainting(g, w, h, seed) {
+  const R = mulberry(seed + 11), bg = ['#3b2e22', '#22303f', '#2f3a2a', '#40262a'][seed % 4];
+  g.fillStyle = bg; g.fillRect(0, 0, w, h); const sk = ['#d9a585', '#c9967a', '#a8714f', '#e0b096'][seed % 4];
+  g.fillStyle = '#18233a'; g.beginPath(); g.ellipse(w / 2, h * 0.92, w * 0.42, h * 0.32, 0, 0, TAU); g.fill();
+  g.fillStyle = '#eef0f2'; g.fillRect(w / 2 - 8, h * 0.62, 16, h * 0.2); g.fillStyle = sk; g.beginPath(); g.ellipse(w / 2, h * 0.45, w * 0.17, h * 0.17, 0, 0, TAU); g.fill();
+  g.fillStyle = ['#2a1d14', '#9b9b9b', '#5a3b26', '#1a120c'][Math.floor(R() * 4)]; g.beginPath(); g.ellipse(w / 2, h * 0.34, w * 0.18, h * 0.08, 0, 0, TAU); g.fill();
+  g.fillStyle = '#c9a646'; for (const s of [-1, 1]) g.fillRect(w / 2 + s * w * 0.28 - 10, h * 0.7, 20, 5);
+  g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 6; g.strokeRect(0, 0, w, h);
+}
+function hqSeaPainting(g, w, h) {
+  const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#e8b77a'); gr.addColorStop(0.55, '#f2d7a6'); gr.addColorStop(0.56, '#2f5d7a'); gr.addColorStop(1, '#1b3347'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  g.fillStyle = '#1d2530'; g.beginPath(); g.moveTo(60, 118); g.lineTo(250, 118); g.lineTo(236, 132); g.lineTo(74, 132); g.fill(); g.fillRect(120, 96, 70, 22); g.fillRect(150, 70, 8, 26); g.fillRect(132, 86, 40, 10);
+  g.strokeStyle = 'rgba(255,255,255,.35)'; for (let i = 0; i < 30; i++) { g.beginPath(); const y = 128 + Math.random() * 70; g.moveTo(Math.random() * w, y); g.lineTo(Math.random() * w, y + 2); g.stroke(); }
+  g.strokeStyle = '#8a6a2a'; g.lineWidth = 8; g.strokeRect(0, 0, w, h);
+}
+// ----- habillage selon le port : plaque, pavillons, cartes, écrans -----
+function drawFlag(g, w, h, code) {
+  const st = (cols, vert) => cols.forEach((c, i) => { g.fillStyle = c; if (vert) g.fillRect(i * w / cols.length, 0, w / cols.length + 1, h); else g.fillRect(0, i * h / cols.length, w, h / cols.length + 1); });
+  if (code === 'fr') st(['#1f4aa8', '#ffffff', '#e1263a'], true);
+  else if (code === 'it') st(['#1b9a4b', '#ffffff', '#d8303a'], true);
+  else if (code === 'tn') { g.fillStyle = '#e70013'; g.fillRect(0, 0, w, h); g.fillStyle = '#fff'; g.beginPath(); g.arc(w / 2, h / 2, h * 0.28, 0, TAU); g.fill(); g.fillStyle = '#e70013'; g.beginPath(); g.arc(w / 2 + h * 0.03, h / 2, h * 0.2, 0, TAU); g.fill(); g.fillStyle = '#fff'; g.beginPath(); g.arc(w / 2 + h * 0.09, h / 2, h * 0.16, 0, TAU); g.fill(); g.fillStyle = '#e70013'; g.font = `${Math.round(h * 0.2)}px serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('★', w / 2 + h * 0.08, h / 2 + 1); }
+  else if (code === 'dz') { st(['#006233', '#ffffff'], true); g.fillStyle = '#d21034'; g.beginPath(); g.arc(w / 2, h / 2, h * 0.25, 0, TAU); g.fill(); g.fillStyle = '#fff'; g.beginPath(); g.arc(w / 2 + h * 0.07, h / 2, h * 0.21, 0, TAU); g.fill(); g.fillStyle = '#006233'; g.beginPath(); g.arc(w / 2 + h * 0.07, h / 2, h * 0.21, -Math.PI / 2, Math.PI / 2); g.fill(); g.fillStyle = '#d21034'; g.font = `${Math.round(h * 0.2)}px serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('★', w / 2 + h * 0.14, h / 2 + 1); }
+  g.strokeStyle = 'rgba(0,0,0,.25)'; g.lineWidth = 2; g.strokeRect(0, 0, w, h);
+}
+function hqMap(T, focus) {
+  const { c, g, t } = T, W = c.width, H = c.height;
+  let x0 = Infinity, x1 = -Infinity, z0 = Infinity, z1 = -Infinity; for (const p of PORTS) { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); z0 = Math.min(z0, p.z); z1 = Math.max(z1, p.z); }
+  let cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, span = Math.max((x1 - x0) * 1.25, (z1 - z0) * 1.25 * W / H) + 4000;
+  if (focus) { cx = PORT.x; cz = PORT.z + 4000; span = 26000; }
+  const vh = span * H / W, N = CHART ? CHART.width : 0, s = N / WORLD.size;
+  g.fillStyle = '#c7dde5'; g.fillRect(0, 0, W, H);
+  if (CHART) g.drawImage(CHART, (cx - span / 2 - WORLD.min) * s, (cz - vh / 2 - WORLD.min) * s, span * s, vh * s, 0, 0, W, H);
+  const P = (x, z) => [(x - cx + span / 2) / span * W, (z - cz + vh / 2) / vh * H];
+  const C = CAREER, mine = C && C.ports || [];
+  g.textAlign = 'left'; g.textBaseline = 'middle';
+  for (const p of PORTS) {
+    const [px, py] = P(p.x, p.z); if (px < -50 || px > W + 50 || py < -50 || py > H + 50) continue;
+    const on = mine.includes(p.id), here = p.id === PORT.id;
+    g.fillStyle = here ? '#c62828' : on ? '#e8a320' : '#6b7a86'; g.beginPath(); g.arc(px, py, here ? 13 : 10, 0, TAU); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 3; g.stroke();
+    g.font = '600 26px sans-serif'; g.fillStyle = '#10202c'; g.fillText(p.n, px + 18, py - 4);
+    const ships = C ? ALLC.filter(k => owned(k) && shipPort(k) === p.id).map(k => CLASSES[k].n) : [];
+    g.font = '18px sans-serif'; g.fillStyle = '#26323c'; if (!focus && ships.length) g.fillText(ships.join(', '), px + 18, py + 20);
+  }
+  if (focus) { g.fillStyle = 'rgba(10,30,60,.18)'; g.fillRect(0, 0, W, H); g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 1; for (let i = 1; i < 8; i++) { g.beginPath(); g.moveTo(i * W / 8, 0); g.lineTo(i * W / 8, H); g.stroke(); g.beginPath(); g.moveTo(0, i * H / 8); g.lineTo(W, i * H / 8); g.stroke(); }
+    const B = C && C.board ? boardDefs() : [];
+    for (const d of B) { const q = d.lkp || d.at || d.cargo || d.dest || d.drop || d.center || d.pos || d.from; if (!q) continue; const [px, py] = P(q.x, q.z); g.fillStyle = 'rgba(232,163,32,.9)'; g.beginPath(); g.arc(px, py, 9, 0, TAU); g.fill(); g.font = '600 18px sans-serif'; g.fillStyle = '#fff'; g.fillText(d.title.slice(0, 34), px + 12, py); } }
+  t.needsUpdate = true;
+}
+function hqDress() {
+  const T = HQ.tex, p = PORT;
+  { const { g, t } = T.plaque; g.fillStyle = '#2a2016'; g.fillRect(0, 0, 512, 96); g.strokeStyle = '#c9a646'; g.lineWidth = 4; g.strokeRect(6, 6, 500, 84); g.fillStyle = '#e8cf86'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '600 18px serif'; g.fillText('MARINE NATIONALE · FLOTTE D\'YSMAR', 256, 30); g.font = '600 26px serif'; g.fillText(`${p.hq} ${deP(p.n)}`.toUpperCase().slice(0, 34), 256, 64); t.needsUpdate = true; }
+  { const { g, t } = T['flag-1']; drawFlag(g, 192, 128, 'fr'); t.needsUpdate = true; } { const { g, t } = T.flag1; drawFlag(g, 192, 128, p.flag || 'fr'); t.needsUpdate = true; } { const { g, t } = T.flagA; drawFlag(g, 192, 128, 'fr'); t.needsUpdate = true; }
+  { const { g, t } = T.board; g.fillStyle = '#7a5a3a'; g.fillRect(0, 0, 256, 192); g.fillStyle = '#f4efe2'; g.fillRect(12, 12, 232, 168); g.fillStyle = '#1b2533'; g.font = '600 16px sans-serif'; g.textAlign = 'left'; g.textBaseline = 'alphabetic'; g.fillText('ORDRES DU JOUR', 24, 36); g.font = '12px sans-serif'; const B = CAREER && CAREER.board ? boardDefs() : []; B.slice(0, 6).forEach((d, i) => g.fillText('• ' + d.title.slice(0, 32), 24, 60 + i * 20)); if (!B.length) g.fillText('Voir l\'amirale.', 24, 60); t.needsUpdate = true; }
+  hqMap(T.mapA, false); hqMap(T.mapB, false); hqMap(T.opsTable, true);
+  hqScreens(0);
+}
+function hqScreens(time) {
+  const T = HQ.tex;
+  for (let i = 0; i < 3; i++) { const { g, t } = T['scr' + i]; g.fillStyle = '#05101a'; g.fillRect(0, 0, 256, 160); g.strokeStyle = '#2a6aa0'; g.lineWidth = 1; for (let k = 0; k < 8; k++) { g.beginPath(); g.moveTo(0, k * 20); g.lineTo(256, k * 20); g.stroke(); }
+    g.fillStyle = '#7fd3ff'; g.font = '600 13px monospace'; g.fillText(['TRAFIC MARITIME', 'MÉTÉO MARINE', 'SITUATION AÉRIENNE'][i], 10, 18);
+    g.fillStyle = '#9cf09c'; for (let k = 0; k < 14; k++) { const x = (Math.sin(k * 12.9 + i) * 0.5 + 0.5) * 236 + 10, y = (Math.cos(k * 7.1 + i * 3) * 0.5 + 0.5) * 120 + 30; g.fillRect(x + Math.sin(time * 0.05 + k) * 4, y, 4, 4); }
+    if (i === 1) { g.fillStyle = '#ffd27a'; g.font = '12px monospace'; g.fillText(`VENT F${beaufort(ENV.wind)}  MER ${DOUGLAS[douglas()].toUpperCase()}`, 10, 150); }
+    t.needsUpdate = true; }
+  { const { g, t } = T.crossScr; g.fillStyle = '#071018'; g.fillRect(0, 0, 256, 160); g.fillStyle = '#ffb347'; g.font = '600 14px monospace'; g.fillText('CROSS MÉDITERRANÉE', 10, 20); g.font = '12px monospace'; g.fillStyle = '#d0e6f5';
+    ['Canal 16 : veille', `Zone : ${PORT.n}`, 'Balises actives : ' + (1 + Math.floor(time / 30) % 3), 'Moyens : vedette SNSM, hélico', 'Météo : ' + DOUGLAS[douglas()]].forEach((l, k) => g.fillText(l, 10, 46 + k * 22)); t.needsUpdate = true; }
+  { const { g, t } = T.medals; g.fillStyle = '#2a1d14'; g.fillRect(0, 0, 512, 160); const M = CAREER && typeof meta === 'function' ? meta() : null, got = M && M.medals ? Object.keys(M.medals).length : 0;
+    for (let k = 0; k < 8; k++) { const x = 40 + k * 60, on = k < Math.max(1, got); g.fillStyle = on ? ['#c9a646', '#b8b8c0', '#c46a3a', '#3a6ac4'][k % 4] : '#4a3a2a'; g.beginPath(); g.arc(x, 70, 20, 0, TAU); g.fill(); g.fillStyle = on ? ['#c62828', '#1f4aa8', '#2a8a3a', '#f2f2f2'][k % 4] : '#3a2a1e'; g.fillRect(x - 10, 18, 20, 30); }
+    g.fillStyle = '#e8cf86'; g.font = '600 16px serif'; g.textAlign = 'center'; g.fillText(CAREER ? `${RANKS[rankOf(CAREER.rep)].n} · ${CAREER.wins} missions réussies` : '', 256, 135); g.textAlign = 'left'; t.needsUpdate = true; }
+}
+// ----- entrer, sortir, marcher -----
+function hqEnter() {
+  if (!HQ.built) hqBuild();
+  hqDress(); HQ.on = true; HQ.x = 0; HQ.z = -1.4; HQ.back = { x: PW.x, z: PW.z, yaw: PW.yaw };
+  PW.yaw = 0; PW.pitch = -0.04; PW.fade = 1; PW.snap = 1; HUB.openAt = null; if (HUB.place !== 'over') hubGo('over');
+  $('hubLabels').hidden = true; sfx('door');
+  if (!HQ.told) { HQ.told = true; toast(`${PORT.hq} : l'amirale est au fond du couloir, le CROSS à droite, les affectations à gauche.`); }
+}
+function hqExit(silent) {
+  if (!HQ.on) return; HQ.on = false; const b = HQ.back;
+  if (b) { PW.x = b.x; PW.z = b.z; PW.yaw = b.yaw + Math.PI; }
+  PW.fade = 1; PW.snap = 1; HUB.openAt = null; if (!silent) { if (HUB.place !== 'over') hubGo('over'); sfx('door'); }
+  if (!HUB.title) $('hubLabels').hidden = false;
+}
+function hqStep(dt) {
+  const k = KEYS, mv = PW.mv || (PW.mv = {}), busy = COMMS.open || UI.help || UI.screen !== 'port' || ($('cheat') && !$('cheat').hidden) || CINE.on;
+  const f = busy ? 0 : (k.KeyW || k.ArrowUp || mv.f ? 1 : 0) - (k.KeyS || k.ArrowDown || mv.b ? 1 : 0);
+  const s = busy ? 0 : (k.KeyD || mv.r ? 1 : 0) - (k.KeyA || mv.l ? 1 : 0);
+  if (!busy) { if (k.ArrowLeft) PW.yaw += dt * 1.9; if (k.ArrowRight) PW.yaw -= dt * 1.9; }
+  const sp = (k.ShiftLeft || k.ShiftRight ? 3.6 : 1.8) * (f || s ? 1 : 0);
+  if (sp) {
+    const n = Math.hypot(f, s), cy = Math.cos(PW.yaw), sy = Math.sin(PW.yaw);
+    const dx = (-sy * f + cy * s) / n * sp * dt, dz = (-cy * f - sy * s) / n * sp * dt;
+    if (hqWalkable(HQ.x + dx, HQ.z)) HQ.x += dx; if (hqWalkable(HQ.x, HQ.z + dz)) HQ.z += dz;
+    HQ.phase += dt * sp * 3.2; PW.stepT = (PW.stepT || 0) + dt * sp * 0.55; if (PW.stepT > 1) { PW.stepT = 0; sfx('step'); }
+  }
+  HQ.moving = !!sp;
+  let best = null, bd = 2.3;
+  for (const it of HQ.inter) { const dx = it.x - HQ.x, dz = it.z - HQ.z, d = Math.hypot(dx, dz); if (d > bd) continue; const dot = (dx * -Math.sin(PW.yaw) + dz * -Math.cos(PW.yaw)) / Math.max(0.01, d); if (d < 1.1 || dot > 0.35) { bd = d; best = it; } }
+  HQ.hint = best;
+  if (HUB.place !== 'over' && HUB.openAt && Math.hypot(HQ.x - HUB.openAt.x, HQ.z - HUB.openAt.z) > 3.5) { HUB.openAt = null; hubGo('over'); }
+  // les personnages regardent le commandant quand il approche ; le factionnaire salue
+  for (const n of HQ.npcs) {
+    n.t += dt; const u = n.m.userData; if (!u.head) continue; const dx = HQ.x - n.x, dz = HQ.z - n.z, d = Math.hypot(dx, dz);
+    const want = d < 4 ? clamp(wrapA(Math.atan2(-dx, -dz) - n.yaw), -1.1, 1.1) : Math.sin(n.t * 0.3) * 0.35; u.head.rotation.y = lerp(u.head.rotation.y, want, clamp(dt * 4, 0, 1));
+    if (n.who === 'guard') { const sal = d < 3; u.armR.rotation.x = lerp(u.armR.rotation.x, sal ? -2.6 : 0, clamp(dt * 6, 0, 1)); u.armR.rotation.z = sal ? 0.5 : 0; }
+    if (n.who === 'amirale' || n.who === 'cross' || n.who === 'ops') u.armR.rotation.x = d < 3 ? -0.35 - Math.max(0, Math.sin(n.t * 1.5)) * 0.35 : 0;
+  }
+}
+const _hqv = new THREE.Vector3();
+function hqCamera(dt) {
+  hqStep(dt);
+  const A = HQ.av; A.position.set(HQ.x, 0, HQ.z); A.rotation.y = PW.yaw; animHuman(A, HQ.phase, HQ.moving ? 0.55 : 0); A.visible = PW.tp;
+  const eye = 1.68;
+  if (PW.tp) {
+    // caméra par-dessus l'épaule droite, rapprochée si un mur est derrière
+    const inside = (x, z) => HQ_ROOMS.some(R => x > R.r[0] + 0.25 && x < R.r[1] - 0.25 && z > R.r[2] + 0.25 && z < R.r[3] - 0.25) || hqWalkable(x, z);
+    let d = 3.1, sh = 0.55; const cp = Math.cos(PW.pitch), bx = Math.sin(PW.yaw) * cp, bz = Math.cos(PW.yaw) * cp;
+    if (!inside(HQ.x + Math.cos(PW.yaw) * sh, HQ.z - Math.sin(PW.yaw) * sh)) sh = 0;
+    const ox = HQ.x + Math.cos(PW.yaw) * sh, oz = HQ.z - Math.sin(PW.yaw) * sh;
+    for (let t = 0.3; t <= d; t += 0.15) if (!inside(ox + bx * t, oz + bz * t)) { d = Math.max(0.3, t - 0.25); break; }
+    const cy = clamp(eye + 0.55 - Math.sin(PW.pitch) * d, 0.5, HQ_H - 0.25);
+    camera.position.lerp(_hqv.set(ox + bx * d, cy, oz + bz * d), PW.snap ? 1 : clamp(dt * 10, 0, 1)); PW.snap = 0;
+    camera.lookAt(ox - Math.sin(PW.yaw) * 3, eye + Math.sin(PW.pitch) * 3, oz - Math.cos(PW.yaw) * 3);
+  } else {
+    camera.position.set(HQ.x, eye + (HQ.moving ? Math.sin(HQ.phase * 2) * 0.03 : 0), HQ.z); camera.rotation.set(PW.pitch, PW.yaw, 0, 'YXZ');
+  }
+  camera.fov = lerp(camera.fov, 66, 0.2); camera.updateProjectionMatrix();
+  $('bridgeFrame').hidden = true; $('bino').hidden = true;
+  HQ.frame = (HQ.frame || 0) + 1; if (HQ.frame % 20 === 0) hqScreens(GFX.t);
+  for (const f of HQ.flags.concat(HQ.flagA ? [HQ.flagA] : [])) f.rotation.y = Math.sin(GFX.t * 0.7 + f.position.x) * 0.06;
+  const R = hqRoomAt(HQ.x, HQ.z); HQ.room = R ? R.n : '';
+  PW.hint = HQ.hint ? { id: 'hq', label: HQ.hint.label } : null;
+  pwHUD(dt);
+  const rm = $('hqRoom'); if (rm) { const t = `${PORT.hq} ${deP(PORT.n)} · ${HQ.room}`; if (rm.textContent !== t) rm.textContent = t; rm.hidden = false; }
+}
+function hqAct() { const it = HQ.hint; if (!it || UI.screen !== 'port') return; sfx('click'); it.run(); }
+// branchements dans le port à pied
+{ const base = pwCamera; pwCamera = function (dt) { if (HQ.on) { hqCamera(dt); return; } const rm = $('hqRoom'); if (rm) rm.hidden = true; base(dt); }; }
+{ const base = pwAct; pwAct = function () { if (HQ.on) return hqAct(); if (PW.hint && PW.hint.id === 'em' && UI.screen === 'port') return hqEnter(); base(); }; }
+{ const base = harborLeave; harborLeave = function () { if (HQ.on) hqExit(true); base(); }; }
+{ const base = renderWorld; renderWorld = function () { if (HQ.on && PW.on && HQ.scene && (UI.screen === 'port' || UI.screen === 'pause')) { renderer.render(HQ.scene, camera); return; } base(); }; }
+{ const base = hubFrame; hubFrame = function () { if (HQ.on) { $('hubLabels').hidden = true; return; } base(); }; }
+{ const base = pwUI; pwUI = function () { base(); if (!$('hqRoom')) { const r = document.createElement('div'); r.id = 'hqRoom'; r.hidden = true; $('pwUI').appendChild(r); } }; }
+// le tutoriel suit : on entre, puis on va voir l'amirale
+if (typeof TSTEPS !== 'undefined' && TSTEPS[0]) TSTEPS[0].t = 'Entrez à l\'état-major (marchez avec Z Q S D, E devant la porte) et allez voir l\'amirale.';
 
 </script>
 
