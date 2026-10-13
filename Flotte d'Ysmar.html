@@ -446,6 +446,22 @@ body.pw #hubPanel { top: calc(84px + env(safe-area-inset-top, 0px)); bottom: cal
 .dlgx .rn { display: flex; gap: 6px; margin-top: 6px; } .dlgx .rn input { flex: 1; min-width: 0; background: rgba(255,255,255,.06); border: 1px solid var(--line); border-radius: 6px; color: var(--fg); padding: 5px 8px; font: inherit; }
 @media (prefers-reduced-motion: reduce) { #juice .jp, .crate.open, .dx .grade > b { animation: none; } .dx .xpline .bar i { transition: none; } }
 #wFx { position: absolute; left: 50%; top: 46px; transform: translateX(-50%); font-size: 12px; color: #9fd3a8; background: rgba(8,14,20,.6); padding: 3px 10px; border-radius: 6px; pointer-events: none; white-space: nowrap; max-width: calc(100vw - 32px); overflow: hidden; text-overflow: ellipsis; }
+/* ===== ajouts : pile centrale du HUD sans chevauchement ===== */
+#progChip { top: calc(58px + env(safe-area-inset-top, 0px)); }
+#threat { top: calc(92px + env(safe-area-inset-top, 0px)); z-index: 32; }
+#depthBox { top: calc(128px + env(safe-area-inset-top, 0px)); }
+#tuto { top: calc(128px + env(safe-area-inset-top, 0px)); }
+body.subhud #tuto { top: calc(238px + env(safe-area-inset-top, 0px)); }
+@media (max-width: 760px) { #threat { top: calc(96px + env(safe-area-inset-top, 0px)); } body.subhud #tuto { top: calc(128px + env(safe-area-inset-top, 0px)); } }
+/* ===== transit rapide : bandeaux cinéma, HUD allégé ===== */
+.warp { flex-wrap: wrap; } .warp.tr button { flex: 1; padding: 4px 8px; font-family: inherit; }
+body.transit #helm, body.transit #actions, body.transit #weapons, body.transit #camBar, body.transit #radarBox, body.transit #chartBox, body.transit #compass { display: none !important; }
+body.transit::before, body.transit::after, body.cine::before, body.cine::after { content: ''; position: fixed; left: 0; right: 0; height: 8vh; background: #000; z-index: 29; pointer-events: none; animation: lbin .7s ease-out; }
+body.transit::before, body.cine::before { top: 0; } body.transit::after, body.cine::after { bottom: 0; }
+@keyframes lbin { from { height: 0; } }
+#transitBox { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(10vh + env(safe-area-inset-bottom, 0px)); z-index: 34; width: min(420px, calc(100vw - 32px)); background: var(--panel2); border: 1px solid var(--amber); border-radius: 10px; padding: 10px 14px; display: grid; gap: 3px; text-align: center; }
+#transitBox[hidden] { display: none; } #transitBox .eyebrow { margin: 0; font-size: 11px; color: var(--amber2); letter-spacing: .08em; text-transform: uppercase; } #transitBox b { font-weight: 500; font-size: 15px; } #transitBox span { font-size: 12.5px; color: var(--mut); } #transitBox .btn { justify-self: center; margin-top: 6px; }
+@media (prefers-reduced-motion: reduce) { body.transit::before, body.transit::after, body.cine::before, body.cine::after { animation: none; } }
 </style>
 <canvas id="gl" aria-label="Vue du bâtiment"></canvas>
 <div id="bridgeFrame" hidden></div>
@@ -480,19 +496,20 @@ body.pw #hubPanel { top: calc(84px + env(safe-area-inset-top, 0px)); bottom: cal
 <div id="chartFull" hidden><canvas id="chartFullC"></canvas><span class="leg">Méditerranée occidentale (échelle réduite) · molette pour zoomer, glisser pour déplacer · cliquez pour placer un point de route</span><button class="btn sm x" data-act="chart">Fermer (M)</button></div>
 <div id="screen"></div>
 <div id="loading">Chargement de la Méditerranée…</div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/FXAAShader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/BufferGeometryUtils.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js" integrity="sha384-nhO9toQuMo5osCuA0l+YFpSqscZWxDu251Bnho2gD3kSPv1neEwHg0LyEmrA+mPj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js" integrity="sha384-mY+ii969jnDCI2HjRHftH2NZVkIO5ZGUkcnGCg3oVJ3kVstWQXwerYWBg+nbUG4R" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/FXAAShader.js" integrity="sha384-No2tT0gxxdbq/aRJ3g6hqHsfLzAiS1uKg3Wz3r69GU/XGctg4GGZ3FKH3RN0wXGs" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js" integrity="sha384-GkidzTYmQg24v13sa3xhBBbvOLbVLO1QxfyKLdOWweQqNqS/iWwUst2T1fER2Xrg" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js" integrity="sha384-2EpLreWSFuZsk4hcSplXLhlHd/wzvDNF907bTGIXSXM0SlhJNzy4YK0DhBFvkFEs" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js" integrity="sha384-I3lsvPeDJYFrEAzn/TA0yhc/SCYKwpyfyq8lKzHYKohu43H9f7xc/Q9ZWgSVUDl3" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js" integrity="sha384-aVQ2QnWkoxhOefDB0YZB64OPVzujvccydpcC7UqMDJUK0ChwA382zOHmrWHGDRRa" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/BufferGeometryUtils.js" integrity="sha384-uODMim89BXiZh5nBix93duPujeInVvBbLHhqzNTebL4d10Kwpv21B1jYO9M3uOji" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js" integrity="sha384-fljlqkjWlmSFjkESkQvm77heIZpoWmXEOzlCA7kOpGUH+95Zk0yGfQieWM2q136E" crossorigin="anonymous"></script>
 <script>
 // ===== OUTILS : hasard, bruit, maths, environnement =====
 'use strict';
+if (!window.THREE) { document.getElementById('loading').textContent = 'Impossible de charger le moteur 3D : une connexion internet est nécessaire au premier lancement.'; throw new Error('Three.js indisponible'); }
 const KN = 0.514444;               // 1 nœud en m/s
 const DEG = Math.PI / 180;
 const TAU = Math.PI * 2;
@@ -553,7 +570,6 @@ function moonDir() {
   const A = (100 + t * 170) * DEG;
   return { x: Math.cos(el) * Math.sin(A), y: Math.sin(el), z: -Math.cos(el) * Math.cos(A) };
 }
-function normV(v) { const l = hyp(v.x, v.y, v.z) || 1; return { x: v.x / l, y: v.y / l, z: v.z / l }; }
 const beaufort = w => [0.3, 1.6, 3.4, 5.5, 8, 10.8, 13.9, 17.2, 20.8, 24.5, 28.5, 32.7].findIndex(v => w < v) === -1 ? 12 : [0.3, 1.6, 3.4, 5.5, 8, 10.8, 13.9, 17.2, 20.8, 24.5, 28.5, 32.7].findIndex(v => w < v);
 const DOUGLAS = ['calme', 'ridée', 'belle', 'peu agitée', 'agitée', 'forte', 'très forte', 'grosse', 'très grosse', 'énorme'];
 function seaHs() { return 0.1 + ENV.sea * ENV.sea * 9; }   // hauteur significative (m)
@@ -1505,10 +1521,32 @@ function geoDecode(s) { return s ? s.split(';').map(r => { const a = r.split(','
 // Côtes : Natural Earth 1:10 m (voir geo.js), carte à échelle réduite (1 km réel ≈ 74 m dans le jeu).
 // Le relief est reconstruit à partir de la distance à la côte et de grands massifs placés à leur vraie position.
 const WORLD = { min: -32000, size: 64000, grid: null, G: 1024, H: null, SD: null };
-const ISLANDS = [];          // conservé pour compatibilité (l'ancien archipel)
 const VSCALE = 0.15;         // mètres du jeu par mètre d'altitude réelle
-const PORT = {};             // calculé à l'initialisation
+const PORT = {};             // port où se trouve le joueur (copie de l'un des PORTS)
+const PORTS = [];            // tous les ports de la flotte, chacun avec son repère local
 const BREAKWATERS = [];      // segments [x0, z0, x1, z1, demi-largeur]
+let BRENN = null;            // la jetée de Porquerolles
+// Repère local d'un port : x le long du quai, z vers le large. Toulon garde son orientation d'origine (large au sud).
+const PORT_DEFS = [
+  { id: 'toulon', n: 'Toulon', reg: 'Var, France', lon: 5.93, lat: 43.12, angs: [0], carve: true, flag: 'fr', hq: 'Préfecture maritime',
+    places: [['Porquerolles', 'porquerolles', 520], ['Port-Cros', 'portcros', 340], ['l\'île du Levant', 'levant', 460], ['l\'île des Embiez', 'embiez', 200], ['cap Sicié', 'sicie', 300]] },
+  { id: 'ajaccio', n: 'Ajaccio', reg: 'Corse, France', lon: 8.74, lat: 41.92, pref: 0, flag: 'fr', hq: 'Base navale d\'Aspretto',
+    places: [['les îles Sanguinaires', [8.585, 41.877], 220], ['Capo di Muro', [8.665, 41.745], 300], ['Propriano', [8.90, 41.67], 300], ['Cargèse', [8.595, 42.13], 300], ['la pointe de la Parata', [8.615, 41.905], 250]] },
+  { id: 'cagliari', n: 'Cagliari', reg: 'Sardaigne, Italie', lon: 9.11, lat: 39.21, pref: 0, flag: 'it', hq: 'Base navale partenaire',
+    places: [['Capo Carbonara', [9.52, 39.10], 300], ['l\'île dei Cavoli', [9.535, 39.088], 200], ['Capo Spartivento', [8.84, 38.88], 300], ['Pula', [9.01, 38.98], 300], ['Villasimius', [9.52, 39.14], 300]] },
+  { id: 'bizerte', n: 'Bizerte', reg: 'Tunisie', lon: 9.87, lat: 37.27, pref: Math.PI, flag: 'tn', hq: 'Base navale partenaire',
+    places: [['cap Blanc', [9.85, 37.34], 300], ['les îles Cani', [10.12, 37.35], 160], ['cap Serrat', [9.22, 37.23], 300], ['Ghar el Melh', [10.22, 37.17], 300], ['l\'île de Zembra', [10.805, 37.125], 260]] },
+  { id: 'alger', n: 'Alger', reg: 'Algérie', lon: 3.06, lat: 36.77, pref: Math.PI, flag: 'dz', hq: 'Base navale partenaire',
+    places: [['cap Caxine', [2.95, 36.82], 300], ['cap Matifou', [3.24, 36.81], 300], ['Tipaza', [2.45, 36.6], 300], ['Dellys', [3.91, 36.92], 300], ['cap Djinet', [3.72, 36.88], 300]] }
+];
+// passage repère local du port <-> monde
+function portW(p, lx, lz) { return { x: p.x + lx * p.c - lz * p.s, z: p.z + lx * p.s + lz * p.c }; }
+function portL(p, x, z) { const dx = x - p.x, dz = z - p.z; return { x: dx * p.c + dz * p.s, z: -dx * p.s + dz * p.c }; }
+const PL = (lx, lz) => portW(PORT, lx, lz);
+const portOf = id => PORTS.find(p => p.id === id) || PORTS[0];
+// port dont le bassin contient ce point (n'importe lequel)
+function portAt(v) { for (const p of PORTS) { const l = portL(p, v.x, v.z); if (Math.abs(l.x) < 700 && l.z > -60 && l.z < 1100) return p; } return null; }
+function setPort(id) { const p = portOf(id); for (const k in PORT) delete PORT[k]; Object.assign(PORT, p); PORTFX.flag = p.flagMesh || PORTFX.flag; LCHART = null; return PORT; }
 // petites îles absentes des données au 1:10 m (agrandies pour être jouables) : lon, lat, longueur km, largeur km, angle°
 const EXTRA_ISLES = [
   ['Porquerolles', 6.205, 43.0, 7.5, 2.6, -8, 2.2], ['Port-Cros', 6.39, 43.005, 4, 2.6, 15, 2.2], ['Le Levant', 6.47, 43.035, 8, 1.6, 28, 2.0], ['Bagaud', 6.36, 43.01, 1.2, 0.6, 0, 2],
@@ -1627,20 +1665,22 @@ function baseTerrain(x, z) {
 function segDist(px, pz, s) { const [x0, z0, x1, z1] = s; const vx = x1 - x0, vz = z1 - z0; const t = clamp(((px - x0) * vx + (pz - z0) * vz) / (vx * vx + vz * vz), 0, 1); return Math.hypot(px - x0 - vx * t, pz - z0 - vz * t); }
 function terrainH(x, z) {
   let h = baseTerrain(x, z);
-  if (PORT.x != null) {
-    const lx = x - PORT.x, lz = z - PORT.z;
+  if (!PORTS.length) return h;
+  for (const p of PORTS) {
+    const dx = x - p.x, dz = z - p.z; if (dx > 3000 || dx < -3000 || dz > 3000 || dz < -3000) continue;
+    const lx = dx * p.c + dz * p.s, lz = -dx * p.s + dz * p.c;
     if (lx > -1400 && lx < 1400 && lz > -700 && lz < 2600) {
       // terre-plein de la ville
       if (lx > -760 && lx < 760 && lz > -520 && lz < 30) { const w = smooth(760, 600, Math.abs(lx)) * smooth(-520, -380, lz); h = lerp(h, Math.max(3.2, Math.min(Math.max(h, 3.2), 3.2 + (-lz - 60) * 0.12)), w); }
       // bassin
       if (lx > -290 && lx < 290 && lz > -44 && lz < 420) { const w = smooth(290, 278, Math.abs(lx)) * smooth(-44, -41, lz); h = lerp(h, Math.min(h, -14), w); }
-      // chenal d'accès : la mer est franche jusqu'à 2,4 km au sud
-      if (lz >= 300) { const half = 950 + (lz - 300) * 0.25, w = smooth(half, half - 260, Math.abs(lx)) * smooth(300, 420, lz) * smooth(2600, 2300, lz); h = lerp(h, Math.min(h, -16 - (lz - 300) * 0.012), w); }
+      // chenal d'accès : la mer est franche jusqu'à 2,4 km au large (ailleurs qu'à Toulon, on ne creuse que l'eau existante)
+      if (lz >= 300 && (p.carve || h < 1)) { const half = 950 + (lz - 300) * 0.25, w = smooth(half, half - 260, Math.abs(lx)) * smooth(300, 420, lz) * smooth(2600, 2300, lz); h = lerp(h, Math.min(h, -16 - (lz - 300) * 0.012), w); }
     }
-    const B = PORT.brenn;
-    if (B) { const ux = x - B.x, uz = z - B.z, u = ux * B.dx + uz * B.dz, v = -ux * B.dz + uz * B.dx; if (Math.abs(v) < 75 && u > -10 && u < 150) { const w = smooth(75, 52, Math.abs(v)) * smooth(0, 18, u) * smooth(150, 115, u); h = lerp(h, Math.min(h, -7.5), w); } }
-    for (const s of BREAKWATERS) { if (Math.abs(x - s[0]) > 700 && Math.abs(x - s[2]) > 700) continue; const d = segDist(x, z, s); if (d < s[4] + 6) h = Math.max(h, 4.2 - Math.pow(Math.max(0, d - s[4]) / 6, 2) * 12); }
   }
+  const B = BRENN;
+  if (B) { const ux = x - B.x, uz = z - B.z, u = ux * B.dx + uz * B.dz, v = -ux * B.dz + uz * B.dx; if (Math.abs(v) < 75 && u > -10 && u < 150) { const w = smooth(75, 52, Math.abs(v)) * smooth(0, 18, u) * smooth(150, 115, u); h = lerp(h, Math.min(h, -7.5), w); } }
+  for (const s of BREAKWATERS) { if (Math.abs(x - s[0]) > 700 && Math.abs(x - s[2]) > 700) continue; const d = segDist(x, z, s); if (d < s[4] + 6) h = Math.max(h, 4.2 - Math.pow(Math.max(0, d - s[4]) / 6, 2) * 12); }
   return h;
 }
 // sondes rapides sur la grille (relief et port inclus)
@@ -1650,33 +1690,47 @@ function gridH(x, z) {
   const a = g[iz * G + ix], b = g[iz * G + ix + 1], c = g[(iz + 1) * G + ix], d = g[(iz + 1) * G + ix + 1];
   return a + (b - a) * fx + (c - a) * fz + (a - b - c + d) * fx * fz;
 }
-function setupPort() {
-  for (const k in POI_LL) POI[k] = geoXZ(POI_LL[k][0], POI_LL[k][1]);
-  // Toulon : on cherche, autour de la ville, la portion de côte qui s'ouvre franchement sur le large
-  const T = POI.toulon; let best = null;
-  for (let dx = -2200; dx <= 2200; dx += 100) {
-    const x = T.x + dx; let z = T.z - 1200; while (rawH(x, z) > -1 && z < T.z + 3500) z += 12; if (z >= T.z + 3500 || z < T.z - 1100) continue;
-    let open = 0; for (let k = 2; k <= 16; k++) for (const ox of [-700, 0, 700]) if (rawH(x + ox, z + k * 150) < -5) open++;
-    const land = (rawH(x, z - 300) > 2 ? 4 : 0) + (rawH(x - 450, z - 150) > 1 ? 3 : 0) + (rawH(x + 450, z - 150) > 1 ? 3 : 0);
-    const sc = open + land - Math.abs(dx) / 260; if (!best || sc > best.sc) best = { x, z, sc };
+// cherche autour de la ville la portion de côte qui s'ouvre franchement sur le large, pour plusieurs orientations
+function findPortSite(D) {
+  const T = geoXZ(D.lon, D.lat), angs = D.angs || [D.pref, D.pref + Math.PI / 4, D.pref - Math.PI / 4, D.pref + Math.PI / 2, D.pref - Math.PI / 2];
+  let best = null;
+  for (const a of angs) {
+    const c = Math.cos(a), sn = Math.sin(a), W = (lx, lz) => [T.x + lx * c - lz * sn, T.z + lx * sn + lz * c], H = (lx, lz) => { const q = W(lx, lz); return rawH(q[0], q[1]); };
+    for (let dx = -2200; dx <= 2200; dx += 100) {
+      let lz = -1200; while (H(dx, lz) > -1 && lz < 3500) lz += 12; if (lz >= 3500 || lz < -1100) continue;
+      let open = 0; for (let k = 2; k <= 16; k++) for (const ox of [-700, 0, 700]) if (H(dx + ox, lz + k * 150) < -5) open++;
+      const land = (H(dx, lz - 300) > 2 ? 4 : 0) + (H(dx - 450, lz - 150) > 1 ? 3 : 0) + (H(dx + 450, lz - 150) > 1 ? 3 : 0);
+      const sc = open + land - Math.abs(dx) / 260 - (a === angs[0] ? 0 : 3);
+      if (!best || sc > best.sc) { const o = W(dx, lz - 30); best = { x: o[0], z: o[1], a, sc }; }
+    }
   }
-  PORT.x = best.x; PORT.z = best.z - 30;
-  const X = PORT.x, Z = PORT.z;
-  BREAKWATERS.push([X - 330, Z - 20, X - 330, Z + 300, 9], [X - 330, Z + 300, X - 140, Z + 420, 9], [X + 330, Z - 20, X + 330, Z + 180, 9], [X + 330, Z + 180, X + 120, Z + 330, 9]);
-  PORT.berth = { x: X - 150, z: Z - 33, psi: Math.PI / 2 };
-  PORT.entrance = { x: X - 10, z: Z + 470 };
-  PORT.ferryBerth = { x: X + 150, z: Z + 70, psi: Math.PI };
+  return best;
+}
+function setupPorts() {
+  for (const k in POI_LL) POI[k] = geoXZ(POI_LL[k][0], POI_LL[k][1]);
+  for (const D of PORT_DEFS) {
+    const b = findPortSite(D); if (!b) continue;
+    const p = Object.assign({}, D, { x: b.x, z: b.z, ang: b.a, c: Math.cos(b.a), s: Math.sin(b.a) });
+    p.bwL = [[-330, -20, -330, 300, 9], [-330, 300, -140, 420, 9], [330, -20, 330, 180, 9], [330, 180, 120, 330, 9]];
+    p.bw = p.bwL.map(([a, b2, c, d, w]) => { const u = portW(p, a, b2), v = portW(p, c, d); return [u.x, u.z, v.x, v.z, w]; });
+    BREAKWATERS.push(...p.bw);
+    p.entrance = portW(p, -10, 470); p.berth = Object.assign(portW(p, -150, -33), { psi: Math.PI / 2 + p.ang });
+    p.sea = p.ang + Math.PI;     // cap vers le large
+    PORTS.push(p);
+  }
   // Porquerolles : le petit port au nord de l'île, avec sa jetée tournée vers le continent
   const I = POI.porquerolles; let bz = I.z; while (rawH(I.x, bz) > -1 && bz > I.z - 2500) bz -= 6;
-  PORT.brenn = { x: I.x, z: bz + 8, dx: 0, dz: -1, name: 'Porquerolles' };
-  const B = PORT.brenn; BREAKWATERS.push([B.x - B.dx * 15, B.z - B.dz * 15, B.x + B.dx * 85, B.z + B.dz * 85, 7]);
+  BRENN = { x: I.x, z: bz + 8, dx: 0, dz: -1, name: 'Porquerolles' };
+  const B = BRENN; BREAKWATERS.push([B.x - B.dx * 15, B.z - B.dz * 15, B.x + B.dx * 85, B.z + B.dz * 85, 7]);
+  setPort('toulon');
 }
 function buildGrid() {
   const G = WORLD.G, g = new Float32Array(WORLD.H);
   // la grille reprend le port et la jetée de Porquerolles
   const fix = (cx, cz, rx, rz0, rz1) => { const i0 = Math.max(0, Math.floor((cx - rx - WORLD.min) / WORLD.size * G)), i1 = Math.min(G - 1, Math.ceil((cx + rx - WORLD.min) / WORLD.size * G)), j0 = Math.max(0, Math.floor((cz + rz0 - WORLD.min) / WORLD.size * G)), j1 = Math.min(G - 1, Math.ceil((cz + rz1 - WORLD.min) / WORLD.size * G));
     for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) g[j * G + i] = terrainH(WORLD.min + (i + 0.5) / G * WORLD.size, WORLD.min + (j + 0.5) / G * WORLD.size); };
-  fix(PORT.x, PORT.z, 1500, -800, 2700); fix(PORT.brenn.x, PORT.brenn.z, 300, -300, 300);
+  for (const p of PORTS) { const cs = [portW(p, -1500, -800), portW(p, 1500, -800), portW(p, -1500, 2700), portW(p, 1500, 2700)], x0 = Math.min(...cs.map(q => q.x)), x1 = Math.max(...cs.map(q => q.x)), z0 = Math.min(...cs.map(q => q.z)), z1 = Math.max(...cs.map(q => q.z)); fix((x0 + x1) / 2, 0, (x1 - x0) / 2, z0, z1); }
+  fix(BRENN.x, BRENN.z, 300, -300, 300);
   WORLD.grid = g;
   // texture de profondeur pour la couleur de l'eau
   const D = new Uint8Array(G * G * 4);
@@ -1766,8 +1820,8 @@ function buildTile(i, j) {
   for (let k = 0; k < 900 && trees.length < 260; k++) {
     const a = r() * N, b = r() * N, x = x0 + a * st, z = z0 + b * st, h = Hs[(Math.round(b) + 1) * M + Math.round(a) + 1];
     if (h < 4 || h > 230) continue; if (fbm(x * 0.004 + 9, z * 0.004, 3) < 0.48) continue;
-    if (PORT.x != null && Math.abs(x - PORT.x) < 800 && z - PORT.z > -600 && z - PORT.z < 100) continue;
-    if (PORT.brenn && Math.hypot(x - PORT.brenn.x, z - PORT.brenn.z) < 220) continue;
+    if (PORTS.some(q => { const l = portL(q, x, z); return Math.abs(l.x) < 800 && l.z > -600 && l.z < 100; })) continue;
+    if (BRENN && Math.hypot(x - BRENN.x, z - BRENN.z) < 220) continue;
     const hx = Hs[(Math.round(b) + 1) * M + Math.round(a) + 2] - h, hz = Hs[(Math.round(b) + 2) * M + Math.round(a) + 1] - h; if (Math.abs(hx) + Math.abs(hz) > st * 0.5) continue;
     trees.push([x, h - 0.5, z, 4 + r() * 8]);
   }
@@ -1808,6 +1862,7 @@ function village(cx, cz, radius, count, seed, around) {
   for (let k = 0; k < count * 5 && walls.length < count; k++) {
     const a = r() * TAU, d = Math.pow(r(), 0.7) * radius; let x = cx + Math.cos(a) * d, z = cz + Math.sin(a) * d;
     if (around && !around(x, z)) continue;
+    if (PORTS.some(q => { const l = portL(q, x, z); return Math.abs(l.x) < 340 && l.z > -130 && l.z < 700; })) continue;
     const h = terrainH(x, z); if (h < 2.4 || h > 160) continue;
     const e = 6, sl = Math.abs(terrainH(x + e, z) - h) + Math.abs(terrainH(x, z + e) - h); if (sl > 3.5) continue;
     const w = 6 + r() * 7, dd = 8 + r() * 9, hh = 4.5 + r() * 4 * (r() < 0.2 ? 2 : 1), ry = Math.round(r() * 4) * Math.PI / 2 + (r() - 0.5) * 0.3;
@@ -1856,16 +1911,28 @@ function lighthouse(x, z, y, scale, rhythm) {
   LIGHTHOUSES.push({ g, beam, beamM, lan, glow, rhythm: rhythm || 6, x, z, s });
   return g;
 }
-function portStructures() {
-  const g = new THREE.Group(), X = PORT.x, Z = PORT.z;
+// drapeaux : France, Italie, Tunisie, Algérie
+function flagTexture(k) {
+  return canvasTex(96, 64, (c, w, h) => {
+    const cres = (x, y, R, off, r, col) => { c.fillStyle = col; c.beginPath(); c.arc(x, y, R, 0, TAU); c.moveTo(x + off + r, y); c.arc(x + off, y, r, 0, TAU); c.fill('evenodd'); };
+    if (k === 'it' || k === 'fr') { const C = k === 'it' ? ['#1f8a4c', '#f4f1ea', '#d0263a'] : ['#1f3c88', '#f4f1ea', '#d0263a']; for (let i = 0; i < 3; i++) { c.fillStyle = C[i]; c.fillRect(i * w / 3, 0, w / 3 + 1, h); } return; }
+    if (k === 'tn') { c.fillStyle = '#e70013'; c.fillRect(0, 0, w, h); c.fillStyle = '#fff'; c.beginPath(); c.arc(w / 2, h / 2, h * 0.3, 0, TAU); c.fill(); cres(w / 2 - 2, h / 2, h * 0.22, 3.5, h * 0.18, '#e70013'); star(c, w / 2 + 5, h / 2, h * 0.1, '#e70013'); return; }
+    c.fillStyle = '#006233'; c.fillRect(0, 0, w / 2, h); c.fillStyle = '#fff'; c.fillRect(w / 2, 0, w / 2, h);
+    cres(w / 2, h / 2, h * 0.26, 3.5, h * 0.21, '#d21034'); star(c, w / 2 + 7, h / 2, h * 0.11, '#d21034');
+  });
+}
+function star(c, x, y, r, col) { c.fillStyle = col; c.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr0 = i % 2 ? r * 0.42 : r; c.lineTo(x + Math.cos(a) * rr0, y + Math.sin(a) * rr0); } c.closePath(); c.fill(); }
+// le port est construit dans son repère local (x le long des quais, z vers le large), puis posé et orienté
+function portStructures(p) {
+  const g = new THREE.Group(), X = 0, Z = 0, lh0 = LIGHTHOUSES.length, TH = (lx, lz) => { const w = portW(p, lx, lz); return terrainH(w.x, w.z); };
   const conc = canvasTex(256, 256, (c, w, h) => { c.fillStyle = '#a3a097'; c.fillRect(0, 0, w, h); speckle(c, w, h, 1600, 'rgba(0,0,0,A)'); speckle(c, w, h, 400, 'rgba(255,255,255,A)'); c.fillStyle = 'rgba(0,0,0,0.25)'; for (let x = 0; x < w; x += 64) c.fillRect(x, 0, 2, h); }, { repeat: true });
   const concM = new THREE.MeshStandardMaterial({ map: conc, roughness: 0.92 });
   const rockM = new THREE.MeshStandardMaterial({ map: terrainDetailTex(), color: lin('#b4ad9f'), roughness: 1 });
   const quay = (x, z, w, d) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, 7.5, d), concM); m.position.set(x, -0.45, z); m.receiveShadow = true; m.castShadow = true; g.add(m); return m; };
   quay(X, Z - 52, 600, 24); quay(X - 300, Z + 60, 24, 200); quay(X + 300, Z + 60, 24, 200);
   quay(X + 150, Z + 40, 30, 100);
-  for (const s of BREAKWATERS) {
-    const [x0, z0, x1, z1, hw] = s; if (s === BREAKWATERS[BREAKWATERS.length - 1]) continue;
+  for (const s of p.bwL) {
+    const [x0, z0, x1, z1, hw] = s;
     const len = Math.hypot(x1 - x0, z1 - z0), ang = Math.atan2(x1 - x0, z1 - z0);
     const m = new THREE.Mesh(new THREE.BoxGeometry(hw * 2, 8, len + hw), rockM); m.position.set((x0 + x1) / 2, 0.2, (z0 + z1) / 2); m.rotation.y = ang; m.castShadow = true; m.receiveShadow = true; g.add(m);
     const top = new THREE.Mesh(new THREE.BoxGeometry(hw * 1.1, 1.2, len + hw * 0.5), concM); top.position.set((x0 + x1) / 2, 4.6, (z0 + z1) / 2); top.rotation.y = ang; top.castShadow = true; g.add(top);
@@ -1887,9 +1954,9 @@ function portStructures() {
   const cap = boxPart(16, 14, 16, { col: '#efe4cf', side: [{ y: 0.15, h: 1.6, w: 1.4, pitch: 3, m: 1.5 }, { y: 0.5, h: 1.6, w: 1.4, pitch: 3, m: 1.5 }], front: [{ y: 0.15, h: 1.6, w: 1.4, pitch: 3, m: 1.5 }, { y: 0.5, h: 1.6, w: 1.4, pitch: 3, m: 1.5 }, { y: 0.8, h: 1.8, m: 1, pitch: 1.6, band: true }], roof: '#a85a3a' });
   cap.position.set(X - 40, 3.2 + 7, Z - 85); g.add(cap);
   g.add(at(cyl(0.12, 0.12, 12, '#ddd'), X - 40, 3.2 + 20, Z - 85));
-  const ch = boxPart(12, 16, 26, { col: '#dccfb4', roof: '#a85a3a' }); ch.position.set(X + 220, terrainH(X + 220, Z - 300) + 8, Z - 300); g.add(ch);
-  const sp = boxPart(6, 26, 6, { col: '#dccfb4' }); sp.position.set(X + 220, terrainH(X + 220, Z - 300) + 13, Z - 318); g.add(sp);
-  const spire = new THREE.Mesh(new THREE.ConeGeometry(4.2, 9, 4), std('#a85a3a', 0.6)); spire.rotation.y = Math.PI / 4; spire.position.set(X + 220, terrainH(X + 220, Z - 300) + 30.5, Z - 318); g.add(spire);
+  const ch = boxPart(12, 16, 26, { col: '#dccfb4', roof: '#a85a3a' }); ch.position.set(X + 220, TH(220, -300) + 8, Z - 300); g.add(ch);
+  const sp = boxPart(6, 26, 6, { col: '#dccfb4' }); sp.position.set(X + 220, TH(220, -300) + 13, Z - 318); g.add(sp);
+  const spire = new THREE.Mesh(new THREE.ConeGeometry(4.2, 9, 4), std('#a85a3a', 0.6)); spire.rotation.y = Math.PI / 4; spire.position.set(X + 220, TH(220, -300) + 30.5, Z - 318); g.add(spire);
   for (let k = 0; k < 14; k++) g.add(at(cyl(0.3, 0.35, 0.8, '#222'), X - 280 + k * 40, 3.6, Z - 41));
   for (const sx of [-1, 1]) for (let k = 0; k < 5; k++) g.add(at(cyl(0.3, 0.35, 0.8, '#222'), X + sx * 290, 3.6, Z - 20 + k * 40));
   // préfecture maritime (état-major) et son mât de pavillon tricolore
@@ -1898,8 +1965,8 @@ function portStructures() {
   const por = box(10, 7, 3, '#d6cfbf'); por.position.set(X + 95, 3.2 + 3.5, Z - 94); g.add(por);
   g.add(at(box(36, 0.8, 20, '#8a4a32'), X + 95, 3.2 + 17.4, Z - 104));
   g.add(at(cyl(0.14, 0.18, 22, '#e6e6e6'), X + 95, 3.2 + 11, Z - 82));
-  const flagTex = canvasTex(96, 64, (c, w, h) => { c.fillStyle = '#1f3c88'; c.fillRect(0, 0, w / 3, h); c.fillStyle = '#f4f1ea'; c.fillRect(w / 3, 0, w / 3, h); c.fillStyle = '#d0263a'; c.fillRect(2 * w / 3, 0, w / 3, h); });
-  const flag = new THREE.Mesh(new THREE.PlaneGeometry(6, 4, 8, 1), new THREE.MeshStandardMaterial({ map: flagTex, side: THREE.DoubleSide, roughness: 0.8 })); flag.position.set(X + 98.1, 3.2 + 19.5, Z - 82); g.add(flag); PORTFX.flag = flag;
+  const flagTex = flagTexture(p.flag);
+  const flag = new THREE.Mesh(new THREE.PlaneGeometry(6, 4, 8, 1), new THREE.MeshStandardMaterial({ map: flagTex, side: THREE.DoubleSide, roughness: 0.8 })); flag.position.set(X + 98.1, 3.2 + 19.5, Z - 82); g.add(flag); p.flagMesh = flag;
   const cw = [{ y: 0.2, h: 2, w: 2.4, pitch: 4, m: 1.4, lit: 0.6 }, { y: 0.6, h: 1.6, w: 1.4, pitch: 3, m: 1.4, lit: 0.4 }];
   const ca = boxPart(22, 9, 12, { col: '#c9714f', side: cw, front: cw, roof: '#8a4a32' }); ca.position.set(X + 205, 3.2 + 4.5, Z - 92); g.add(ca);
   const aw = box(22, 0.3, 4, '#2c5a7a'); aw.position.set(X + 205, 3.2 + 3.6, Z - 84.5); aw.rotation.x = 0.25; g.add(aw);
@@ -1907,12 +1974,13 @@ function portStructures() {
   gan.position.set(X - 140, 3.2, Z - 120); g.add(gan);
   // palmiers le long du quai
   for (let k = 0; k < 9; k++) { const px = X - 240 + k * 60 + 18, pz = Z - 76; const pm = new THREE.Group(); pm.add(at(cyl(0.22, 0.32, 9, '#7a6448', 6), 0, 4.5, 0)); for (let f = 0; f < 7; f++) { const fr = box(0.5, 0.08, 4.2, '#3f6b2e'); fr.position.set(Math.sin(f / 7 * TAU) * 1.8, 8.9, Math.cos(f / 7 * TAU) * 1.8); fr.rotation.y = f / 7 * TAU; fr.rotation.x = 0.45; pm.add(fr); } pm.position.set(px, 3.2, pz); g.add(pm); }
+  for (let i = lh0; i < LIGHTHOUSES.length; i++) { const L = LIGHTHOUSES[i], w = portW(p, L.x, L.z); L.x = w.x; L.z = w.z; }
+  g.position.set(p.x, 0, p.z); g.rotation.y = -p.ang;
   return g;
 }
 const BUOYS = [];
 function placeBuoys() {
-  const X = PORT.entrance.x, Z = PORT.entrance.z;
-  for (let k = 0; k < 4; k++) { const z = Z + 320 + k * 380, off = 130 + k * 25; BUOYS.push({ kind: 'red', x: X - off, z }); BUOYS.push({ kind: 'green', x: X + off, z }); }
+  for (const p of PORTS) for (let k = 0; k < 4; k++) { const zl = 470 + 320 + k * 380, off = 130 + k * 25, a = portW(p, -10 - off, zl), b = portW(p, -10 + off, zl); if (gridH(a.x, a.z) < -3) BUOYS.push({ kind: 'red', x: a.x, z: a.z }); if (gridH(b.x, b.z) < -3) BUOYS.push({ kind: 'green', x: b.x, z: b.z }); }
   // cardinales sur les hauts-fonds proches de Toulon et des îles d'Hyères
   const near = (p, n) => { for (let r = 40; r < 1400; r += 30) for (let a = 0; a < 12; a++) { const x = p.x + Math.cos(a / 12 * TAU) * r, z = p.z + Math.sin(a / 12 * TAU) * r; const h = gridH(x, z); if (h < -5 && h > -14) return { kind: 'card', x, z, n }; } return null; };
   for (const [k, n] of [['porquerolles', 'Cardinale nord de Porquerolles'], ['embiez', 'Cardinale des Embiez'], ['sicie', 'Cardinale du cap Sicié'], ['levant', 'Cardinale du Levant']]) { const b = near(POI[k], n); if (b) BUOYS.push(b); }
@@ -1930,20 +1998,22 @@ function cityLights() {
   const m = new THREE.PointsMaterial({ map: GLOWTEX, color: 0xffc98a, size: 16, sizeAttenuation: true, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: true });
   const p = new THREE.Points(g, m); p.frustumCulled = false; p.renderOrder = 4; scene.add(p); CITYLIGHTS.pts = p;
 }
-const WORLDMESH = [];
 const PORTFX = {};
 function buildWorld() {
   buildLandMask(); buildReliefField(); buildHeights();
-  setupPort();
+  setupPorts();
   buildGrid();
   buildFarTerrain();
   terrainUpdate({ x: PORT.x, z: PORT.z }, true);
-  scene.add(portStructures());
+  for (const p of PORTS) scene.add(portStructures(p));
   // Toulon, ses quartiers et les villes de la côte
-  scene.add(village(PORT.x, PORT.z - 260, 720, 280, 11, (x, z) => !(z > PORT.z - 130 && Math.abs(x - PORT.x) < 330)));
-  scene.add(village(PORT.x - 1200, PORT.z - 700, 520, 90, 12)); scene.add(village(PORT.x + 1300, PORT.z - 600, 520, 90, 13));
-  const B = PORT.brenn; scene.add(village(B.x - B.dx * 160, B.z - B.dz * 160, 170, 26, 16));
-  for (const [k, rad, n, s] of [['marseille', 700, 260, 21], ['laciotat', 220, 50, 22], ['bandol', 180, 40, 23], ['hyeres', 300, 70, 24], ['sttropez', 160, 45, 25], ['frejus', 260, 60, 26], ['cannes', 320, 90, 27], ['nice', 450, 140, 28], ['ajaccio', 300, 90, 29], ['bastia', 260, 70, 30], ['calvi', 140, 35, 31], ['bonifacio', 120, 35, 32], ['bizerte', 280, 80, 33], ['tunis', 600, 180, 34], ['kelibia', 140, 35, 35], ['annaba', 360, 90, 36], ['cagliari', 420, 120, 37], ['alghero', 200, 50, 38]])
+  PORTS.forEach((p, i) => {
+    const k = i * 50, c = portW(p, 0, -260), a = portW(p, -1200, -700), b = portW(p, 1300, -600);
+    scene.add(village(c.x, c.z, 720, i ? 220 : 280, 11 + k, (x, z) => { const l = portL(p, x, z); return !(l.z > -130 && Math.abs(l.x) < 330); }));
+    scene.add(village(a.x, a.z, 520, 90, 12 + k)); scene.add(village(b.x, b.z, 520, 90, 13 + k));
+  });
+  const B = BRENN; scene.add(village(B.x - B.dx * 160, B.z - B.dz * 160, 170, 26, 16));
+  for (const [k, rad, n, s] of [['marseille', 700, 260, 21], ['laciotat', 220, 50, 22], ['bandol', 180, 40, 23], ['hyeres', 300, 70, 24], ['sttropez', 160, 45, 25], ['frejus', 260, 60, 26], ['cannes', 320, 90, 27], ['nice', 450, 140, 28], ['bastia', 260, 70, 30], ['calvi', 140, 35, 31], ['bonifacio', 120, 35, 32], ['tunis', 600, 180, 34], ['kelibia', 140, 35, 35], ['annaba', 360, 90, 36], ['alghero', 200, 50, 38]])
     if (POI[k]) scene.add(village(POI[k].x, POI[k].z, rad, n, s));
   // phares des caps et des îles
   const capeAt = (lon, lat) => { const p = geoXZ(lon, lat); let best = null; for (let r = 0; r < 900; r += 20) for (let a = 0; a < 16; a++) { const x = p.x + Math.cos(a / 16 * TAU) * r, z = p.z + Math.sin(a / 16 * TAU) * r, h = terrainH(x, z); if (h > 3 && h < 60) { let sea = 0; for (let b = 0; b < 8; b++) if (gridH(x + Math.cos(b / 8 * TAU) * 90, z + Math.sin(b / 8 * TAU) * 90) < 0) sea++; if (sea >= 2 && (!best || r < best.r)) best = { x, z, h, r }; } } if (best && best.r < 1e9) return best; return null; };
@@ -2135,18 +2205,22 @@ function vesselCollisions(dt, onHit) {
 // libère la mémoire graphique d'un navire retiré (sauf matériaux partagés)
 function disposeTree(root) {
   const shared = new Set(Object.values(MAT));
+  if (typeof INMAT !== 'undefined') for (const m of Object.values(INMAT)) shared.add(m);
   root.traverse(o => {
-    if (o.isSprite) { const k = NAVLIGHTS.indexOf(o); if (k >= 0) NAVLIGHTS.splice(k, 1); return; }
-    if (o.geometry) o.geometry.dispose();
+    if (o.isSprite) { const k = NAVLIGHTS.indexOf(o); if (k >= 0) NAVLIGHTS.splice(k, 1); if (o.material && !shared.has(o.material)) o.material.dispose(); return; }
+    if (o.geometry && !(o.geometry.userData && o.geometry.userData.shared)) o.geometry.dispose();
     const mats = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : [];
     for (const m of mats) {
-      if (shared.has(m)) continue;
+      if (shared.has(m) || (m.userData && m.userData.shared)) continue;
       const k = LIT_MATS.indexOf(m); if (k >= 0) LIT_MATS.splice(k, 1);
-      for (const t of ['map', 'emissiveMap']) if (m[t] && m[t] !== GLOWTEX && m[t] !== ROCKTEX) m[t].dispose();
+      // les textures mises en cache (coques, normales) ou partagées restent en vie
+      for (const t of ['map', 'emissiveMap', 'normalMap']) if (m[t] && m[t] !== GLOWTEX && m[t] !== ROCKTEX && !m[t].ysCached) m[t].dispose();
       m.dispose();
     }
   });
 }
+// retire un objet de la scène et libère sa mémoire graphique
+function dropObj(o) { if (!o) return; if (o.parent) o.parent.remove(o); disposeTree(o); }
 
 // ===== FLOTTE : classes de navires, bâtiments de guerre, menaces, aéronefs =====
 Object.assign(KINDS, {
@@ -2495,7 +2569,7 @@ const kn = v => v / KN;
 function spawnPlayer(x, z, psi, clsId) {
   clsId = clsId || (UI && UI.shipCls) || 'opv';
   const C = CLASSES[clsId];
-  if (PLAYER) { if (PLAYER.heli && PLAYER.heli.mesh) scene.remove(PLAYER.heli.mesh); PLAYER.remove(); }
+  if (PLAYER) { if (PLAYER.heli && PLAYER.heli.mesh) dropObj(PLAYER.heli.mesh); PLAYER.remove(); }
   PLAYER = new Vessel(C.kind, C.build(), x, z, psi, { name: C.n });
   const P = PLAYER, st = shipState(clsId);
   P.cls = clsId; P.C = C; P.gear = C.gear; P.faction = 'ysmar'; P.sys = {};
@@ -2520,7 +2594,10 @@ function playerStep(dt) {
   const engineF = clamp(P.engine / 100, 0.15, 1) * (P.fuel > 0 ? 1 : 0) * (P.fires > 0.5 ? 0.6 : 1);
   P.power = engineF * (P.incPower == null ? 1 : P.incPower);
   P.rpmCmd = TELEGRAPH[P.tel].v * Math.min(1, 0.25 + P.power * 0.75);
-  if (P.tow) P.vmaxMul = (P.gear.tow === 2 ? 0.8 : 0.55) + upLv('engine') * 1.5 * KN / P.k.vmax; else P.vmaxMul = 1 + upLv('engine') * 1.5 * KN / P.k.vmax;
+  // multiplicateur de vitesse maximale : remorquage, moteurs révisés, puis bonus (hélices polies, surpuissance)
+  P.vmaxMul = (P.tow ? (P.gear.tow === 2 ? 0.8 : 0.55) : 1) + upLv('engine') * 1.5 * KN / P.k.vmax;
+  if (typeof gfx === 'function') P.vmaxMul *= 1 + gfx('speed');
+  if (P.boostT > CB.clock) P.vmaxMul *= 1.1;
   // voie d'eau : gîte et enfoncement
   if (P.flood > 0) { P.list = lerp(P.list, P.flood * 0.12, dt * 0.05); if (P.kind !== 'sub') P.sink = P.flood * 1.2; if (P.flood > 0.95) damageHull(dt * 2, 'voie d\'eau'); }
   else { P.list *= Math.exp(-dt * 0.05); if (P.kind !== 'sub') P.sink = 0; }
@@ -2633,7 +2710,7 @@ function startIncident(id, sev) {
   if (ACTIVE_INC.some(i => i.id === id)) return;
   const I = INCIDENTS[id]; const inc = { id, t: 0, prog: 0, assigned: false, sev: sev || 1 };
   ACTIVE_INC.push(inc); I.start(sev);
-  if (MS.warp > 1) MS.warp = 1;
+  autoSlow();
 }
 function incidentStep(dt) {
   for (const inc of ACTIVE_INC.slice()) {
@@ -2648,13 +2725,15 @@ function incidentStep(dt) {
 
 // ---------- tirs ----------
 const SHOTS = [];
+const SHELL = { geo: null, mat: null };
+function shellMesh(r) { if (!SHELL.geo) { SHELL.geo = new THREE.SphereGeometry(1, 6, 4); SHELL.geo.userData.shared = true; SHELL.mat = new THREE.MeshBasicMaterial({ color: 0xffd28a }); SHELL.mat.userData.shared = true; } const m = new THREE.Mesh(SHELL.geo, SHELL.mat); m.scale.setScalar(r); return m; }
 function fireGun(target, aimOff, onImpact) {
   const P = PLAYER, gun = P.mesh.userData.gun;
   const gp = new THREE.Vector3(0, 1.3, -2.5); gun.localToWorld(gp);
   const tx = target.x + (aimOff ? aimOff.x : 0), tz = target.z + (aimOff ? aimOff.z : 0);
   const d = Math.hypot(tx - gp.x, tz - gp.z);
   const flight = d / 900 + 0.2;
-  const tr = new THREE.Mesh(new THREE.SphereGeometry(0.25, 6, 4), new THREE.MeshBasicMaterial({ color: 0xffd28a })); scene.add(tr);
+  const tr = shellMesh(0.25); scene.add(tr);
   const fl = new THREE.Sprite(new THREE.SpriteMaterial({ map: GLOWTEX, color: 0xffb35a, blending: THREE.AdditiveBlending, depthWrite: false })); fl.scale.setScalar(6); fl.position.copy(gp); scene.add(fl);
   SHOTS.push({ from: gp.clone(), to: new THREE.Vector3(tx, 0, tz), t: 0, T: flight, mesh: tr, flash: fl, onImpact });
   sfx('gun');
@@ -2666,7 +2745,7 @@ function shotsStep(dt) {
     s.mesh.position.lerpVectors(s.from, s.to, u); s.mesh.position.y += Math.sin(u * Math.PI) * s.T * 25;
     s.flash.material.opacity = Math.max(0, 1 - s.t * 8);
     if (u >= 1) {
-      scene.remove(s.mesh); if (s.flash.isObject3D) scene.remove(s.flash); SHOTS.splice(SHOTS.indexOf(s), 1);
+      scene.remove(s.mesh); if (s.flash.isObject3D) dropObj(s.flash); SHOTS.splice(SHOTS.indexOf(s), 1);
       if (s.nosplash) { s.onImpact && s.onImpact(); continue; }
       for (let i = 0; i < 40; i++) SPRAY.emit(s.to.x + rr(-1, 1), 0.5, s.to.z + rr(-1, 1), rr(-2, 2), rr(6, 15), rr(-2, 2), rr(1.5, 2.8), rr(1.5, 3.5), 0.9);
       wakeSplash(s.to.x, s.to.z, 6, 0.9); sfx('splash', s.to);
@@ -2682,12 +2761,15 @@ function aimGunAt(target, dt) {
 }
 
 // ===== COMBAT : factions, capteurs, pistes, armes, dégâts, IA adverse (fictive) =====
-const FACTIONS = { ysmar: { n: 'Marine nationale' }, neutral: { n: 'Neutre' }, pirate: { n: 'Corsaires de la Grise' }, varne: { n: 'Flottille de Varne' } };
 const hostileF = (a, b) => (a === 'ysmar' && (b === 'pirate' || b === 'varne')) || (b === 'ysmar' && (a === 'pirate' || a === 'varne'));
 const AIR = [];       // missiles, drones, intercepteurs, torpilles
 const TRACKS = new Map();
 const CB = { clock: 0, t: 0, trackN: 0, sel: null, alarms: [], tracers: [], lights: [], shake: 0, events: [] };
 const nowT = () => CB.clock;
+// minuteries en temps de jeu : elles respectent la pause et l'accélération, et sont annulées entre deux missions
+const LATER = [];
+function later(sec, fn) { LATER.push({ at: CB.clock + sec, fn }); }
+function laterStep() { if (!LATER.length) return; const due = LATER.filter(x => CB.clock >= x.at); if (!due.length) return; for (const x of due) LATER.splice(LATER.indexOf(x), 1); for (const x of due) { try { x.fn(); } catch (e) { console.error(e); } } }
 let FIRE = null, SOOT = null;
 function initCombatFx() {
   FIRE = new Particles(GFX.quality === 'low' ? 300 : 700, puffTexture(), { grav: -2.5, drag: 0.8, grow: 1.6, col: 0xff6418, add: true }); scene.add(FIRE.mesh);
@@ -2783,10 +2865,10 @@ function upsertTrack(e, via, ident) {
 const identOf = e => e.identAs || (e.faction === 'ysmar' ? 'fri' : e.faction === 'neutral' || !e.faction ? 'neu' : 'hos');
 function onNewTrack(t) {
   const e = t.ent;
-  if (t.type === 'msl' && hostileF(e.faction, 'ysmar')) { t.ident = 'hos'; const d = Math.hypot(e.x - PLAYER.x, e.z - PLAYER.z); vhf('Central Op.', `Missile en approche au ${bearingStr(headingOf(e.x - PLAYER.x, e.z - PLAYER.z))}, ${(d / 1000).toFixed(0)} km !`, 'alarm'); sfx('missileAlarm'); if (MS.warp > 1) MS.warp = 1; }
-  else if (t.type === 'torp' && hostileF(e.faction, 'ysmar')) { t.ident = 'hos'; vhf('Sonar', `Torpille dans l'eau, relèvement ${bearingStr(headingOf(e.x - PLAYER.x, e.z - PLAYER.z))} !`, 'alarm'); sfx('missileAlarm'); if (MS.warp > 1) MS.warp = 1; }
-  else if (t.type === 'sub') { vhf('Sonar', `Contact sous-marin, relèvement ${bearingStr(headingOf(e.x - PLAYER.x, e.z - PLAYER.z))}.`, 'alarm'); if (MS.warp > 1) MS.warp = 1; }
-  else if (t.type === 'air' && hostileF(e.faction, 'ysmar')) { t.ident = 'hos'; if (!CB.droneWarn || nowT() - CB.droneWarn > 20) { CB.droneWarn = nowT(); vhf('Central Op.', `Échos aériens rapides au ${bearingStr(headingOf(e.x - PLAYER.x, e.z - PLAYER.z))}, des drones !`, 'alarm'); if (MS.warp > 1) MS.warp = 1; } }
+  if (t.type === 'msl' && hostileF(e.faction, 'ysmar')) { t.ident = 'hos'; const d = Math.hypot(e.x - PLAYER.x, e.z - PLAYER.z); vhf('Central Op.', `Missile en approche au ${bearingStr(headingOf(e.x - PLAYER.x, e.z - PLAYER.z))}, ${(d / 1000).toFixed(0)} km !`, 'alarm'); sfx('missileAlarm'); autoSlow(); }
+  else if (t.type === 'torp' && hostileF(e.faction, 'ysmar')) { t.ident = 'hos'; vhf('Sonar', `Torpille dans l'eau, relèvement ${bearingStr(headingOf(e.x - PLAYER.x, e.z - PLAYER.z))} !`, 'alarm'); sfx('missileAlarm'); autoSlow(); }
+  else if (t.type === 'sub') { vhf('Sonar', `Contact sous-marin, relèvement ${bearingStr(headingOf(e.x - PLAYER.x, e.z - PLAYER.z))}.`, 'alarm'); autoSlow(); }
+  else if (t.type === 'air' && hostileF(e.faction, 'ysmar')) { t.ident = 'hos'; if (!CB.droneWarn || nowT() - CB.droneWarn > 20) { CB.droneWarn = nowT(); vhf('Central Op.', `Échos aériens rapides au ${bearingStr(headingOf(e.x - PLAYER.x, e.z - PLAYER.z))}, des drones !`, 'alarm'); autoSlow(); } }
 }
 function onHostileIdent(t) { if (t.type === 'surf' && !t.ent.announced) { t.ent.announced = 1; vhf('Central Op.', `${t.num} identifié : ${t.ent.cls || t.ent.name}, hostile.`, 'alarm'); } }
 function sensorsStep(dt) {
@@ -2858,7 +2940,7 @@ function fireGunAtTrack(t) {
 function hullDist(v, x, z) { const f = v.fwd; const px = x - v.x, pz = z - v.z; const along = clamp(px * f.x + pz * f.z, -v.L / 2, v.L / 2); return Math.hypot(px - f.x * along, pz - f.z * along); }
 function muzzle(p, s) { for (let i = 0; i < 8; i++) SMOKE.emit(p.x, p.y, p.z, rr(-2, 2), rr(0, 2), rr(-2, 2), 3, 3 * s, 0.5); FIRE.emit(p.x, p.y, p.z, 0, 0, 0, 0.12, 5 * s, 1); flash(p.x, p.y, p.z, 0.3 * s); }
 function shell(from, to, T, onImpact) {
-  const tr = new THREE.Mesh(new THREE.SphereGeometry(0.3, 6, 4), new THREE.MeshBasicMaterial({ color: 0xffd28a })); scene.add(tr);
+  const tr = shellMesh(0.3); scene.add(tr);
   SHOTS.push({ from: from.clone(), to: new THREE.Vector3(to.x, to.y || 0, to.z), t: 0, T, mesh: tr, flash: { material: {} }, onImpact, nosplash: true });
 }
 // missiles (anti-navire, surface-air, ennemis), drones, torpilles
@@ -3002,7 +3084,7 @@ function airStep(dt) {
     }
     if (a.mesh) { a.mesh.position.set(a.x, a.y, a.z); a.mesh.rotation.set(0, -a.hdg, 0, 'YXZ'); }
   }
-  for (let i = AIR.length - 1; i >= 0; i--) if (AIR[i].dead) AIR.splice(i, 1);
+  for (let i = AIR.length - 1; i >= 0; i--) if (AIR[i].dead) { const a = AIR[i]; if (a.mesh) { dropObj(a.mesh); a.mesh = null; } AIR.splice(i, 1); }
 }
 
 // ---------- hélicoptère embarqué ----------
@@ -3236,7 +3318,7 @@ function selectNext() { const L = threatList(); if (!L.length) { CB.sel = null; 
 function hail(t) {
   t.hailT = nowT() + 20; const e = t.ent;
   vhf('Albatros', `Navire au ${bearingStr(headingOf(e.x - PLAYER.x, e.z - PLAYER.z))}, ici bâtiment de guerre de la Marine nationale, identifiez-vous.`, 'info');
-  setTimeout(() => { if (e.removed) return; if (e.faction === 'neutral' || !e.faction) { vhf(e.name || 'Navire', `Ici ${e.name || 'le navire'}, ${e.kind === 'trawler' ? 'chalutier en pêche' : 'navire de commerce'}, nous faisons route normalement.`, 'info'); t.ident = 'neu'; t.cls = e.name; } else if (e.faction === 'pirate') { if (!e.onHail) vhf('Central Op.', 'Pas de réponse. Comportement suspect.', 'alarm'); } else if (e.faction === 'varne') { vhf('Central Op.', `Pas de réponse. ${t.num} allume un radar de conduite de tir : identifié hostile !`, 'alarm'); t.ident = 'hos'; t.cls = e.cls || e.name; e.announced = 1; if (e.cai) e.cai.delay = 0; } else vhf('Central Op.', 'Pas de réponse, le contact maintient sa route.', 'alarm'); if (e.onHail) e.onHail(t); }, 3500);
+  later(3.5, () => { if (e.removed) return; if (e.faction === 'neutral' || !e.faction) { vhf(e.name || 'Navire', `Ici ${e.name || 'le navire'}, ${e.kind === 'trawler' ? 'chalutier en pêche' : 'navire de commerce'}, nous faisons route normalement.`, 'info'); t.ident = 'neu'; t.cls = e.name; } else if (e.faction === 'pirate') { if (!e.onHail) vhf('Central Op.', 'Pas de réponse. Comportement suspect.', 'alarm'); } else if (e.faction === 'varne') { vhf('Central Op.', `Pas de réponse. ${t.num} allume un radar de conduite de tir : identifié hostile !`, 'alarm'); t.ident = 'hos'; t.cls = e.cls || e.name; e.announced = 1; if (e.cai) e.cai.delay = 0; } else vhf('Central Op.', 'Pas de réponse, le contact maintient sa route.', 'alarm'); if (e.onHail) e.onHail(t); });
 }
 function gunAutoStep() { const P = PLAYER; if (P && P.gunAuto && CB.sel && TRACKS.has(CB.sel.id) && gunAvail(CB.sel).ok) fireGunAtTrack(CB.sel); if (P && P.gear && P.gear.gun && CB.sel) aimGunAt(CB.sel.ent, 0.05); }
 function openCO(v) { CO.open = v == null ? !CO.open : v; $('co').hidden = !CO.open; if (CO.open) renderCOPanel(true); }
@@ -3282,10 +3364,15 @@ function targetOverlay() {
 }
 
 // ===== MISSIONS : génération, déroulement, bilan =====
-const PLACES = () => [
-  Object.assign({ n: 'Porquerolles', r: 520 }, POI.porquerolles), Object.assign({ n: 'Port-Cros', r: 340 }, POI.portcros), Object.assign({ n: 'l\'île du Levant', r: 460 }, POI.levant),
-  Object.assign({ n: 'l\'île des Embiez', r: 200 }, POI.embiez), Object.assign({ n: 'cap Sicié', r: 300 }, POI.sicie)
-];
+// lieux remarquables autour du port où l'on est affecté (îles, caps) : servent de décor aux missions
+const PLACES = () => (PORT.places || PORT_DEFS[0].places).map(([n, ll, r]) => Object.assign({ n, r }, typeof ll === 'string' ? POI[ll] : geoXZ(ll[0], ll[1])));
+// point garanti en eau libre (profondeur minimale), sinon le plus proche qui convient
+function wet(p, depth) { return gridH(p.x, p.z) < -(depth || 20) ? { x: p.x, z: p.z } : openWaterPoint(p.x, p.z, 0, 4000, depth || 20, 300); }
+// couloir de navigation le long de la côte du port (dir = sens de parcours), ou selon un cap imposé
+function laneAI(dir, c, half, base) { return { mode: 'lane', hdg: wrapA((base == null ? PORT.ang + Math.PI / 2 : base) + (dir < 0 ? Math.PI : 0)), c: { x: c.x, z: c.z }, half: half || 15000 }; }
+// missions liées à une région précise : seulement depuis certains ports
+const MPORTS = { delivery: ['toulon'], wildfire: ['toulon'], sarex: ['bizerte', 'alger', 'cagliari'], shadow: ['toulon', 'ajaccio', 'cagliari'], raid: ['toulon', 'ajaccio', 'cagliari'] };
+const typeHere = t => !MPORTS[t] || MPORTS[t].includes(PORT.id || 'toulon');
 const SHIPNAMES = ['KAPITAN ORLOV', 'NORDIC STAR', 'BOREAS BAY', 'MARE NOSTRUM', 'HELGA MAERSK', 'CAP FINISTÈRE', 'PACIFIC TRADER', 'LUCIA B.'];
 const BOATNAMES = ['Marie-Jo', 'Ker Avel', 'Petit Mousse', 'Sant Erwan', 'L\'Espérance', 'Bro Gozh', 'Ar Vag', 'Les Trois Frères', 'Gwenn ha Du'];
 const YACHTS = ['Albireo', 'Kalinka', 'Sea Lion', 'Mistral', 'Pen Duick VII', 'Liberté'];
@@ -3316,7 +3403,7 @@ function genMission(type, seed) {
   if (type === 'delivery' && r() < 0.5) def.time = pick([19.5, 20.5, 6]);
   const pl = PLACES();
   if (type === 'rescue') {
-    def.lkp = openWaterPoint(PORT.entrance.x, PORT.entrance.z + 1500, 2500, 6500, 30, 500, r);
+    { const c = PL(-10, 1970); def.lkp = openWaterPoint(c.x, c.z, 2500, 6500, 30, 500, r); }
     def.rafts = 1 + (r() < 0.35 + rank * 0.08 ? 1 : 0); def.people = ri(3, 7);
     def.vessel = pick(YACHTS);
     def.title = `Détresse : voilier ${def.vessel}`;
@@ -3380,10 +3467,10 @@ function genMission(type, seed) {
 const CIVIL = ['rescue', 'tow', 'intercept', 'escort', 'delivery', 'pollution', 'medevac', 'fisheries'];
 function missionBoard() {
   const r = mulberry(CAREER.missions * 977 + CAREER.day * 31 + 5);
-  const mil = Object.keys(MTYPES).filter(t => !CIVIL.includes(t));
+  const mil = Object.keys(MTYPES).filter(t => !CIVIL.includes(t) && typeHere(t)), civ = CIVIL.filter(typeHere);
   const list = []; const used = new Set();
-  const take = (pool, n) => { let k = 0; while (k < n) { const t = pool[Math.floor(r() * pool.length)]; if (used.has(t)) continue; used.add(t); list.push(genMission(t, Math.floor(r() * 1e9))); k++; } };
-  take(CIVIL, 2); take(mil, 2);
+  const take = (pool, n) => { pool = pool.filter(t => !used.has(t)); for (let k = 0; k < n && pool.length; k++) { const t = pool.splice(Math.floor(r() * pool.length), 1)[0]; used.add(t); list.push(genMission(t, Math.floor(r() * 1e9))); } };
+  take(civ, 2); take(mil, 2);
   return list.sort((a, b) => a.seed % 7 - b.seed % 7);
 }
 
@@ -3410,7 +3497,7 @@ function portOk(m, what) {
   if (m.handAt == null) { m.handAt = m.t + 50; const o = O(m, 'return'); if (o) o.text = `Remettre ${what} à l'hélicoptère de la base`; m.marks = m.marks.filter(k => k.label !== 'Toulon'); vhf('Hélico de la base', `Nous arrivons pour prendre en charge ${what}. Gardez cap et vitesse, cinquante secondes.`, 'info'); }
   return m.t >= m.handAt;
 }
-function inHarbor(v) { return Math.abs(v.x - PORT.x) < 700 && v.z - PORT.z > -60 && v.z - PORT.z < 1100; }
+function inHarbor(v) { const l = portL(PORT, v.x, v.z); return Math.abs(l.x) < 700 && l.z > -60 && l.z < 1100; }
 const FLARES = [];
 function fireFlare() {
   const P = PLAYER, f = P.fwd; const x = P.x + f.x * 700, z = P.z + f.z * 700;
@@ -3423,7 +3510,7 @@ function flaresStep(dt) {
     F.t += dt; F.y = Math.max(20, 280 - F.t * 3.6); F.x += Math.cos(ENV.windDir) * ENV.wind * 0.3 * dt; F.z += Math.sin(ENV.windDir) * ENV.wind * 0.3 * dt;
     const k = F.t < F.T ? (0.85 + 0.15 * Math.sin(F.t * 13)) * (1 - smooth(F.T - 8, F.T, F.t)) : 0;
     F.light.position.set(F.x, F.y, F.z); F.spr.position.copy(F.light.position); F.light.intensity = 3.5 * k; F.spr.material.opacity = k;
-    if (F.t > F.T) { scene.remove(F.light); scene.remove(F.spr); FLARES.splice(FLARES.indexOf(F), 1); }
+    if (F.t > F.T) { scene.remove(F.light); dropObj(F.spr); FLARES.splice(FLARES.indexOf(F), 1); }
   }
 }
 function floatingPerson() {
@@ -3447,19 +3534,19 @@ function mobStart(m) {
   m.mob = { v: man, t: 0, found: false };
   addObj(m, 'mob', 'Homme à la mer : récupérer le matelot', true);
   vhf('Passerelle', 'Un homme à la mer sur l\'arrière ! Faites demi-tour, il porte un gilet avec flash.', 'alarm');
-  if (MS.warp > 1) MS.warp = 1;
+  autoSlow();
 }
 
 // ---------- démarrage ----------
 function clearWorldEntities() {
   for (const v of VESSELS.slice()) if (v !== PLAYER) v.remove();
-  for (const s of SLICKS.splice(0)) scene.remove(s.mesh);
+  for (const s of SLICKS.splice(0)) dropObj(s.mesh);
   ACTIVE_INC.length = 0; if (PLAYER) dropTow();
-  for (const F of FLARES.splice(0)) { scene.remove(F.light); scene.remove(F.spr); }
-  for (const a of AIR.splice(0)) if (a.mesh) scene.remove(a.mesh);
-  for (const s of SHOTS.splice(0)) { scene.remove(s.mesh); if (s.flash && s.flash.isObject3D) scene.remove(s.flash); }
-  TRACKS.clear(); CB.sel = null; CB.tracers.length = 0; CB.shake = 0; CO.pan = null; CO.heliPick = null;
-  if (PLAYER && PLAYER.heli && PLAYER.heli.mesh) { scene.remove(PLAYER.heli.mesh); heliInit(PLAYER); }
+  for (const F of FLARES.splice(0)) { scene.remove(F.light); dropObj(F.spr); }
+  for (const a of AIR.splice(0)) if (a.mesh) dropObj(a.mesh);
+  for (const s of SHOTS.splice(0)) { scene.remove(s.mesh); if (s.flash && s.flash.isObject3D) dropObj(s.flash); }
+  TRACKS.clear(); CB.sel = null; CB.tracers.length = 0; CB.shake = 0; CO.pan = null; CO.heliPick = null; LATER.length = 0;
+  if (PLAYER && PLAYER.heli && PLAYER.heli.mesh) { dropObj(PLAYER.heli.mesh); heliInit(PLAYER); }
 }
 function startMission(def, opts) {
   clearWorldEntities();
@@ -3469,7 +3556,7 @@ function startMission(def, opts) {
   const m = newRuntime(def); MS.cur = m; MS.warp = 1; LOG.length = 0;
   // départ : sortie du port, ou déjà au large pour gagner du temps
   const atSea = opts && opts.atSea;
-  let sx = PORT.entrance.x, sz = PORT.entrance.z + 160, psi = Math.PI;
+  const s0 = PL(-10, 630); let sx = s0.x, sz = s0.z, psi = PORT.sea;
   if (atSea && def.type !== 'escort' && def.type !== 'delivery' && !def.startAt) {
     const goal = def.at || def.lkp || def.cargo || def.from || def.center || def.pos || def.zone || PORT.entrance;
     const p = openWaterPoint(goal.x, goal.z, 3200, 4200, 25, 400); sx = p.x; sz = p.z; psi = headingOf(goal.x - sx, goal.z - sz);
@@ -3494,7 +3581,7 @@ function freeSail(opts) {
   const def = { type: 'free', seed: 1, time: opts.time, windDir: opts.windDir == null ? 0.7 : opts.windDir, weather: opts.weather, title: 'Navigation libre' };
   ENV.time = def.time; ENV.windDir = def.windDir; setWeather(def.weather, true); genWaves(ENV.windDir, 3);
   const m = newRuntime(def); m.free = true; m.limit = 1e9; MS.cur = m; MS.warp = 1; LOG.length = 0;
-  spawnPlayer(PORT.entrance.x, PORT.entrance.z + 160, Math.PI, cls); m.cls = cls; PLAYER.u = 3; PLAYER.tel = 6; PLAYER.rpm = 0.5;
+  { const s0 = PL(-10, 630); spawnPlayer(s0.x, s0.z, PORT.sea, cls); } m.cls = cls; PLAYER.u = 3; PLAYER.tel = 6; PLAYER.rpm = 0.5;
   m.objs.push({ id: 'free', text: 'Naviguer librement au large de Toulon', state: 'active', prog: 0 });
   m.update = () => { }; m.actions = () => [];
   spawnTraffic(m);
@@ -3520,11 +3607,11 @@ M_SETUP.rescue = (m, d) => {
     for (const v of m.rafts) {
       if (v.done) continue;
       v.cond -= dt / 60 * (1.1 + ENV.sea * 1.6 + (night ? 0.6 : 0)) * (v.pickup ? 0 : 1);
-      if (v.cond <= 0 && !v.lostDone) { v.lostDone = true; v.done = true; m.lost += v.people; vhf('CROSS Méditerranée', 'Plus aucun signe de vie du second radeau. C\'est fini pour eux.', 'alarm'); }
+      if (v.cond <= 0 && !v.lostDone) { v.lostDone = true; v.done = true; m.lost += v.people; vhf('CROSS Méditerranée', m.rafts.length > 1 ? `Plus aucun signe de vie de l'un des radeaux (${v.people} personnes). C'est fini pour eux.` : 'Plus aucun signe de vie du radeau. C\'est fini pour eux.', 'alarm'); }
       if (!v.found && (seen(v, true) || radarSees(v, ENV.sea < 0.55 ? 1.5 : 0.6))) {
         v.found = true; const b = headingOf(v.x - PLAYER.x, v.z - PLAYER.z), dd = distTo(PLAYER, v);
         vhf('Veille', `Radeau en vue au ${bearingStr(b)}, ${(dd / 1000).toFixed(1).replace('.', ',')} km !`, 'good');
-        m.marks.push({ v, kind: 'target', label: 'Radeau' }); if (MS.warp > 1) MS.warp = 1;
+        m.marks.push({ v, kind: 'target', label: 'Radeau' }); autoSlow();
       }
     }
     const found = m.rafts.filter(v => v.found).length;
@@ -3533,7 +3620,7 @@ M_SETUP.rescue = (m, d) => {
     if (m.rafts.every(v => v.done)) {
       if (m.saved === 0) return endMission(false, 'Aucun naufragé n\'a pu être sauvé.');
       setObj(m, 'recover', 'done');
-      if (!O(m, 'return')) { addObj(m, 'return', 'Ramener les rescapés à Toulon'); vhf('CROSS Méditerranée', 'Bien reçu Albatros. Les rescapés sont attendus au port, une ambulance est prévue.', 'info'); m.marks.push({ x: PORT.entrance.x, z: PORT.entrance.z, kind: 'goal', label: 'Toulon' }); }
+      if (!O(m, 'return')) { addObj(m, 'return', `Ramener les rescapés à ${PORT.n}`); vhf('CROSS Méditerranée', 'Bien reçu Albatros. Les rescapés sont attendus au port, une ambulance est prévue.', 'info'); m.marks.push({ x: PORT.entrance.x, z: PORT.entrance.z, kind: 'goal', label: 'Toulon' }); }
       if (portOk(m, 'les rescapés')) { setObj(m, 'return', 'done'); endMission(true, `${m.saved} personnes sauvées sur ${d.people}.`, { saved: m.saved }); }
     }
   };
@@ -3586,7 +3673,7 @@ M_SETUP.intercept = (m, d) => {
   m.update = dt => {
     m.cd = Math.max(0, m.cd - dt);
     const dd = distTo(PLAYER, s);
-    if (O(m, 'detect').state !== 'done' && (radarSees(s, s.rcs) || seen(s))) { setObj(m, 'detect', 'done'); vhf('Veille', `Écho rapide sans AIS au ${bearingStr(headingOf(s.x - PLAYER.x, s.z - PLAYER.z))}, ${(dd / 1000).toFixed(1).replace('.', ',')} km, vitesse plus de 30 nœuds !`, 'good'); m.marks.push({ v: s, kind: 'target', label: 'Go-fast' }); if (MS.warp > 1) MS.warp = 1; }
+    if (O(m, 'detect').state !== 'done' && (radarSees(s, s.rcs) || seen(s))) { setObj(m, 'detect', 'done'); vhf('Veille', `Écho rapide sans AIS au ${bearingStr(headingOf(s.x - PLAYER.x, s.z - PLAYER.z))}, ${(dd / 1000).toFixed(1).replace('.', ',')} km, vitesse plus de 30 nœuds !`, 'good'); m.marks.push({ v: s, kind: 'target', label: 'Go-fast' }); autoSlow(); }
     if (!s.stopped) {
       s.power = clamp(1 - s.hits * 0.4, 0.05, 1);
       const toDrop = Math.hypot(d.drop.x - s.x, d.drop.z - s.z);
@@ -3598,14 +3685,14 @@ M_SETUP.intercept = (m, d) => {
       }
       hdg = avoidHeading(s, hdg, 260);
       steerTo(s, hdg, 17.5, dt);
-      if (s.morale < 0.25 || s.hits >= 3) { s.stopped = true; s.dead = true; setObj(m, 'stop', 'done'); vhf('Go-fast', '(sur le canal 16) ...OK, OK ! On stoppe ! On ne tire pas !', 'good'); if (MS.warp > 1) MS.warp = 1; }
+      if (s.morale < 0.25 || s.hits >= 3) { s.stopped = true; s.dead = true; setObj(m, 'stop', 'done'); vhf('Go-fast', '(sur le canal 16) ...OK, OK ! On stoppe ! On ne tire pas !', 'good'); autoSlow(); }
     }
     setObj(m, 'stop', null, Math.max(m.roe / 4, 1 - s.morale));
   };
   m.actions = () => {
     const dd = distTo(PLAYER, s), out = [], known = O(m, 'detect').state === 'done';
     if (!s.stopped && known) {
-      out.push({ id: 'call', label: 'Sommation VHF', ok: dd < 4000 && m.cd <= 0, why: m.cd > 0 ? 'Attendez la réponse.' : 'Trop loin pour une sommation.', run: () => { m.cd = 25; m.roe = Math.max(m.roe, 1); s.morale -= 0.12 / s.grit; vhf('Albatros', 'Embarcation rapide, ici patrouilleur Albatros, Marine nationale, action de l\'État en mer. Stoppez immédiatement vos machines !', 'info'); setTimeout(() => vhf('Go-fast', '(aucune réponse, le bateau accélère)', 'info'), 2500); } });
+      out.push({ id: 'call', label: 'Sommation VHF', ok: dd < 4000 && m.cd <= 0, why: m.cd > 0 ? 'Attendez la réponse.' : 'Trop loin pour une sommation.', run: () => { m.cd = 25; m.roe = Math.max(m.roe, 1); s.morale -= 0.12 / s.grit; vhf('Albatros', 'Embarcation rapide, ici patrouilleur Albatros, Marine nationale, action de l\'État en mer. Stoppez immédiatement vos machines !', 'info'); later(2.5, () => vhf('Go-fast', '(aucune réponse, le bateau accélère)', 'info')); } });
       out.push({ id: 'warn', label: `Tir de semonce (${m.roe >= 1 ? 'autorisé' : 'sommation d\'abord'})`, ok: m.roe >= 1 && dd < 1800 && m.cd <= 0 && !SHOTS.length, why: m.roe < 1 ? 'Faites d\'abord une sommation radio.' : dd >= 1800 ? 'Hors de portée (1 800 m).' : 'Canon en cours de rechargement.', run: () => { m.cd = 8; m.roe = Math.min(3, m.roe + 1); const f = s.fwd; fireGun(s, { x: f.x * 120, z: f.z * 120 }, () => { s.morale -= 0.3 / s.grit; vhf('Albatros', 'Coup de semonce devant l\'étrave du go-fast.', 'info'); }); } });
       out.push({ id: 'shoot', label: 'Tir sur les moteurs', ok: m.roe >= 3 && dd < 900 && m.cd <= 0 && !SHOTS.length, why: m.roe < 3 ? 'Règles d\'engagement : deux tirs de semonce d\'abord.' : dd >= 900 ? 'Rapprochez-vous à 900 m.' : 'Rechargement.', run: () => { m.cd = 6; const p = clamp(1 - dd / 1100, 0.15, 0.85) * (1 - ENV.sea * 0.5); const hit = rnd() < p; fireGun(s, hit ? { x: -s.fwd.x * 5, z: -s.fwd.z * 5 } : { x: rr(-25, 25), z: rr(-25, 25) }, () => { if (hit) { s.hits++; s.morale -= 0.15; vhf('Canonnier', `Touché ! Un moteur du go-fast fume (${s.hits}/3).`, 'good'); for (let i = 0; i < 20; i++) SMOKE.emit(s.x, 1.5, s.z, rr(-1, 1), 2, rr(-1, 1), 8, 4, 0.7); } else vhf('Canonnier', 'Manqué.', 'info'); }); } });
     }
@@ -3617,7 +3704,7 @@ M_SETUP.intercept = (m, d) => {
   };
 };
 M_SETUP.escort = (m, d) => {
-  const start = { x: PORT.entrance.x + 120, z: PORT.entrance.z + 300 };
+  const start = PL(110, 770);
   const fer = new Vessel('ferry', buildFerry('ÉTOILE DU NORD'), start.x, start.z, headingOf(d.dest.x - start.x, d.dest.z - start.z), { name: 'Étoile du Nord' });
   fer.ais = true; fer.rcs = 300; fer.u = 5; m.ferry = fer; m.ents.push(fer);
   // itinéraire : contourner les terres si nécessaire
@@ -3644,7 +3731,7 @@ M_SETUP.escort = (m, d) => {
       let x = fer.x + Math.sin(ang) * R, z = fer.z - Math.cos(ang) * R; if (gridH(x, z) > -3) { const p = openWaterPoint(fer.x, fer.z, 1600, 2600, 5, 100); x = p.x; z = p.z; }
       const sk = new Vessel('skiff', buildSpeedboat(false, 4), x, z, headingOf(fer.x - x, fer.z - z), { name: 'Embarcation suspecte' }); sk.rcs = 2; sk.ais = false; sk.morale = 1; sk.mode = 'approach'; sk.board = 0; sk.u = 9;
       m.skiffs.push(sk); m.ents.push(sk); m.marks.push({ v: sk, kind: 'hostile', label: 'Suspect' });
-      vhf('Étoile du Nord', `Albatros, embarcation rapide tous feux éteints au ${bearingStr(headingOf(x - fer.x, z - fer.z))} de nous, elle se rapproche !`, 'alarm'); if (MS.warp > 1) MS.warp = 1;
+      vhf('Étoile du Nord', `Albatros, embarcation rapide tous feux éteints au ${bearingStr(headingOf(x - fer.x, z - fer.z))} de nous, elle se rapproche !`, 'alarm'); autoSlow();
     }
     for (const sk of m.skiffs) {
       if (sk.mode === 'gone') continue;
@@ -3674,7 +3761,7 @@ M_SETUP.escort = (m, d) => {
   };
 };
 M_SETUP.delivery = (m, d) => {
-  const B = PORT.brenn, bp = headingOf(B.dx, B.dz); m.berths = [{ x: B.x + B.dx * 56 - B.dz * 13.4, z: B.z + B.dz * 56 + B.dx * 13.4, psi: bp }, { x: B.x + B.dx * 56 + B.dz * 13.4, z: B.z + B.dz * 56 - B.dx * 13.4, psi: bp }];
+  const B = BRENN, bp = headingOf(B.dx, B.dz); m.berths = [{ x: B.x + B.dx * 56 - B.dz * 13.4, z: B.z + B.dz * 56 + B.dx * 13.4, psi: bp }, { x: B.x + B.dx * 56 + B.dz * 13.4, z: B.z + B.dz * 56 - B.dx * 13.4, psi: bp }];
   m.marks.push({ x: B.x + B.dx * 50, z: B.z + B.dz * 50, kind: 'goal', label: 'Jetée de Porquerolles' });
   addObj(m, 'reach', 'Rejoindre le port de Porquerolles'); addObj(m, 'moor', 'Accoster et s\'amarrer le long de la jetée'); addObj(m, 'unload', 'Décharger le matériel médical');
   m.hold = 0; m.unload = 0;
@@ -3758,7 +3845,7 @@ M_SETUP.medevac = (m, d) => {
     m.status = `État du blessé : ${Math.max(0, Math.round(m.cond))} %`;
     if (m.cond <= 0) return endMission(false, 'Le blessé n\'a pas survécu à l\'attente.');
     if (distTo(PLAYER, t) < 1200) setObj(m, 'rdv', 'done');
-    if (O(m, 'transfer').state === 'done') { if (!m.flags.goal) { m.flags.goal = 1; m.marks.push({ x: PORT.entrance.x, z: PORT.entrance.z, kind: 'goal', label: 'Toulon' }); } if (portOk(m, 'le blessé')) { setObj(m, 'return', 'done'); endMission(true, 'Le blessé est confié au SAMU sur le quai.', { bonus: Math.round(m.cond) * 40, note: 'État du blessé à l\'arrivée : ' + Math.round(m.cond) + ' %' }); } }
+    if (O(m, 'transfer').state === 'done') { if (!m.flags.goal) { m.flags.goal = 1; m.marks.push({ x: PORT.entrance.x, z: PORT.entrance.z, kind: 'goal', label: PORT.n }); } if (portOk(m, 'le blessé')) { setObj(m, 'return', 'done'); endMission(true, 'Le blessé est confié au SAMU sur le quai.', { bonus: Math.round(m.cond) * 40, note: 'État du blessé à l\'arrivée : ' + Math.round(m.cond) + ' %' }); } }
   };
   m.actions = () => {
     const out = [];
@@ -3779,8 +3866,8 @@ M_SETUP.fisheries = (m, d) => {
     if (m.escorting) {
       const t = m.escorting; const dd = distTo(PLAYER, t);
       if (dd > 2500) { m.far = (m.far || 0) + dt; m.status = `Le chalutier s'éloigne : ${Math.round(90 - m.far)} s`; if (m.far > 90) return endMission(false, 'Le chalutier en infraction a pris la fuite.'); } else { m.far = 0; m.status = ''; }
-      steerToPoint(t, PORT.entrance.x + 60, PORT.entrance.z + 100, 4.2, dt, 300);
-      if (inHarbor(t) || Math.hypot(t.x - PORT.entrance.x, t.z - PORT.entrance.z) < 450 || (m.inOp && portOk(m, 'le chalutier'))) { setObj(m, 'escort', 'done'); endMission(true, `Inspections terminées, le ${t.name} est dérouté à Toulon.`); }
+      { const q = PL(50, 570); steerToPoint(t, q.x, q.z, 4.2, dt, 300); }
+      if (inHarbor(t) || Math.hypot(t.x - PORT.entrance.x, t.z - PORT.entrance.z) < 450 || (m.inOp && portOk(m, 'le chalutier'))) { setObj(m, 'escort', 'done'); endMission(true, `Inspections terminées, le ${t.name} est dérouté à ${PORT.n}.`); }
     } else if (n >= d.n) endMission(true, 'Inspections terminées.');
   };
   m.actions = () => {
@@ -3795,15 +3882,20 @@ M_SETUP.fisheries = (m, d) => {
 function spawnTraffic(m) {
   const used = new Set((m.ents || []).map(v => v.kind));
   // cargos sur la route au large du sud
-  for (let i = 0; i < 2; i++) { const x = PORT.x + rr(-12000, 12000), z = PORT.z + 9000 + i * 700; const c = new Vessel('cargo', buildCargo(pick(SHIPNAMES), i ? { hull: '#1d2f4a', funnel: '#e6b43a' } : null), x, z, i ? Math.PI / 2 : -Math.PI / 2, { name: SHIPNAMES[i + 3] }); c.ais = true; c.rcs = 400; c.u = 6; c.rpm = 0.6; c.ai = { mode: 'lane', dir: i ? 1 : -1, z, cx: PORT.x, half: 15000 }; c.ambient = true; }
-  if (!used.has('ferry')) { const p = openWaterPoint(PORT.entrance.x, PORT.entrance.z, 1200, 2500, 20, 300); const f = new Vessel('ferry', buildFerry('ÉTOILE DU NORD'), p.x, p.z, rnd() * TAU, { name: 'Étoile du Nord' }); f.ais = true; f.rcs = 300; f.u = 6; const B = PORT.brenn; f.ai = { mode: 'shuttle', a: { x: PORT.entrance.x + 140, z: PORT.entrance.z + 400 }, b: { x: B.x + B.dx * 420, z: B.z + B.dz * 420 }, leg: 0 }; f.ambient = true; }
+  for (let i = 0; i < 2; i++) { const lz = 9000 + i * 700; let q = PL(rr(-12000, 12000), lz); if (gridH(q.x, q.z) > -30) q = openWaterPoint(q.x, q.z, 0, 4000, 30, 800); const ai = laneAI(i ? 1 : -1, PL(0, lz), 15000); const c = new Vessel('cargo', buildCargo(pick(SHIPNAMES), i ? { hull: '#1d2f4a', funnel: '#e6b43a' } : null), q.x, q.z, ai.hdg, { name: SHIPNAMES[i + 3] }); c.ais = true; c.rcs = 400; c.u = 6; c.rpm = 0.6; c.ai = ai; c.ambient = true; }
+  if (!used.has('ferry')) { const p = openWaterPoint(PORT.entrance.x, PORT.entrance.z, 1200, 2500, 20, 300); const f = new Vessel('ferry', buildFerry('ÉTOILE DU NORD'), p.x, p.z, rnd() * TAU, { name: 'Étoile du Nord' }); f.ais = true; f.rcs = 300; f.u = 6; const B = BRENN, pl0 = PLACES()[0]; f.ai = { mode: 'shuttle', a: PL(130, 870), b: PORT.id === 'toulon' ? { x: B.x + B.dx * 420, z: B.z + B.dz * 420 } : openWaterPoint(pl0.x, pl0.z, pl0.r + 400, pl0.r + 900, 15, 200), leg: 0 }; f.ambient = true; }
   for (let i = 0; i < 4; i++) { const p = openWaterPoint(PORT.entrance.x, PORT.entrance.z, 2000, 7000, 20, 300); const t = new Vessel('trawler', buildTrawler(pick(BOATNAMES)), p.x, p.z, rnd() * TAU, { name: pick(BOATNAMES) }); t.ais = true; t.rcs = 25; t.ai = { mode: 'trawl', home: p }; t.u = 2; t.ambient = true; }
   for (let i = 0; i < 3; i++) { const p = openWaterPoint(PORT.entrance.x, PORT.entrance.z, 600, 3000, 8, 150); const s = new Vessel('sailboat', buildSailboat(pick(YACHTS)), p.x, p.z, rnd() * TAU, { name: pick(YACHTS) }); s.ais = true; s.rcs = 3; s.ai = { mode: 'wander', home: p }; s.ambient = true; }
 }
 function trafficStep(dt) {
   for (const v of VESSELS) {
     const a = v.ai; if (!a || v === PLAYER || v.dead) continue;
-    if (a.mode === 'lane') { steerTo(v, a.dir > 0 ? Math.PI / 2 : -Math.PI / 2 * 1, 6.5, dt); if (a.cx != null ? Math.abs(v.x - a.cx) > a.half : Math.abs(v.x) > 31000) { const c0 = a.cx || 0, h0 = a.half || 31000; v.x = c0 - Math.sign(v.x - c0) * (h0 - 100); } v.z += (a.z - v.z) * dt * 0.01; }
+    if (a.mode === 'lane' && a.hdg != null) {
+      const ux = Math.sin(a.hdg), uz = -Math.cos(a.hdg), rx = v.x - a.c.x, rz = v.z - a.c.z, al = rx * ux + rz * uz, lat = -rx * uz + rz * ux;
+      steerTo(v, avoidHeading(v, a.hdg, Math.max(600, v.L * 5)), 6.5, dt); v.x += uz * lat * dt * 0.01; v.z -= ux * lat * dt * 0.01;
+      if (al > a.half) { const nx = v.x - ux * 2 * (a.half - 100), nz = v.z - uz * 2 * (a.half - 100); if (gridH(nx, nz) < -20) { v.x = nx; v.z = nz; } else a.c = { x: v.x - ux * (a.half - 300), z: v.z - uz * (a.half - 300) }; }
+    }
+    else if (a.mode === 'lane') { steerTo(v, a.dir > 0 ? Math.PI / 2 : -Math.PI / 2 * 1, 6.5, dt); if (a.cx != null ? Math.abs(v.x - a.cx) > a.half : Math.abs(v.x) > 31000) { const c0 = a.cx || 0, h0 = a.half || 31000; v.x = c0 - Math.sign(v.x - c0) * (h0 - 100); } v.z += (a.z - v.z) * dt * 0.01; }
     else if (a.mode === 'shuttle') { const t = a.leg ? a.b : a.a; const d = steerToPoint(v, t.x, t.z, 7, dt, 600); if (d < 300) a.leg = 1 - a.leg; }
     else if (a.mode === 'trawl') { if (!a.t || Math.hypot(v.x - a.t.x, v.z - a.t.z) < 120) a.t = openWaterPoint(a.home.x, a.home.z, 0, 900, 10, 100); steerTo(v, avoidHeading(v, headingOf(a.t.x - v.x, a.t.z - v.z), 200), 2.2, dt); }
     else if (a.mode === 'wander') { if (!a.t || Math.hypot(v.x - a.t.x, v.z - a.t.z) < 80) a.t = openWaterPoint(a.home.x, a.home.z, 0, 1500, 6, 80); steerTo(v, avoidHeading(v, headingOf(a.t.x - v.x, a.t.z - v.z), 150), 3, dt); }
@@ -3923,9 +4015,9 @@ function bearingDesc(h) { const n = ['nord', 'nord-est', 'est', 'sud-est', 'sud'
 // ---------- générateurs ----------
 const M_GEN = {};
 M_GEN.convoy = (d, r, pl, rank, hard) => {
-  d.from = { x: PORT.x + rr(-2500, 2500), z: PORT.z + rr(15500, 17000) };
-  d.dest = { x: PORT.entrance.x + 300, z: PORT.entrance.z + 2600 };
-  d.at = d.from; d.startAt = { x: d.from.x + 1400, z: d.from.z - 600, psi: 0 };
+  const fl = { x: rr(-2500, 2500), z: rr(15500, 17000) }; d.from = wet(PL(fl.x, fl.z), 30);
+  d.dest = wet(PL(290, 3070), 25);
+  d.at = d.from; d.startAt = Object.assign(wet(PL(fl.x + 1400, fl.z - 600), 25), { psi: PORT.ang });
   { const a = SHIPN2.slice().sort(() => r() - 0.5); d.names = [pick(TANKN), a[0], a[1]]; }
   d.waves = hard ? 4 : 3;
   d.title = `Convoi ${d.names[0]} vers Toulon`;
@@ -3934,8 +4026,8 @@ M_GEN.convoy = (d, r, pl, rank, hard) => {
   d.reward = 26000; d.rep = 95; d.limit = 75 * 60;
 };
 M_GEN.asw = (d, r, pl, rank, hard) => {
-  d.at = { x: PORT.x + rr(-4000, 4000), z: PORT.z + rr(13500, 15500) }; d.tanker = pick(TANKN);
-  d.startAt = { x: d.at.x + rr(-2000, 2000), z: d.at.z - 7000, psi: Math.PI };
+  const al = { x: rr(-4000, 4000), z: rr(13500, 15500) }; d.at = wet(PL(al.x, al.z), 40); d.tanker = pick(TANKN);
+  d.startAt = Object.assign(wet(PL(al.x + rr(-2000, 2000), al.z - 7000), 30), { psi: PORT.sea });
   d.subA = r() * TAU; d.subR = rr(9500, 11500);
   d.title = `Sous-marin au large : protéger le ${d.tanker}`;
   d.brief = `Une bouée acoustique a entendu un sous-marin inconnu à proximité du pétrolier ${d.tanker}, au mouillage d'attente du large. Trouvez-le au sonar, avec l'hélicoptère en trempage, et contraignez-le à faire surface. Allez lentement pour bien entendre : au-delà de 15 nœuds votre sonar devient sourd.`;
@@ -3944,8 +4036,8 @@ M_GEN.asw = (d, r, pl, rank, hard) => {
   d.weather.sea = Math.min(d.weather.sea, 0.55); d.weather.wind = Math.min(d.weather.wind, 12);
 };
 M_GEN.aaw = (d, r, pl, rank, hard) => {
-  d.at = { x: PORT.entrance.x + 400, z: PORT.entrance.z + 3200 }; d.startAt = { x: d.at.x - 600, z: d.at.z + 1800, psi: 0 };
-  d.from = Math.PI + rr(-0.7, 0.7); d.tankers = [pick(TANKN), pick(SHIPN2), pick(SHIPN2)];
+  d.at = wet(PL(390, 3670), 30); d.startAt = Object.assign(wet(PL(-210, 5470), 30), { psi: PORT.ang });
+  d.from = PORT.sea + rr(-0.7, 0.7); d.tankers = [pick(TANKN), pick(SHIPN2), pick(SHIPN2)];
   d.nwaves = 4 + (hard ? 1 : 0); d.missiles = hard || rank >= 2;
   d.title = 'Bouclier de la rade de Toulon';
   d.brief = `Des drones d'attaque lancés depuis la mer menacent les navires au mouillage devant Toulon. Plusieurs vagues sont attendues en provenance du ${bearingDesc(d.from)}${d.missiles ? ', dont des missiles de croisière' : ''}. Placez-vous entre la menace et la rade, et ne laissez rien passer : il faut sauver au moins deux des trois navires.`;
@@ -3953,7 +4045,7 @@ M_GEN.aaw = (d, r, pl, rank, hard) => {
   d.reward = 24000; d.rep = 90; d.limit = 40 * 60;
 };
 M_GEN.saw = (d, r, pl, rank, hard) => {
-  d.at = { x: PORT.x + rr(-3500, 3500), z: PORT.z + rr(15000, 17500) }; d.startAt = { x: d.at.x, z: d.at.z - 9000, psi: Math.PI };
+  d.atL = { x: rr(-3500, 3500), z: rr(15000, 17500) }; d.at = wet(PL(d.atL.x, d.atL.z), 40); d.startAt = Object.assign(wet(PL(d.atL.x, d.atL.z - 9000), 30), { psi: PORT.sea });
   d.n = 2 + (hard ? 1 : 0); d.vcorv = hard || rank >= 2 || r() < 0.3;
   d.title = 'Incursion de la Flottille de Varne';
   d.brief = `${d.n} vedettes lance-missiles${d.vcorv ? ' et une corvette' : ''} de la Flottille de Varne ont pénétré dans les eaux territoriales en venant du large, au milieu des pêcheurs. Règles d'engagement strictes : n'ouvrez le feu que sur une cible identifiée hostile (interrogation VHF, hélicoptère ou vue directe), ou qui vous a tiré dessus. Repoussez ou neutralisez la flottille.`;
@@ -3981,10 +4073,10 @@ M_GEN.fire = (d, r, pl, rank, hard) => {
   d.weather.wind = Math.max(d.weather.wind, 8);
 };
 M_GEN.suspect = (d, r, pl, rank, hard) => {
-  d.at = { x: PORT.x + rr(1000, 5000), z: PORT.z + rr(9500, 12500) }; d.name = pick(['CALDER', 'MIRA BAY', 'KASSANDRA', 'BRANDT']);
-  d.dest = { x: PORT.x - 12250, z: d.at.z + rr(-1500, 1500) }; d.escort = hard || r() < 0.35;
+  d.atL = { x: rr(1000, 5000), z: rr(9500, 12500) }; d.at = wet(PL(d.atL.x, d.atL.z), 40); d.name = pick(['CALDER', 'MIRA BAY', 'KASSANDRA', 'BRANDT']);
+  d.dest = wet(PL(-12250, d.atL.z + rr(-1500, 1500)), 40); d.escort = hard || r() < 0.35;
   d.title = `Cargo suspect : le ${d.name}`;
-  d.brief = `Le renseignement signale que le cargo ${d.name} transporte des armes pour les Corsaires de la Grise. Il navigue AIS coupé parmi d'autres navires dans le rail au large de Toulon. Trouvez-le (vue directe ou hélicoptère), sommez-le de stopper, tirez au besoin des coups de semonce, puis envoyez l'équipe de visite. Il ne doit pas quitter nos eaux par l'ouest.`;
+  d.brief = `Le renseignement signale que le cargo ${d.name} transporte des armes pour les Corsaires de la Grise. Il navigue AIS coupé parmi d'autres navires dans le rail au large de Toulon. Trouvez-le (vue directe ou hélicoptère), sommez-le de stopper, tirez au besoin des coups de semonce, puis envoyez l'équipe de visite. Il ne doit pas sortir de notre zone de surveillance.`;
   d.reward = 19000; d.rep = 75; d.limit = 55 * 60;
 };
 
@@ -4096,10 +4188,11 @@ M_SETUP.aaw = (m, d) => {
 M_SETUP.saw = (m, d) => {
   m.rules = 'id';
   m.enemies = [];
-  for (let i = 0; i < d.n; i++) { const x = d.at.x + rr(-7000, 7000), z = d.at.z + rr(17000, 22000); const v = spawnFAC(x, z, PLAYER, pick(VARNEN)); v.cai.delay = 60 + i * 20; v.cai.target = PLAYER; m.enemies.push(v); m.ents.push(v); }
-  if (d.vcorv) { const v = spawnVCorv(d.at.x + rr(-3000, 3000), d.at.z + 24000, PLAYER, pick(VARNEN)); v.cai.delay = 180; m.enemies.push(v); m.ents.push(v); }
-  fishingDecoys(m, { x: d.at.x, z: d.at.z + 2000 }, 5, true);
-  { const p = openWaterPoint(d.at.x, d.at.z, 3000, 6000, 30, 0); const c = new Vessel('cargo', buildCargo(pick(SHIPN2)), p.x, p.z, -Math.PI / 2, { name: pick(SHIPN2) }); c.ais = true; c.rcs = 400; c.faction = 'neutral'; c.u = 6; c.ai = { mode: 'lane', dir: -1, z: p.z }; m.ents.push(c); }
+  const AL = d.atL || portL(PORT, d.at.x, d.at.z);
+  for (let i = 0; i < d.n; i++) { const q = wet(PL(AL.x + rr(-7000, 7000), AL.z + rr(17000, 22000)), 20), x = q.x, z = q.z; const v = spawnFAC(x, z, PLAYER, pick(VARNEN)); v.cai.delay = 60 + i * 20; v.cai.target = PLAYER; m.enemies.push(v); m.ents.push(v); }
+  if (d.vcorv) { const q = wet(PL(AL.x + rr(-3000, 3000), AL.z + 24000), 20), v = spawnVCorv(q.x, q.z, PLAYER, pick(VARNEN)); v.cai.delay = 180; m.enemies.push(v); m.ents.push(v); }
+  fishingDecoys(m, PL(AL.x, AL.z + 2000), 5, true);
+  { const p = openWaterPoint(d.at.x, d.at.z, 3000, 6000, 30, 0); const ai = laneAI(-1, p, 15000), c = new Vessel('cargo', buildCargo(pick(SHIPN2)), p.x, p.z, ai.hdg, { name: pick(SHIPN2) }); c.ais = true; c.rcs = 400; c.faction = 'neutral'; c.u = 6; c.ai = ai; m.ents.push(c); }
   m.marks.push({ x: d.at.x, z: d.at.z, r: 6000, kind: 'zone', label: 'Zone d\'incursion' });
   addObj(m, 'id', 'Identifier la flottille de Varne'); addObj(m, 'repel', `Neutraliser ou repousser les bâtiments (0/${m.enemies.length})`);
   m.update = dt => {
@@ -4127,7 +4220,7 @@ M_SETUP.raid = (m, d) => {
   m.onSunk = v => { if (v === c) endMission(false, `Le ${d.cargo} a été coulé avec son équipage à bord.`); else if (v === M) { setObj(m, 'mother', 'done'); } };
   m.update = dt => {
     const dp = distTo(PLAYER, M);
-    for (const s of m.skiffs) if (s.idle && alive(s) && (dp < 6000 || s.hpv < s.maxHp)) { s.idle = false; s.ai = null; s.cai = { type: 'fac', missiles: 0, keep: rr(500, 800), target: PLAYER }; if (!m.flags.sortie) { m.flags.sortie = 1; vhf('Veille', 'Les embarcations corsaires foncent sur nous !', 'alarm'); if (MS.warp > 1) MS.warp = 1; } }
+    for (const s of m.skiffs) if (s.idle && alive(s) && (dp < 6000 || s.hpv < s.maxHp)) { s.idle = false; s.ai = null; s.cai = { type: 'fac', missiles: 0, keep: rr(500, 800), target: PLAYER }; if (!m.flags.sortie) { m.flags.sortie = 1; vhf('Veille', 'Les embarcations corsaires foncent sur nous !', 'alarm'); autoSlow(); } }
     if (!M.cai && !M.stopped && !M.sinking && dp < 5000) M.cai = { type: 'mother' };
     const out = m.skiffs.filter(s => !alive(s) || (s.cai && s.cai.fleeing)).length;
     O(m, 'guards').text = `Neutraliser les embarcations (${out}/${d.skiffs})`; setObj(m, 'guards', out >= d.skiffs ? 'done' : null, out / d.skiffs);
@@ -4194,7 +4287,7 @@ M_SETUP.suspect = (m, d) => {
   const h = headingOf(d.dest.x - d.at.x, d.dest.z - d.at.z);
   const S = new Vessel('cargo', buildCargo(d.name, { hull: '#3a3a36', funnel: '#7a1f1a' }), d.at.x, d.at.z, h, { name: d.name }); S.ais = false; S.rcs = 400; setupCombatant(S, 'pirate', 220); S.identAs = 'unk'; S.cls = 'Cargo ' + d.name; S.u = 6; S.rpm = 0.7; S.morale = 1; S.mode = 'cruise';
   m.sus = S; m.ents.push(S);
-  for (let i = 0; i < 2; i++) { const p = openWaterPoint(d.at.x, d.at.z, 2500, 6000, 30, 0); const c = new Vessel('cargo', buildCargo(pick(SHIPN2)), p.x, p.z, i ? Math.PI / 2 : -Math.PI / 2, { name: pick(SHIPN2) }); c.ais = !!i; c.rcs = 400; c.faction = 'neutral'; c.u = 6; c.ai = { mode: 'lane', dir: i ? 1 : -1, z: p.z }; m.ents.push(c); }
+  for (let i = 0; i < 2; i++) { const p = openWaterPoint(d.at.x, d.at.z, 2500, 6000, 30, 0); const ai = laneAI(i ? 1 : -1, p, 15000), c = new Vessel('cargo', buildCargo(pick(SHIPN2)), p.x, p.z, ai.hdg, { name: pick(SHIPN2) }); c.ais = !!i; c.rcs = 400; c.faction = 'neutral'; c.u = 6; c.ai = ai; m.ents.push(c); }
   fishingDecoys(m, d.at, 3, true);
   m.marks.push({ x: d.at.x, z: d.at.z, r: 5000, kind: 'zone', label: 'Dernière position connue' });
   addObj(m, 'find', `Identifier le ${d.name}`); addObj(m, 'stop', 'Le faire stopper'); addObj(m, 'board', 'Visiter le navire et saisir la cargaison');
@@ -4209,8 +4302,8 @@ M_SETUP.suspect = (m, d) => {
     if (S.mode !== 'stop') {
       const hd = avoidHeading(S, headingOf(d.dest.x - S.x, d.dest.z - S.z) + (S.mode === 'run' ? Math.sin(m.t * 0.05) * 0.5 : 0), 1200);
       steerTo(S, hd, S.mode === 'run' ? 8.2 : 6, dt);
-      if (S.x < PORT.x - 10250) return endMission(false, `Le ${d.name} a quitté les eaux françaises avec sa cargaison.`);
-      if (S.morale < 0.3 || S.hpv < S.maxHp * 0.85) { S.mode = 'stop'; S.dead = true; setObj(m, 'stop', 'done'); vhf(d.name, 'D\'accord, d\'accord ! Nous stoppons les machines.', 'good'); if (d.escort && !m.flags.esc) { m.flags.esc = 1; const p = { x: S.x + rr(-14000, -10000), z: S.z + rr(-4000, 4000) }; const v = spawnFAC(p.x, p.z, PLAYER, 'Lame Grise'); v.faction = 'pirate'; v.cls = 'Vedette corsaire'; v.cai.delay = 40; v.cai.missiles = 1; m.ents.push(v); vhf('Commandement', 'Une vedette rapide arrive de l\'ouest pour protéger le cargo, prudence.', 'alarm'); } }
+      if (portL(PORT, S.x, S.z).x < -10250) return endMission(false, `Le ${d.name} a quitté la zone de surveillance avec sa cargaison.`);
+      if (S.morale < 0.3 || S.hpv < S.maxHp * 0.85) { S.mode = 'stop'; S.dead = true; setObj(m, 'stop', 'done'); vhf(d.name, 'D\'accord, d\'accord ! Nous stoppons les machines.', 'good'); if (d.escort && !m.flags.esc) { m.flags.esc = 1; const sl = portL(PORT, S.x, S.z), p = wet(PL(sl.x + rr(-14000, -10000), sl.z + rr(-4000, 4000)), 20); const v = spawnFAC(p.x, p.z, PLAYER, 'Lame Grise'); v.faction = 'pirate'; v.cls = 'Vedette corsaire'; v.cai.delay = 40; v.cai.missiles = 1; m.ents.push(v); vhf('Commandement', 'Une vedette rapide arrive de l\'ouest pour protéger le cargo, prudence.', 'alarm'); } }
     }
     setObj(m, 'stop', null, Math.max(0, 1 - S.morale));
     m.status = S.mode === 'run' && dp > 1800 ? `Le cargo s'enfuit vers l'ouest à ${Math.round(S.speed / KN)} nœuds` : '';
@@ -4219,7 +4312,7 @@ M_SETUP.suspect = (m, d) => {
   m.actions = () => {
     const out = [], dp = distTo(PLAYER, S), known = O(m, 'find').state === 'done';
     if (known && S.mode !== 'stop') {
-      out.push({ id: 'call', label: 'Sommation VHF : stoppez', ok: dp < 6000 && m.cd <= 0, why: m.cd > 0 ? 'Attendez la réponse.' : 'Trop loin pour une sommation.', run: () => { m.cd = 20; S.morale -= 0.1; if (S.mode !== 'run') S.mode = 'run'; m.hailed = true; vhf('Albatros', `${d.name}, ici bâtiment de la Marine nationale. Stoppez immédiatement pour une visite !`, 'info'); setTimeout(() => vhf(d.name, '(le cargo accélère et ne répond pas)', 'info'), 2500); } });
+      out.push({ id: 'call', label: 'Sommation VHF : stoppez', ok: dp < 6000 && m.cd <= 0, why: m.cd > 0 ? 'Attendez la réponse.' : 'Trop loin pour une sommation.', run: () => { m.cd = 20; S.morale -= 0.1; if (S.mode !== 'run') S.mode = 'run'; m.hailed = true; vhf('Albatros', `${d.name}, ici bâtiment de la Marine nationale. Stoppez immédiatement pour une visite !`, 'info'); later(2.5, () => vhf(d.name, '(le cargo accélère et ne répond pas)', 'info')); } });
       const G = gunOf(PLAYER);
       out.push({ id: 'warn', label: `Coup de semonce (${m.warns}/2)`, ok: !!G && m.hailed && dp < Math.min(G ? G.range : 0, 3000) && m.cd <= 0, why: !G ? 'Pas de canon.' : !m.hailed ? 'Faites d\'abord une sommation.' : dp >= 3000 ? 'Rapprochez-vous à 3 km.' : 'Rechargement.', run: () => { m.cd = 8; m.warns++; const f = S.fwd; fireGun(S, { x: f.x * (S.L * 0.5 + 150), z: f.z * (S.L * 0.5 + 150) }, () => { S.morale -= 0.34; vhf('Canonnier', 'Coup de semonce devant l\'étrave du cargo.', 'info'); }); } });
     }
@@ -4278,7 +4371,6 @@ const isSub = P => P && P.kind === 'sub';
 const subHidden = tg => tg === PLAYER && isSub(PLAYER) && (PLAYER.depth || 0) > 8;
 
 // à quai au port, et dans la flotte dès le début
-{ const base = berthOf; berthOf = function (cls) { if (cls === 'sub') return { x: PORT.x + 165, z: PORT.z - 40 + 3.5 + 1.5, psi: Math.PI / 2 }; return base(cls); }; }
 { const base = newCareer; newCareer = function () { const c = base(); c.ships.sub = freshShip('sub'); return c; }; }
 { const base = loadCareer; loadCareer = function () { const c = base(); if (c && c.ships && !c.ships.sub) { c.ships.sub = freshShip('sub'); saveCareer(); } return c; }; }
 // le sous-marin a son propre fond : on touche si la quille plus l'immersion dépasse la profondeur
@@ -4303,8 +4395,8 @@ function subStep(dt) {
 // les navires de surface perdent le sous-marin en plongée
 { const base = enemyStep; enemyStep = function (dt) {
   if (!subHidden(PLAYER)) return base(dt);
-  const saved = []; for (const v of VESSELS) { const a = v.cai; if (a && (a.type === 'fac' || a.type === 'vcorv' || a.type === 'mother') && (!a.target || a.target === PLAYER)) { saved.push([a, a.cd, a.gcd]); a.cd = Math.max(a.cd || 0, 1); a.gcd = Math.max(a.gcd || 0, 1); } }
-  base(dt); for (const [a, cd, gcd] of saved) { a.cd = Math.max(a.cd, 0.5); a.gcd = Math.max(a.gcd, 0.5); }
+  const saved = []; for (const v of VESSELS) { const a = v.cai; if (a && (a.type === 'fac' || a.type === 'vcorv' || a.type === 'mother') && (!a.target || a.target === PLAYER)) { saved.push(a); a.cd = Math.max(a.cd || 0, 1); a.gcd = Math.max(a.gcd || 0, 1); } }
+  base(dt); for (const a of saved) { a.cd = Math.max(a.cd, 0.5); a.gcd = Math.max(a.gcd, 0.5); }
 }; }
 // les torpilles du sous-marin visent aussi les navires de surface
 { const base = torpAvail; torpAvail = function (t, fromHeli) {
@@ -4323,7 +4415,7 @@ function subStep(dt) {
 // rendu : pas de mer par les vitres quand on est en plongée
 { const base = renderWorld; renderWorld = function () {
   const P = PLAYER;
-  if (WALK.on && isSub(P) && P.depth > 3 && WALK.level === 'bridge' && !WALK.fly && !WALK.sub && !WALK.gun) { renderer.setClearColor('#06121c'); renderer.clear(); renderer.setClearColor('#000000'); const n0 = camera.near; camera.near = 0.05; camera.updateProjectionMatrix(); renderer.autoClear = false; renderer.clearDepth(); renderer.render(ISCENE, camera); renderer.autoClear = true; camera.near = n0; camera.updateProjectionMatrix(); return; }
+  if (WALK.on && isSub(P) && P.depth > 3 && WALK.level === 'bridge' && !WALK.fly && !WALK.gun) { renderer.setClearColor('#06121c'); renderer.clear(); renderer.setClearColor('#000000'); const n0 = camera.near; camera.near = 0.05; camera.updateProjectionMatrix(); renderer.autoClear = false; renderer.clearDepth(); renderer.render(ISCENE, camera); renderer.autoClear = true; camera.near = n0; camera.updateProjectionMatrix(); return; }
   base();
 }; }
 { const base = extEnter; extEnter = function () { if (isSub(PLAYER) && PLAYER.depth > 1) { toast('En plongée : faites surface pour sortir sur le pont.'); return; } base(); }; }
@@ -4333,13 +4425,12 @@ addEventListener('keydown', e => { if (UI.screen === 'sea' && isSub(PLAYER) && !
 function depthHUD() {
   const P = PLAYER; let el = $('depthBox');
   if (!el) { el = document.createElement('div'); el.id = 'depthBox'; $('hud').appendChild(el); el.addEventListener('click', e => { const b = e.target.closest('[data-d]'); if (!b || !isSub(PLAYER)) return; const v = b.dataset.d; PLAYER.depthCmd = v === 'up' ? Math.max(0, PLAYER.depthCmd - 10) : v === 'down' ? PLAYER.depthCmd + 10 : +v; sfx('click'); }); }
-  const show = isSub(P) && UI.screen === 'sea' && !(WALK.on && (WALK.fly || WALK.sub || WALK.gun)); el.hidden = !show; if (!show) return;
+  const show = isSub(P) && UI.screen === 'sea' && !(WALK.on && (WALK.fly || WALK.gun)); el.hidden = !show; document.body.classList.toggle('subhud', show); if (!show) return;
   const h = `<div class="dh"><span>Immersion</span><b>${Math.round(P.depth)} m</b><em>ordre ${Math.round(P.depthCmd)} m · fond ${Math.max(0, Math.round(-gridH(P.x, P.z)))} m</em></div><div class="db"><button data-d="up">▲ R</button><button data-d="down">▼ F</button><button data-d="0">Surface</button><button data-d="14">Périscope</button><button data-d="60">60 m</button></div><p>${P.depth > 3 ? (Math.abs(P.u) < 4 * KN ? 'Silencieux : invisible au radar' : 'En plongée : invisible au radar, mais bruyant') : 'En surface : visible au radar'}</p>`;
   if (el._h !== h) { el._h = h; el.innerHTML = h; }
 }
 { const base = hudUpdate; hudUpdate = function (force) { base(force); depthHUD(); }; }
 { const base = setScreen; setScreen = function (s) { base(s); depthHUD(); const p = $('peri'); if (p && s !== 'sea') p.hidden = true; }; }
-document.addEventListener('DOMContentLoaded', () => {});
 { const p = document.createElement('div'); p.id = 'peri'; p.hidden = true; document.body.insertBefore(p, document.getElementById('hud')); }
 // shipCosts : coefficient du sous-marin
 { const base = shipCosts; shipCosts = function (id) { if (id !== 'sub') return base(id); const st = CAREER.ships[id], K = CLASSES[id]; let ammo = 0; for (const k in K.gear.ammo) ammo += Math.max(0, K.gear.ammo[k] - (st.ammo[k] || 0)) * ({ torp: 2000, decoy: 250 }[k] || 0); return { repair: Math.round(((100 - st.hull) * 180 + (100 - st.engine) * 140) * 1.8), fuel: Math.round((100 - st.fuel) * 45 * 1.2), ammo: Math.round(ammo) }; }; }
@@ -4573,7 +4664,8 @@ function hudUpdate(force) {
     <div class="row sm"><span>Mer ${DOUGLAS[dg]} (${seaHs().toFixed(1).replace('.', ',')} m)</span><span>Visib. ${visibility() > 9000 ? '> 5 NM' : (visibility() / 1852).toFixed(1).replace('.', ',') + ' NM'}</span></div>
     <div class="row sm"><span>${escH(P.C.n)}</span><span>${escH(P.C.cls)}</span></div>
     <div class="gauges">${gauge('Coque', P.hull, P.hull < 40)}${gauge('Machine', P.engine * (P.incPower == null ? 1 : P.incPower), P.engine < 50 || P.incPower < 1)}${gauge('Gasoil', P.fuel, P.fuel < 20)}${typeof FLT !== 'undefined' ? gauge('Fatigue', FLT.fat, FLT.fat > 75) : ''}</div>
-    <div class="row warp"><span>Temps</span>${[1, 2, 4, 8].map(w => `<button class="${MS.warp === w ? 'on' : ''}" data-act="warp" data-v="${w}" ${w > 1 && warpBlocked() ? 'disabled' : ''}>×${w}</button>`).join('')}<button data-act="pause" aria-label="Pause">❚❚</button></div>`);
+    <div class="row warp"><span>Temps</span>${WARPS.map(w => `<button class="${MS.warp === w ? 'on' : ''}" data-act="warp" data-v="${w}">×${w}</button>`).join('')}<button data-act="pause" aria-label="Pause">❚❚</button></div>
+    <div class="row warp tr"><button class="${TRANSIT.on ? 'on' : ''}" data-act="transit" title="Transit rapide vers l'objectif ou le point de route (Maj+T)">${TRANSIT.on ? '■ Arrêter le transit' : '⏩ Transit rapide'}</button></div>`);
   // barre, vitesse
   setH('tele', teleHTML());
   setH('log', `<div class="big">${kn(P.u).toFixed(1).replace('.', ',')}<small>nd</small></div><div class="kv"><span>Fond</span><b>${depthStr()}</b></div><div class="kv"><span>Cap</span><b>${bearingStr(P.psi)}</b></div><div class="kv"><span>Machine</span><b>${Math.round(P.rpm * 100)} %</b></div><div class="kv"><span>Giration</span><b>${(P.r / DEG * 60).toFixed(0)}°/min</b></div>`);
@@ -4599,7 +4691,8 @@ function hudUpdate(force) {
 }
 function gauge(n, v, bad) { return `<div class="g ${bad ? 'bad' : ''}"><span>${n}</span><em><s style="width:${clamp(v, 0, 100)}%"></s></em><b>${Math.round(v)}</b></div>`; }
 function depthStr() { const P = PLAYER; const h = terrainH(P.x, P.z); const d = -h - P.T; return d > 99 ? '> 99 m' : Math.max(0, d).toFixed(1).replace('.', ',') + ' m'; }
-function warpBlocked() {
+// situation tactique chargée : ne bloque plus la vitesse du jeu (le commandant décide), sert seulement au repos de l'équipage
+function busySea() {
   const m = MS.cur; if (!m) return true; if (ACTIVE_INC.length || PLAYER.rhibOp || (PLAYER.tow && PLAYER.tow.tension > 0.7)) return true;
   for (const v of VESSELS) if (v !== PLAYER && !v.ambient && !v.ally && !v.towed && !v.escortee && !(v.cai && !v.sinking) && distTo(v, PLAYER) < 900 && v.kind !== 'raft') return true;
   for (const a of AIR) if (!a.dead && hostileF(a.faction, 'ysmar')) return true;
@@ -4629,7 +4722,6 @@ function genericActions() {
 }
 
 // ---------- écrans ----------
-const WX_ICON = { sun: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>' };
 function wxLine(w, time) {
   const bft = beaufort(w.wind), hs = 0.1 + w.sea * w.sea * 9;
   const ds = hs < 0.5 ? 'belle' : hs < 1.25 ? 'peu agitée' : hs < 2.5 ? 'agitée' : hs < 4 ? 'forte' : hs < 6 ? 'très forte' : 'grosse';
@@ -4841,7 +4933,7 @@ const camFor = () => 130 * clamp(PLAYER.L / 72, 1, 1.9);
 
 // ---------- simulation ----------
 function simStep(dt) {
-  CB.clock += dt; envStep(dt);
+  CB.clock += dt; laterStep(); envStep(dt);
   const P = PLAYER;
   if (P && UI.screen === 'sea') controlsStep(dt);
   if (P && UI.screen !== 'sea') { // ambiance : le navire suit seul une route paisible
@@ -4935,14 +5027,14 @@ function nightStep(dt) {
 function loop(now) {
   requestAnimationFrame(loop);
   let dt = Math.min(0.05, (now - last) / 1000); last = now; frameN++;
+  let rate = 1;
   if (!paused) {
-    const w = UI.screen === 'sea' ? MS.warp : 1;
-    if (w > 1 && warpBlocked()) MS.warp = 1;
-    for (let k = 0; k < w; k++) simStep(dt);
+    if (UI.screen === 'sea' && TRANSIT.on) rate = transitFrame(dt);
+    else { const w = UI.screen === 'sea' ? MS.warp : 1; simAdvance(dt, w); rate = w; }
   }
   for (const v of VESSELS) v.sync();
   cameraStep(dt);
-  updateEnvironment(paused ? 0 : dt * (UI.screen === 'sea' ? MS.warp : 1), PLAYER);
+  updateEnvironment(paused ? 0 : dt * Math.min(rate, 32), PLAYER);
   placeOceanAndSky(); nightStep(dt);
   if (!paused) { SPRAY.step(dt); SMOKE.step(dt); }
   stepRain(dt);
@@ -4965,7 +5057,7 @@ function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h
 function setTel(i) { const P = PLAYER; if (!P) return; P.tel = clamp(i, 0, TELEGRAPH.length - 1); sfx('tel'); UI.lastHud = 0; }
 const ACT = {
   tel: d => setTel(+d.v),
-  warp: d => { const w = +d.v; if (w > 1 && warpBlocked()) { toast('Impossible d\'accélérer le temps : situation en cours.'); return; } MS.warp = w; },
+  warp: d => { MS.warp = +d.v; if (TRANSIT.on) transitStop(); },
   pause: () => { UI.pauseFrom = UI.screen === 'port' ? 'port' : 'sea'; setScreen('pause'); }, menu: () => { UI.pauseFrom = UI.screen === 'port' ? 'port' : 'sea'; setScreen('pause'); }, resume: () => setScreen(UI.pauseFrom === 'port' && !MS.cur ? 'port' : 'sea'),
   cam: d => { UI.cam = d.v; if (d.v === 'bino') { UI.binoYaw = 0; UI.binoPitch = -0.005; } if (d.v === 'bridge') { UI.lookYaw = 0; UI.lookPitch = -0.04; } UI.camSnap = 1; },
   chart: () => { UI.chartFull = !UI.chartFull; $('chartFull').hidden = !UI.chartFull; if (UI.chartFull) { UI.fullCx = PLAYER ? PLAYER.x : PORT.x; UI.fullCz = PLAYER ? PLAYER.z : PORT.z; UI.fullScale = UI.fullScale0 || 26000; } },
@@ -5019,7 +5111,19 @@ const ACT = {
   quality: d => { UI.quality = d.v; try { localStorage.setItem('ysmar-q', d.v); } catch (e) { } toast('Le réglage s\'applique au prochain chargement de la page.'); renderScreen(); }
 };
 function bindInput() {
-  document.addEventListener('click', e => { const t = e.target.closest('[data-act]'); if (!t) return; const f = ACT[t.dataset.act]; if (f) { f(t.dataset); hudUpdate(true); } });
+  // un bouton peut être redessiné entre l'appui et le relâchement (libellés vivants) : on retient le bouton pressé
+  // et, s'il a disparu, on rejoue l'action sur son remplaçant pour que le clic ne soit jamais perdu
+  let PD = null, RESCUED = 0;
+  const runAct = ds => { const f = ACT[ds.act]; if (f) { f(ds); hudUpdate(true); } };
+  document.addEventListener('pointerdown', e => { const t = e.target.closest && e.target.closest('[data-act]'); PD = t ? { el: t, ds: Object.assign({}, t.dataset), off: !!t.disabled, x: e.clientX, y: e.clientY, t: performance.now() } : null; }, true);
+  document.addEventListener('pointerup', e => {
+    const d = PD; PD = null;
+    if (!d || d.el.isConnected || d.off || performance.now() - d.t > 1500 || Math.hypot(e.clientX - d.x, e.clientY - d.y) > 14) return;
+    const same = [...document.querySelectorAll(`[data-act="${CSS.escape(d.ds.act)}"]`)].find(b => Object.keys(d.ds).every(k => b.dataset[k] === d.ds[k]));
+    if (same && same.disabled) return;
+    RESCUED = performance.now(); runAct(same ? same.dataset : d.ds);
+  }, true);
+  document.addEventListener('click', e => { if (performance.now() - RESCUED < 400) return; const t = e.target.closest && e.target.closest('[data-act]'); if (t) runAct(t.dataset); });
   addEventListener('keydown', e => {
     if (e.target.matches('input, textarea, select')) return;
     KEYS[e.code] = true;
@@ -5044,7 +5148,8 @@ function bindInput() {
     else if (c === 'Enter') openMsgs();
     else if (c === 'KeyN') { selectNext(); if (CO.open) renderCOPanel(true); }
     else if (c === 'KeyG') { const t = CB.sel && TRACKS.has(CB.sel.id) ? CB.sel : null; const a = gunAvail(t); a.ok ? fireGunAtTrack(t) : toast(a.why); }
-    else if (c === 'KeyT') { const W = [1, 2, 4, 8]; const n = W[(W.indexOf(MS.warp) + 1) % W.length]; ACT.warp({ v: n }); }
+    else if (c === 'KeyT' && e.shiftKey) ACT.transit();
+    else if (c === 'KeyT') { const n = WARPS[(WARPS.indexOf(MS.warp) + 1) % WARPS.length]; ACT.warp({ v: n }); }
     else if (c === 'Space' || c === 'Escape') { e.preventDefault(); setScreen('pause'); }
     else if (/^Digit[1-9]$/.test(c)) ACT.action({ i: +c.slice(5) - 1 });
     else return;
@@ -5130,13 +5235,16 @@ function castOf(id) {
 const portrait = (id, big) => { const c = castOf(id) || { ini: '?', col: '#555' }; return `<span class="pt ${big ? 'big' : ''}" style="--pc:${c.col}" aria-hidden="true">${escH(c.ini)}</span>`; };
 
 // ---------- les postes à quai de la flotte ----------
-function berthOf(cls) {
-  const X = PORT.x, Z = PORT.z, K = KINDS[CLASSES[cls].kind];
-  if (cls === 'frigate') return { x: X - 288 + K.B / 2 + 2, z: Z + 72, psi: Math.PI };
-  if (cls === 'destroyer') return { x: X + 288 - K.B / 2 - 2, z: Z + 72, psi: Math.PI };
-  return { x: { opv: X - 205, corvette: X - 80, tug: X + 45 }[cls], z: Z - 40 + K.B / 2 + 1.5, psi: Math.PI / 2 };
+// poste à quai dans le repère du port (x le long du quai nord, z vers le large)
+function berthLocal(cls) {
+  const K = KINDS[CLASSES[cls].kind];
+  if (cls === 'frigate') return { x: -288 + K.B / 2 + 2, z: 72, psi: Math.PI };
+  if (cls === 'destroyer') return { x: 288 - K.B / 2 - 2, z: 72, psi: Math.PI };
+  if (cls === 'sub') return { x: 165, z: -35, psi: Math.PI / 2 };
+  if (cls === 'carrier') return { x: -10, z: 200, psi: Math.PI };
+  return { x: { opv: -205, corvette: -80, tug: 45 }[cls], z: -40 + K.B / 2 + 1.5, psi: Math.PI / 2 };
 }
-function portSpot(cls) { return berthOf(cls); }
+function berthOf(cls) { const l = berthLocal(cls), w = PL(l.x, l.z); return { x: w.x, z: w.z, psi: l.psi + PORT.ang }; }
 const FLEET = {};
 function mooredFleet() {
   for (const k in FLEET) delete FLEET[k];
@@ -5155,21 +5263,21 @@ function portShip() {
 
 // ---------- lieux ----------
 function hubPlaces() {
-  const X = PORT.x, Z = PORT.z, C = CAREER;
+  const C = CAREER, Q = (lx, y, lz) => Object.assign(PL(lx, lz), { y }), A = PORT.ang || 0;
   const out = [
-    { id: 'em', n: 'État-major', sub: C ? `${(C.board || []).length || 4} ordres de mission` : 'Amirauté', ic: '⚓', p: { x: X + 95, y: 32, z: Z - 104 }, cam: { d: 175, yaw: 0.25, pitch: 0.2, y: 14 } },
-    { id: 'arsenal', n: 'Arsenal', sub: 'Améliorations, acquisitions', ic: '⚙', p: { x: X - 140, y: 42, z: Z - 115 }, cam: { d: 210, yaw: -0.35, pitch: 0.24, y: 12 } },
-    { id: 'carre', n: 'Carré de l\'équipage', sub: C ? `Moral moyen ${Math.round(C.crew.reduce((a, c) => a + c.morale, 0) / C.crew.length)} %` : 'Équipage', ic: '☕', p: { x: X + 205, y: 20, z: Z - 92 }, cam: { d: 110, yaw: 0.45, pitch: 0.16, y: 6 } },
-    { id: 'capit', n: 'Capitainerie', sub: 'Sorties libres, exercices, livre de bord', ic: '⌖', p: { x: X - 40, y: 30, z: Z - 85 }, cam: { d: 140, yaw: -0.1, pitch: 0.22, y: 12 } }
+    { id: 'em', n: 'État-major', sub: C ? `${(C.board || []).length || 4} ordres de mission` : 'Amirauté', ic: '⚓', p: Q(95, 32, -104), cam: { d: 175, yaw: 0.25 - A, pitch: 0.2, y: 14 } },
+    { id: 'arsenal', n: 'Arsenal', sub: 'Améliorations, acquisitions', ic: '⚙', p: Q(-140, 42, -115), cam: { d: 210, yaw: -0.35 - A, pitch: 0.24, y: 12 } },
+    { id: 'carre', n: 'Carré de l\'équipage', sub: C ? `Moral moyen ${Math.round(C.crew.reduce((a, c) => a + c.morale, 0) / C.crew.length)} %` : 'Équipage', ic: '☕', p: Q(205, 20, -92), cam: { d: 110, yaw: 0.45 - A, pitch: 0.16, y: 6 } },
+    { id: 'capit', n: 'Capitainerie', sub: 'Sorties libres, exercices, livre de bord', ic: '⌖', p: Q(-40, 30, -85), cam: { d: 140, yaw: -0.1 - A, pitch: 0.22, y: 12 } }
   ];
   for (const c of ALLC) {
     const v = FLEET[c]; if (!v) continue; const K = CLASSES[c], o = owned(c), act = C && C.ship === c;
     out.push({ id: 'ship:' + c, ship: c, n: K.n, sub: act ? 'Votre bâtiment' : o ? 'À quai, prêt' : C && rankOf(C.rep) < K.rank ? `Réservé : ${RANKS[K.rank].n}` : `En armement · ${fmtCr(K.price)}`, ic: act ? '★' : o ? '◆' : '◇', cls: act ? 'act' : o ? 'own' : 'sale',
-      p: { x: v.x, y: KINDS[K.kind].L * 0.22 + 10, z: v.z }, cam: { d: KINDS[K.kind].L * 1.7 + 40, yaw: c === 'frigate' ? 1.25 : c === 'destroyer' ? -1.25 : 0.2, pitch: 0.2, y: 6 } });
+      p: { x: v.x, y: KINDS[K.kind].L * 0.22 + 10, z: v.z }, cam: { d: KINDS[K.kind].L * 1.7 + 40, yaw: (c === 'frigate' ? 1.25 : c === 'destroyer' ? -1.25 : 0.2) - A, pitch: 0.2, y: 6 } });
   }
   return out;
 }
-function hubOverview() { return { x: PORT.x, y: 0, z: PORT.z + 80, d: 760, yaw: 0.32, pitch: 0.5 }; }
+function hubOverview() { const c = PL(0, 80); return { x: c.x, y: 0, z: c.z, d: 760, yaw: 0.32 - PORT.ang, pitch: 0.5 }; }
 function hubGo(id) {
   HUB.place = id; HUB.sub = null; HUB.dlg = null;
   if (id === 'over') HUB.want = hubOverview();
@@ -5181,7 +5289,7 @@ function enterHub(title) {
   clearWorldEntities(); MS.cur = null; UI.wp = null; UI.ap = 0; TRACK.length = 0;
   ENV.time = title ? 18.4 : 10.5; setWeather(title ? { wind: 6, sea: 0.3, cloud: 0.45, rain: 0, fog: 0.06, storm: 0 } : PRESETS.brise.w, true); ENV.windDir = 0.8; genWaves(ENV.windDir, 11);
   portShip(); mooredFleet(); spawnTraffic({ ents: [] });
-  HUB.title = !!title; HUB.cam = Object.assign({}, hubOverview(), title ? { d: 640, pitch: 0.26, yaw: 0.15, x: PORT.x + 60, z: PORT.z + 40 } : {}); HUB.want = null; HUB.place = 'over'; HUB.dlg = null; HUB.sub = null;
+  HUB.title = !!title; HUB.cam = Object.assign({}, hubOverview(), title ? Object.assign({ d: 640, pitch: 0.26, yaw: 0.15 - PORT.ang }, PL(60, 40)) : {}); HUB.want = null; HUB.place = 'over'; HUB.dlg = null; HUB.sub = null;
   UI.cam = 'orbit'; setScreen('port');
   if (!title && CAREER) { portEvents(); if (HUB.lastMission0 && !HUB.lastMission0.seen) setTimeout(() => { if (UI.screen === 'port') hubGo('em'); }, 600); }
 }
@@ -5418,10 +5526,7 @@ function openMsgs(id) {
   if (UI.screen === 'port') hubRender();
 }
 function closeMsgs() { COMMS.open = false; $('msg').hidden = true; if (COMMS.ctl) COMMS.ctl.abort(); if (UI.screen === 'port') hubRender(); }
-function contactsList() {
-  const m = MS.cur, out = CONTACT_ORDER.slice();
-  return out;
-}
+function contactsList() { return CONTACT_ORDER.slice(); }
 function suggestions(id) {
   const m = MS.cur, sea = UI.screen === 'sea' && m && !m.over && !m.free, S = [];
   if (sea && m.isOp) return opSuggestions(id);
@@ -5578,7 +5683,7 @@ function startOperation(cls) {
   ENV.current = { x: Math.cos(def.windDir + 0.6) * 0.25, z: Math.sin(def.windDir + 0.6) * 0.25 };
   genWaves(ENV.windDir, seed);
   const m = newRuntime(def); m.isOp = true; m.limit = 1e9; m.rules = 'id'; m.granted = {}; MS.cur = m; MS.warp = 1; LOG.length = 0;
-  spawnPlayer(PORT.entrance.x, PORT.entrance.z + 160, Math.PI, cls);
+  { const s0 = PL(-10, 630); spawnPlayer(s0.x, s0.z, PORT.sea, cls); }
   m.cls = cls; m.lent = !owned(cls); m.snap = { hull: PLAYER.hull, engine: PLAYER.engine, fuel: PLAYER.fuel, ammo: JSON.parse(JSON.stringify(PLAYER.ammo)) };
   PLAYER.u = 3; PLAYER.tel = 6; PLAYER.rpm = 0.5;
   const units = {};
@@ -5741,9 +5846,9 @@ function opFinish(win, text) {
 function opNewOrder(m) {
   const O_ = m.op, ph = OP_PHASES[O_.phase], r = O_.r;
   const busy = new Set(O_.tasks.filter(t => !t.over).map(t => t.type).concat(O_.deleg.filter(d => !d.done).map(d => d.o.type)));
-  let pool = ph.pool.filter(t => !busy.has(t)); if (!pool.length) pool = ph.pool;
+  const here = ph.pool.filter(typeHere); let pool = here.filter(t => !busy.has(t)); if (!pool.length) pool = here;
   // un ordre sur deux est adapté au bâtiment du commandant
-  if (O_.n % 2 === 0 || O_.forceMine) { const mine = pool.filter(t => suits(m.cls, t)); if (mine.length) pool = mine; else { const any = ph.pool.filter(t => suits(m.cls, t)); if (any.length) pool = any; } O_.forceMine = false; }
+  if (O_.n % 2 === 0 || O_.forceMine) { const mine = pool.filter(t => suits(m.cls, t)); if (mine.length) pool = mine; else { const any = here.filter(t => suits(m.cls, t)); if (any.length) pool = any; } O_.forceMine = false; }
   const type = pool[Math.floor(r() * pool.length)];
   const def = genMission(type, Math.floor(r() * 1e9));
   const prio = OP_HOT.includes(type) ? (r() < 0.5 ? 'flash' : 'urgent') : r() < 0.3 ? 'urgent' : 'routine';
@@ -5755,7 +5860,7 @@ function opNewOrder(m) {
   const hint = mine ? '' : best ? ` Ce n'est pas une mission pour votre bâtiment : je vous propose de la confier ${aS(best)}.` : ' Votre bâtiment n\'est pas adapté et personne n\'est disponible.';
   postMsg(o.giver, `ORDRE ${PRIO[prio].n.toUpperCase()} n°${o.id} : ${def.title}. ${def.brief.split('. ').slice(0, 2).join('. ').replace(/\.?$/, '.')}${where}${hint} Réponse attendue sous ${Math.round(PRIO[prio].ack / 60)} min.`, false, { ord: o.id, op: m.def.seed });
   vhf(o.giver === 'cross' ? 'CROSS Méditerranée' : 'Amirale Le Dantec', `Ordre ${PRIO[prio].n.toLowerCase()} n°${o.id} sur la messagerie : ${def.title}.`, prio === 'flash' ? 'alarm' : 'info');
-  if (MS.warp > 1) MS.warp = 1;
+  autoSlow();
 }
 function opOrder(id) { const m = curOp(); return m ? m.op.orders.find(o => o.id === +id) : null; }
 function freeUnits(m) { return Object.values(m.op.units).filter(u => !u.busy && u.st.hull >= 30 && u.st.fuel >= 20); }
@@ -6130,7 +6235,7 @@ const COMMANDER = { uni: '#18233a', shirt: '#eef0f2', boards: 3, cap: '#f2f2ee',
 
 // ---------- construction ----------
 function buildInterior() {
-  if (IN.root) { ISCENE.remove(IN.root); }
+  if (IN.root) { dropObj(IN.root); IN.root = null; }
   const P = PLAYER; IN.for = P; IN.inter = []; IN.npcs = []; IN.levels = {};
   const root = IN.root = new THREE.Group(); root.matrixAutoUpdate = false; ISCENE.add(root);
   IN.gB = new THREE.Group(); IN.gD = new THREE.Group(); root.add(IN.gB, IN.gD); IN.cur = IN.gB;
@@ -6257,7 +6362,7 @@ function buildInterior() {
   const ring = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.04, 6, 20), lam('#a88c3c')); ring.position.copy(porth.position); ring.rotation.y = Math.PI / 2; IN.cur.add(ring);
   const photo = icanvas(96, 72); photo.g.fillStyle = '#284b73'; photo.g.fillRect(0, 0, 96, 72); photo.g.fillStyle = '#f2b33d'; photo.g.font = '600 11px sans-serif'; photo.g.fillText('PROMO', 8, 20); photo.g.fillText('ÉCOLE NAVALE', 8, 36); photo.g.fillStyle = '#e8e2d4'; for (let i = 0; i < 7; i++) photo.g.fillRect(8 + i * 12, 46, 8, 18); photo.t.needsUpdate = true; iscreen(photo, 0.4, 0.3, -1.05, yD + 1.55, Z(-1.2), -Math.PI / 2);
   I('deck', -4.9, Z(-1.6), 'Bureau : lire la messagerie', () => talk());
-  I('deck', -4.8, Z(1.8), 'Couchette : se reposer (accélérer le temps)', () => { const n = MS.warp >= 4 ? 8 : 4; if (warpBlocked()) toast('Impossible de se reposer : situation en cours.'); else { MS.warp = n; vhf('Second', `Reposez-vous, commandant. Je vous réveille au moindre souci (temps ×${n}).`, 'info'); } });
+  I('deck', -4.8, Z(1.8), 'Couchette : se reposer (accélérer le temps)', () => { const n = MS.warp >= 4 ? 8 : 4; { MS.warp = n; vhf('Second', `Reposez-vous, commandant. Je vous réveille au moindre souci (temps ×${n}).`, 'info'); } });
   // --- infirmerie
   ibox(0.9, 0.7, 2.0, '#d4d9dd', -5.5, yD, Z(8.6)); ibox(0.85, 0.1, 1.95, '#f6f7f8', -5.5, yD + 0.7, Z(8.6)); D2.obs.push([-6.2, -4.9, Z(7.5), Z(9.7)]);
   ibox(0.5, 1.8, 1.2, '#eef2f4', -5.9, yD, Z(4.4)); const cross = icanvas(32, 32); cross.g.fillStyle = '#fff'; cross.g.fillRect(0, 0, 32, 32); cross.g.fillStyle = '#c62828'; cross.g.fillRect(12, 4, 8, 24); cross.g.fillRect(4, 12, 24, 8); cross.t.needsUpdate = true; iscreen(cross, 0.25, 0.25, -5.63, yD + 1.4, Z(4.4), Math.PI / 2); D2.obs.push([-6.2, -5.5, Z(3.7), Z(5.1)]);
@@ -6300,17 +6405,11 @@ function walkEnter() {
   document.body.classList.add('walk'); ensureWalkUI(); UI.lastHud = 0;
   if (!WALK.told) { WALK.told = 1; toast(matchMedia('(pointer: coarse)').matches ? 'Faites glisser pour regarder, flèches pour marcher.' : 'Z Q S D pour marcher, souris pour regarder (cliquez pour la capturer), E pour agir, V pour vous voir.'); }
 }
-function walkExit(force) { if (WALK.sub) { subLeave(); if (!force) return; } if (WALK.gun) { gunLeave(); if (!force) return; } if (WALK.fly && !force) { flyHandover(); return; } if (WALK.fly) { WALK.fly = false; WALK.passenger = false; document.body.classList.remove('fly'); const H = PLAYER && PLAYER.heli; if (H && H.state === 'manual') H.state = 'return'; } WALK.on = false; document.body.classList.remove('walk'); unlock(); const u = $('walkUI'); if (u) u.hidden = true; UI.lastHud = 0; }
+function walkExit(force) { if (WALK.gun) { gunLeave(); if (!force) return; } if (WALK.fly && !force) { flyHandover(); return; } if (WALK.fly) { WALK.fly = false; WALK.passenger = false; document.body.classList.remove('fly'); const H = PLAYER && PLAYER.heli; if (H && H.state === 'manual') H.state = 'return'; } WALK.on = false; document.body.classList.remove('walk'); unlock(); const u = $('walkUI'); if (u) u.hidden = true; UI.lastHud = 0; }
 function unlock() { if (document.pointerLockElement) document.exitPointerLock(); }
 function talk(id) { unlock(); openMsgs(id); }
-function walkLook(dx, dy) { if (WALK.gun) { WALK.gy = clamp(WALK.gy - dx * 0.0025, -2.4, 2.4); WALK.gp = clamp(WALK.gp - dy * 0.002, -0.25, 0.6); return; } if (WALK.fly || WALK.sub) { WALK.cy -= dx * 0.004; WALK.cp = clamp(WALK.cp + dy * 0.003, -0.3, 1.2); return; } WALK.yaw -= dx * 0.0032; WALK.pitch = clamp(WALK.pitch - dy * 0.0028, -1.2, 1.1); }
+function walkLook(dx, dy) { if (WALK.gun) { WALK.gy = clamp(WALK.gy - dx * 0.0025, -2.4, 2.4); WALK.gp = clamp(WALK.gp - dy * 0.002, -0.25, 0.6); return; } if (WALK.fly) { WALK.cy -= dx * 0.004; WALK.cp = clamp(WALK.cp + dy * 0.003, -0.3, 1.2); return; } WALK.yaw -= dx * 0.0032; WALK.pitch = clamp(WALK.pitch - dy * 0.0028, -1.2, 1.1); }
 function walkKey(c) {
-  if (WALK.sub) {
-    if (c === 'KeyV') { WALK.cock = !WALK.cock; return true; }
-    if (c === 'KeyI' || c === 'Escape') { subLeave(); return true; }
-    if (c === 'KeyG' || c === 'KeyE') { subFire(); return true; }
-    return ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyR', 'KeyF', 'KeyQ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(c);
-  }
   if (WALK.gun) {
     if (c === 'KeyE' || c === 'KeyF') { gunFire(); return true; }
     if (c === 'KeyI' || c === 'Escape') { gunLeave(); return true; }
@@ -6363,7 +6462,6 @@ function walkCamera(dt) {
   const m = P.mesh; m.updateMatrixWorld();
   IN.root.matrix.copy(m.matrixWorld); IN.root.matrixWorldNeedsUpdate = true;
   if (WALK.fly) return flyCamera(dt);
-  if (WALK.sub) return subCamera(dt);
   if (WALK.gun) return gunCamera(dt);
   IN.gB.visible = WALK.level === 'bridge'; IN.gD.visible = WALK.level === 'deck'; if (IN.gE) IN.gE.visible = WALK.level === 'ext';
   if (WALK.level === 'ext') extStep(dt);
@@ -6391,7 +6489,7 @@ function walkCamera(dt) {
 }
 function renderWorld() {
   if (!(WALK.on && UI.screen === 'sea' && IN.root)) { renderer.render(scene, camera); return; }
-  if (WALK.fly || WALK.sub || WALK.gun) { renderer.render(scene, camera); return; }
+  if (WALK.fly || WALK.gun) { renderer.render(scene, camera); return; }
   const n0 = camera.near;
   if (WALK.level === 'flight' || WALK.level === 'ext' || WALK.level === 'quay') { renderer.render(scene, camera); renderer.autoClear = false; renderer.render(ISCENE, camera); renderer.autoClear = true; return; }
   if (WALK.level === 'bridge') renderer.render(scene, camera); else renderer.clear();
@@ -6454,7 +6552,7 @@ function flyStart() {
   const a = heliAvail('launch'); if (!a.ok) { toast(a.why); return; }
   P.sync && P.sync(); P.mesh.updateMatrixWorld(true); const dp = deckPos(P);
   Object.assign(H, { state: 'manual', mode: null, dest: null, dipping: false, hover: 0, spd: 0, vy: 0, flown: false, saidLow: 0, x: dp.x, z: dp.z, y: dp.y + 0.6, hdg: P.psi });
-  WALK.fly = true; WALK.passenger = false; WALK.cock = false; WALK.cy = 0; WALK.cp = 0.22; WALK.hoist = 0; MS.warp = 1; WALK.fade = 1;
+  WALK.fly = true; WALK.passenger = false; WALK.cock = false; WALK.cy = 0; WALK.cp = 0.22; WALK.hoist = 0; WALK.fade = 1;
   document.body.classList.add('fly');
   vhf('Hélico', 'Vous avez les commandes, commandant. Rotor engagé, bon vol.', 'info');
   if (!WALK.toldFly) { WALK.toldFly = 1; toast('Z/S : vitesse · Q/D : virer · R/F ou ↑/↓ : monter/descendre · G : torpille · V : vue cockpit · I : rendre les commandes'); }
@@ -6477,7 +6575,7 @@ function flyTorp() {
   const a = torpAvail(t, true); if (!a.ok) { toast(a.why); return; }
   launchTorp(t, true);
 }
-function heliGround(x, z) { const nearPort = PORT.x != null && Math.abs(x - PORT.x) < 950 && z - PORT.z > -80 && z - PORT.z < 1700; return Math.max(waveH(x, z, GFX.t), nearPort ? -99 : terrainH(x, z)); }
+function heliGround(x, z) { const nearPort = PORTS.some(q => { const l = portL(q, x, z); return Math.abs(l.x) < 950 && l.z > -80 && l.z < 1700; }); return Math.max(waveH(x, z, GFX.t), nearPort ? -99 : terrainH(x, z)); }
 function heliManual(dt, H, m, dp) {
   const k = KEYS, P = PLAYER, mv = WALK.mv;
   const fi = (k.KeyW || mv.f ? 1 : 0) - (k.KeyS || mv.b ? 1 : 0), yi = (k.KeyD || k.ArrowRight || mv.r ? 1 : 0) - (k.KeyA || k.ArrowLeft || mv.l ? 1 : 0), ui = (k.KeyR || k.ArrowUp || mv.u ? 1 : 0) - (k.KeyF || k.ArrowDown || mv.d ? 1 : 0);
@@ -6703,7 +6801,7 @@ function allyMove(v, A, dt) {
     case 'goto': { const d = steerToPoint(v, A.tx, A.tz, vm * 0.85, dt, 300); if (d < 260) { A.mode = 'hold'; say(`En position au point demandé. ${v.name} stoppé, en veille.`); } } return true;
     case 'patrol': { const p = A.pts[A.pi]; const d = steerToPoint(v, p.x, p.z, vm * 0.55, dt, 250); if (d < 280) A.pi = (A.pi + 1) % A.pts.length; } return true;
     case 'follow': case 'attack': {
-      const e = A.ent; if (!e || e.removed || e.sinking || (e !== PLAYER && e.stopped && A.mode === 'attack')) { A.mode = 'hold'; say(A.mode === 'attack' ? 'Cible neutralisée ou perdue. Je reste en position.' : 'J\'ai perdu le navire à escorter. Je reste en position.'); return true; }
+      const e = A.ent; if (!e || e.removed || e.sinking || (e !== PLAYER && e.stopped && A.mode === 'attack')) { const was = A.mode; A.mode = 'hold'; say(was === 'attack' ? 'Cible neutralisée ou perdue. Je reste en position.' : 'J\'ai perdu le navire à escorter. Je reste en position.'); return true; }
       if (A.mode === 'follow') { const f = e.fwd, sx = e.x - f.x * 650 - f.z * 300 * A.side, sz = e.z - f.z * 650 + f.x * 300 * A.side, d = Math.hypot(sx - v.x, sz - v.z); steerToPoint(v, sx, sz, d > 1200 ? vm : clamp(Math.abs(e.u || 0) + d / 150, 1.5, vm), dt, 150); }
       else { const d = Math.hypot(e.x - v.x, e.z - v.z), want = A.gun ? A.gun.R * 0.7 : 5000; if (d > want) steerToPoint(v, e.x, e.z, vm, dt, 100); else steerTo(v, headingOf(e.x - v.x, e.z - v.z) + Math.PI / 2 * A.side, vm * 0.5, dt); A.focus = e; }
     } return true;
@@ -6828,7 +6926,7 @@ function fleetCmdList(id) {
     L.push({ k: 'fo:' + c + ':stop', label: 'Stoppez', me: 'Stoppez et tenez votre position.' });
     if (CB.sel && TRACKS.has(CB.sel.id)) { L.push({ k: 'fo:' + c + ':attaque', label: `Attaquez ${CB.sel.num}`, me: `Attaquez la piste ${CB.sel.num}.` }); L.push({ k: 'fo:' + c + ':escorte', label: `Escortez ${CB.sel.num}`, me: `Escortez la piste ${CB.sel.num}.` }); }
     const d = Math.hypot(v.x - PLAYER.x, v.z - PLAYER.z), H = PLAYER.heli;
-    if (!WALK.fly && !WALK.sub && !WALK.gun) {
+    if (!WALK.fly && !WALK.gun) {
       if (d < 1852) L.push({ k: 'fb:' + c + ':rhib', label: c === 'sub' ? 'Embarquer et prendre les commandes' : 'Passer à bord (semi-rigide)', me: c === 'sub' ? 'J\'embarque à votre bord, je prends les commandes.' : 'Je passe à votre bord.' });
       else if (H && !H.dead && H.state === 'deck' && d < 25000 && c !== 'sub') L.push({ k: 'fb:' + c + ':heli', label: 'Passer à bord (hélicoptère)', me: 'Je viens à votre bord en hélicoptère.' });
     }
@@ -6867,53 +6965,6 @@ function transferTo(c, how) {
   setTimeout(() => { if (UI.screen === 'sea') { walkEnter(); if (IN.extDoor && !(P.kind === 'sub' && P.depth > 1)) extEnter(); } }, 50);
   if (COMMS.open) closeMsgs();
   return { reply: how === 'heli' ? 'L\'hélicoptère vous dépose sur notre plateforme. Le bord est à vous, commandant.' : 'Le semi-rigide accoste à la coupée. Le bord est à vous, commandant.' };
-}
-
-// ---------- prendre les commandes du sous-marin ----------
-function subTake(v) {
-  if (WALK.on && !WALK.sub) walkExit(true);
-  if (!WALK.on) { WALK.on = true; document.body.classList.add('walk'); ensureWalkUI(); }
-  if (IN.for !== PLAYER) buildInterior();
-  const A = v.ally; A.manual = true; A.mh = v.psi; A.ms = Math.max(2, v.u); A.md = Math.min(v.depth, 15);
-  WALK.sub = v; WALK.cock = true; WALK.cy = 0; WALK.cp = 0.1; WALK.fade = 1; document.body.classList.add('fly'); MS.warp = 1;
-  jrn('Le commandant prend les commandes du sous-marin Korrigan.');
-  toast('Z/S : vitesse · Q/D : barre · R/F : remonter/plonger · G : torpille · V : périscope ou vue extérieure · I : rendre le commandement');
-}
-function subLeave() {
-  const v = WALK.sub; if (v && v.ally) { v.ally.manual = false; v.ally.mode = 'station'; }
-  WALK.sub = null; document.body.classList.remove('fly'); WALK.fade = 1;
-  WALK.level = 'bridge'; WALK.x = 0.9; WALK.z = IN.geo.zf + 2.7; WALK.yaw = 0;
-  vhf('Passerelle', 'Le semi-rigide vous a ramené à bord, commandant.', 'info');
-}
-function subManual(dt) {
-  const v = WALK.sub, A = v && v.ally; if (!v || v.removed || v.sinking) { WALK.sub = null; document.body.classList.remove('fly'); return false; }
-  const k = KEYS, mv = WALK.mv;
-  if (k.KeyW || mv.f) A.ms = Math.min(v.k.vmax, A.ms + dt * 1.2); if (k.KeyS || mv.b) A.ms = Math.max(0, A.ms - dt * 1.2);
-  if (k.KeyA || k.ArrowLeft || mv.l) A.mh -= dt * 0.25; if (k.KeyD || k.ArrowRight || mv.r) A.mh += dt * 0.25;
-  if (k.KeyR || k.ArrowUp || mv.u) A.md = Math.max(0, A.md - dt * 6); if (k.KeyF || k.ArrowDown || mv.d) A.md = Math.min(250, A.md + dt * 6);
-  steerTo(v, A.mh, A.ms, dt);
-  v.depth = lerp(v.depth, A.md, clamp(dt * 0.25, 0, 1)); v.sink = v.depth > 4 ? subSink(v.depth) : v.depth * 0.5; v.radar = v.depth < 4; v.sonarR = A.ms < 4 * KN ? 16000 : 9000;
-  return true;
-}
-function subCamera(dt) {
-  const v = WALK.sub; if (!subManual(dt)) return walkCamera(dt);
-  const A = v.ally, peri = WALK.cock && v.depth <= 18;
-  if (peri) { const h = A.mh + WALK.cy; camera.position.set(v.x + v.fwd.x * 8, waveH(v.x, v.z, GFX.t) + 1.4 + Math.sin(GFX.t * 1.1) * 0.15, v.z + v.fwd.z * 8); _we.set(-0.01 + WALK.cp * 0.1, -h, 0, 'YXZ'); camera.quaternion.setFromEuler(_we); camera.fov = lerp(camera.fov, 38, 0.2); }
-  else { const yaw = -A.mh + WALK.cy, d = 70; camera.position.set(v.x + Math.sin(yaw) * d, Math.max(6, 18 + WALK.cp * 40), v.z + Math.cos(yaw) * d); camera.lookAt(v.x, -v.depth * 0.3, v.z); camera.fov = lerp(camera.fov, 58, 0.2); }
-  camera.updateProjectionMatrix(); $('bridgeFrame').hidden = true; $('bino').hidden = true;
-  const f = $('wFly'), r = $('wRoom'); if (!f) return;
-  const html = `<div><b>${Math.round(v.depth)}</b> m<span>IMMERSION</span></div><div><b>${kn(A.ms).toFixed(0)}</b> nd<span>VITESSE</span></div><div><b>${bearingStr(A.mh)}</b><span>CAP</span></div><div><b>${A.torp}</b><span>TORPILLES</span></div><div><b>${(Math.hypot(PLAYER.x - v.x, PLAYER.z - v.z) / 1852).toFixed(1).replace('.', ',')}</b> NM<span>${escH(PLAYER.C.n)}</span></div>`;
-  if (f._h !== html) { f._h = html; f.innerHTML = html; } f.hidden = false;
-  const t = `Korrigan · ${peri ? 'périscope' : v.depth > 18 ? 'en plongée, sonar ' + (A.ms < 4 * KN ? 'silencieux' : 'actif') : 'vue extérieure'}`; if (r.textContent !== t) r.textContent = t;
-  $('wHint').hidden = true;
-  if (WALK.fade > 0) { WALK.fade = Math.max(0, WALK.fade - dt * 3); $('walkUI').style.setProperty('--fade', WALK.fade); }
-}
-function subFire() {
-  const v = WALK.sub, A = v.ally; let best = null, bd = 9000;
-  for (const t of TRACKS.values()) { const e = t.ent; if (t.ident === 'fri' || t.ident === 'neu' || !e || e.air || e.sinking) continue; const d = Math.hypot(e.x - v.x, e.z - v.z); if (d < bd) { bd = d; best = e; } }
-  if (!best) { toast('Aucun contact hostile ou inconnu à moins de 9 km.'); return; }
-  if (A.torp <= 0) { toast('Plus de torpilles.'); return; }
-  subTorp(v, best);
 }
 
 // ---------- canon à la main ----------
@@ -6962,8 +7013,8 @@ function fatigueStep() {
   if (!PLAYER || UI.screen !== 'sea' || !MS.cur) { FLT.lastT = null; const gl = $('gl'); if (gl && gl.style.filter) gl.style.filter = ''; return; }
   if (FLT.lastT == null) { FLT.lastT = ENV.time; return; }
   let dh = ENV.time - FLT.lastT; if (dh < -12) dh += 24; FLT.lastT = ENV.time; if (dh <= 0 || dh > 2) return;
-  const asleep = WALK.on && !WALK.fly && !WALK.sub && !WALK.gun && WALK.level === 'deck' && roomId('deck', WALK.x, WALK.z) === 'cabine' && MS.warp > 1;
-  const watch = !asleep && MS.warp >= 4 && !warpBlocked();
+  const asleep = WALK.on && !WALK.fly && !WALK.gun && WALK.level === 'deck' && roomId('deck', WALK.x, WALK.z) === 'cabine' && MS.warp > 1;
+  const watch = !asleep && MS.warp >= 4 && !busySea();
   FLT.fat = clamp(FLT.fat + (asleep ? -dh * 30 : watch ? -dh * 8 : dh * 4.5), 0, 100);
   if (asleep && FLT.fat < 5 && !FLT.said.rest) { FLT.said.rest = 1; vhf(castOf('second').short || 'Second', 'Bien dormi, commandant ? Le café est prêt à la passerelle.', 'good'); MS.warp = 1; }
   if (FLT.fat > 30) FLT.said.rest = 0;
@@ -7011,7 +7062,7 @@ function eventRun(k) {
   return { reply: 'Compris.' };
 }
 function escaleAction(m) {
-  const P = PLAYER, B = PORT.brenn, nearB = B && Math.hypot(P.x - B.x, P.z - B.z) < 500, nearP = inHarbor(P) || Math.hypot(P.x - PORT.entrance.x, P.z - PORT.entrance.z) < 500;
+  const P = PLAYER, B = BRENN, nearB = B && Math.hypot(P.x - B.x, P.z - B.z) < 500, nearP = inHarbor(P) || Math.hypot(P.x - PORT.entrance.x, P.z - PORT.entrance.z) < 500;
   if (!nearB && !nearP) return null;
   const ok = Math.abs(P.u) < 1.2 && m.t > FLT.escaleCd;
   return { id: 'escale', label: `Escale à ${nearB ? 'Porquerolles' : 'Toulon'} : ravitaillement${nearP ? ' et réparations' : ''}`, ok, why: m.t <= FLT.escaleCd ? 'Escale déjà faite récemment.' : 'Stoppez le navire le long du quai.', run: () => {
@@ -7117,20 +7168,20 @@ function quayEnter() {
     if (h > 0.8) { if (!best || d < best.d) best = { d, x: _qv.x, z: _qv.z, h }; break; }
   }
   if (!best) { toast('Pas de quai à portée : rapprochez-vous à moins de 20 mètres du quai.'); return; }
-  const B = PORT.brenn, nearB = B && Math.hypot(P.x - B.x, P.z - B.z) < 500;
+  const B = BRENN, nearB = B && Math.hypot(P.x - B.x, P.z - B.z) < 500;
   QUAY.name = nearB ? 'Quai de Porquerolles' : 'Quai de Toulon'; QUAY.gw = best; QUAY.wx = best.x; QUAY.wz = best.z;
   buildQuay(best, nearB);
   WALK.level = 'quay'; WALK.fade = 1; const l = quayLocal(QUAY.wx, QUAY.wz); WALK.x = l.x; WALK.y = WALK.ty = l.y; WALK.z = l.z;
   sfx('door'); jrn(`Le commandant descend à terre, ${QUAY.name.toLowerCase()}.`);
 }
 function quayLeave() {
-  if (QUAY.grp) { scene.remove(QUAY.grp); QUAY.grp = null; }
+  if (QUAY.grp) { dropObj(QUAY.grp); QUAY.grp = null; }
   IN.inter = IN.inter.filter(i => i.lvl !== 'quay');
   if (IN.extDoor) { WALK.level = 'ext'; WALK.x = IN.extDoor.x; WALK.z = IN.extDoor.z; WALK.y = WALK.ty = IN.extDoor.y; } else { WALK.level = 'bridge'; WALK.x = 0.9; WALK.z = IN.geo.zf + 2.7; }
   WALK.fade = 1; sfx('door');
 }
 function buildQuay(gw, brenn) {
-  if (QUAY.grp) scene.remove(QUAY.grp);
+  if (QUAY.grp) dropObj(QUAY.grp);
   const g = QUAY.grp = new THREE.Group(); scene.add(g);
   const P = PLAYER, f = P.fwd, away = { x: gw.x - P.x, z: gw.z - P.z }, n = Math.hypot(away.x, away.z) || 1, ax = away.x / n, az = away.z / n;
   const at = (along, out) => ({ x: gw.x + f.x * along + ax * out, z: gw.z + f.z * along + az * out });
@@ -7176,7 +7227,7 @@ function quayStep() {
   base();
   if (IN.extDoor) IN.inter.push({ lvl: 'ext', x: IN.extDoor.x + 0.9, z: IN.extDoor.z - 0.9, label: 'Descendre sur le quai', run: () => quayEnter(), ok: () => { const m = curOp(); return !!(m && escaleAction(m)); } });
 }; }
-{ const base = walkExit; walkExit = function (force) { if (WALK.level === 'quay' && QUAY.grp) { scene.remove(QUAY.grp); QUAY.grp = null; IN.inter = IN.inter.filter(i => i.lvl !== 'quay'); WALK.level = 'bridge'; } return base(force); }; }
+{ const base = walkExit; walkExit = function (force) { if (WALK.level === 'quay' && QUAY.grp) { dropObj(QUAY.grp); QUAY.grp = null; IN.inter = IN.inter.filter(i => i.lvl !== 'quay'); WALK.level = 'bridge'; } return base(force); }; }
 
 // ===== SAUVEGARDE DE L'OPÉRATION : point de reprise automatique, reprise depuis l'État-major =====
 function opCheckpoint(m) {
@@ -7398,7 +7449,7 @@ function subtitle(from, text) {
 // conversations d'ambiance à bord
 const CHAT = { t: 0 };
 function chatterStep(dt) {
-  if (!WALK.on || WALK.fly || WALK.sub || WALK.gun || paused) return;
+  if (!WALK.on || WALK.fly || WALK.gun || paused) return;
   CHAT.t -= dt; if (CHAT.t > 0) return; CHAT.t = 28 + Math.random() * 35;
   const P = PLAYER, rid = roomId(WALK.level, WALK.x, WALK.z), hos = [...TRACKS.values()].filter(t => t.ident === 'hos' && !t.ent.sinking), near = [...TRACKS.values()].sort((a, b) => Math.hypot(a.x - P.x, a.z - P.z) - Math.hypot(b.x - P.x, b.z - P.z))[0];
   const L = {
@@ -7417,8 +7468,9 @@ ACT.voice = () => { VOX.on = !VOX.on; try { localStorage.setItem('ysmar-voice', 
 // ===== LE PORT À PIED : on arrive directement avec le personnage sur le quai de Toulon, on va à l'état-major,
 // à l'arsenal ou au carré à pied, et l'on monte à bord de son bâtiment par la coupée =====
 const PW = { on: false, x: 0, z: 0, y: 3.3, yaw: Math.PI, pitch: -0.18, tp: true, phase: 0, moving: false, hint: null, av: null, camD: 5.2, planks: [], told: false, pend: null, fade: 0 };
+// zones de marche du quai, dans le repère local du port
 function pwGeo() {
-  const X = PORT.x, Z = PORT.z;
+  const X = 0, Z = 0;
   const walk = [[X - 326, X + 326, Z - 128, Z - 40.7], [X - 311.5, X - 288.7, Z - 41, Z + 158.5], [X + 288.7, X + 311.5, Z - 41, Z + 158.5]];
   const obs = [[X - 48, X - 32, Z - 93, Z - 77], [X + 78, X + 112, Z - 113, Z - 95], [X + 90, X + 100, Z - 95.6, Z - 92.4], [X + 194, X + 216, Z - 98, Z - 86]];
   for (let k = 0; k < 5; k++) obs.push([X - 280 + 60 * k, X - 240 + 60 * k, Z - 111, Z - 89]);
@@ -7429,22 +7481,26 @@ function pwGeo() {
   return { walk, obs };
 }
 let PWG = null;
-function pwWalkable(x, z) { if (!PWG.walk.some(r => x >= r[0] && x <= r[1] && z >= r[2] && z <= r[3])) return false; const p = 0.35; return !PWG.obs.some(r => x > r[0] - p && x < r[1] + p && z > r[2] - p && z < r[3] + p); }
-function pwGround(x, z) { return z - PORT.z < -64 ? Math.max(3.3, terrainH(x, z)) : 3.3; }
+function pwWalkable(wx, wz) { const l = portL(PORT, wx, wz), x = l.x, z = l.z; if (!PWG.walk.some(r => x >= r[0] && x <= r[1] && z >= r[2] && z <= r[3])) return false; const p = 0.35; return !PWG.obs.some(r => x > r[0] - p && x < r[1] + p && z > r[2] - p && z < r[3] + p); }
+function pwGround(x, z) { return portL(PORT, x, z).z < -64 ? Math.max(3.3, terrainH(x, z)) : 3.3; }
 // coupée de chaque bâtiment à quai
 function gangway(c) {
-  const b = berthOf(c), K = KINDS[CLASSES[c].kind], X = PORT.x, Z = PORT.z;
-  if (c === 'frigate') return { x: X - 289.3, z: b.z + 4, sx: b.x - K.B / 2, yaw: -Math.PI / 2, side: 1 };
-  if (c === 'destroyer') return { x: X + 289.3, z: b.z + 4, sx: b.x + K.B / 2, yaw: Math.PI / 2, side: -1 };
-  return { x: b.x - 12, z: Z - 41.2, sz: b.z - K.B / 2, yaw: Math.PI, side: 0 };
+  const b = berthLocal(c), K = KINDS[CLASSES[c].kind]; let g;
+  if (c === 'frigate') g = { x: -289.3, z: b.z + 4, sx: b.x - K.B / 2, yaw: -Math.PI / 2, side: 1 };
+  else if (c === 'destroyer') g = { x: 289.3, z: b.z + 4, sx: b.x + K.B / 2, yaw: Math.PI / 2, side: -1 };
+  else if (c === 'carrier') g = { x: 300, z: 150, sz: 150, yaw: Math.PI, side: 0, boat: true };
+  else g = { x: b.x - 12, z: -41.2, sz: b.z - K.B / 2, yaw: Math.PI, side: 0 };
+  return gangwayW(g);
 }
+// repère local -> monde (le cap de la caméra tourne avec le port)
+function gangwayW(g) { const w = PL(g.x, g.z); return Object.assign({}, g, { lx: g.x, lz: g.z, x: w.x, z: w.z, yaw: g.yaw - PORT.ang }); }
 function pwPlanks() {
-  for (const p of PW.planks) scene.remove(p); PW.planks = [];
+  for (const p of PW.planks) { if (p === PW.boat) scene.remove(p); else dropObj(p); } PW.planks = [];
   for (const c of ALLC) {
     const v = FLEET[c]; if (!v || !v.mesh) continue; const g = gangway(c), ud = v.mesh.userData;
     const deckY = ud.H ? ud.H.deckH(0.5) - ud.sp.T + 0.3 : 2.6;
-    const a = g.side ? new THREE.Vector3(g.x + g.side * 0.6, 3.35, g.z) : new THREE.Vector3(g.x, 3.35, g.z + 0.6);
-    const b = g.side ? new THREE.Vector3(g.sx + g.side * -1.5, deckY, g.z) : new THREE.Vector3(g.x, deckY, g.sz + 1.5);
+    const al = g.side ? PL(g.lx + g.side * 0.6, g.lz) : PL(g.lx, g.lz + 0.6), bl = g.side ? PL(g.sx + g.side * -1.5, g.lz) : PL(g.lx, g.sz + 1.5);
+    const a = new THREE.Vector3(al.x, 3.35, al.z), b = new THREE.Vector3(bl.x, deckY, bl.z);
     const len = a.distanceTo(b), grp = new THREE.Group();
     const plank = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.12, len), lam('#8b8f93')); grp.add(plank);
     for (const s of [-0.62, 0.62]) { const r = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, len), lam('#d8dadc')); r.position.set(s, 1.0, 0); grp.add(r); for (let k = 0; k <= 3; k++) { const p = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.0, 0.05), lam('#d8dadc')); p.position.set(s, 0.5, -len / 2 + k * len / 3); grp.add(p); } }
@@ -7452,11 +7508,11 @@ function pwPlanks() {
   }
 }
 function pwPlaces() {
-  const X = PORT.x, Z = PORT.z, L = [
-    { id: 'em', x: X + 95, z: Z - 91.6, label: 'Préfecture maritime : entrer à l\'état-major' },
-    { id: 'capit', x: X - 40, z: Z - 75.4, label: 'Capitainerie : sorties libres et exercices' },
-    { id: 'carre', x: X + 205, z: Z - 84.6, label: 'Carré de l\'équipage' },
-    { id: 'arsenal', x: X - 140, z: Z - 87.6, label: 'Arsenal : améliorations et bâtiments' }];
+  const W = (id, lx, lz, label) => Object.assign({ id, label }, PL(lx, lz)), L = [
+    W('em', 95, -91.6, `${PORT.hq || 'État-major'} : entrer à l'état-major`),
+    W('capit', -40, -75.4, 'Capitainerie : sorties libres et exercices'),
+    W('carre', 205, -84.6, 'Carré de l\'équipage'),
+    W('arsenal', -140, -87.6, 'Arsenal : améliorations et bâtiments')];
   for (const c of ALLC) {
     const g = gangway(c), K = CLASSES[c], o = owned(c), act = CAREER && CAREER.ship === c, pend = PW.pend;
     const forOrder = pend && pend.kind === 'mission' && (pend.def.req || ALLC).includes(c) && pend.cls === c;
@@ -7469,13 +7525,13 @@ function harborEnter(spotCls) {
   PWG = pwGeo(); PW.on = true; PW.fade = 1;
   const c = spotCls || (CAREER && CAREER.ship) || 'opv', g = gangway(c);
   if (g.side) { PW.x = g.x + (g.side > 0 ? -3 : 3); PW.z = g.z; } else { PW.x = g.x - 1; PW.z = g.z - 3; }
-  if (!pwWalkable(PW.x, PW.z)) { PW.x = PORT.x - 100; PW.z = PORT.z - 60; }
+  if (!pwWalkable(PW.x, PW.z)) { const q = PL(-100, -60); PW.x = q.x; PW.z = q.z; }
   PW.yaw = g.yaw; PW.pitch = -0.16; PW.y = pwGround(PW.x, PW.z);
   if (!PW.av) { PW.av = buildHuman(COMMANDER); PW.av.traverse(o => { if (o.isMesh) o.castShadow = true; }); }
   scene.add(PW.av); pwPlanks(); pwUI(); document.body.classList.add('pw'); $('hubNav').hidden = true;
   if (!PW.told) { PW.told = true; setTimeout(() => { if (PW.on) toast(matchMedia('(pointer: coarse)').matches ? 'Flèches pour marcher, glisser pour regarder, « Agir » devant une porte ou une coupée.' : 'Z Q S D pour marcher, souris pour regarder (cliquez pour la capturer), E pour entrer ou monter à bord.'); }, 1200); }
 }
-function harborLeave() { PW.on = false; if (PW.av) scene.remove(PW.av); for (const p of PW.planks) scene.remove(p); PW.planks = []; const u = $('pwUI'); if (u) u.hidden = true; document.body.classList.remove('pw'); if (document.pointerLockElement) document.exitPointerLock(); }
+function harborLeave() { PW.on = false; if (PW.av) scene.remove(PW.av); for (const p of PW.planks) { if (p === PW.boat) scene.remove(p); else dropObj(p); } PW.planks = []; const u = $('pwUI'); if (u) u.hidden = true; document.body.classList.remove('pw'); if (document.pointerLockElement) document.exitPointerLock(); }
 function pwStep(dt) {
   const k = KEYS, mv = PW.mv || (PW.mv = {}), busy = COMMS.open || UI.help || UI.screen !== 'port' || ($('cheat') && !$('cheat').hidden);
   const f = busy ? 0 : (k.KeyW || k.ArrowUp || mv.f ? 1 : 0) - (k.KeyS || k.ArrowDown || mv.b ? 1 : 0);
@@ -7652,7 +7708,7 @@ function swapAvail(c) {
   if (P.tow) return { ok: false, why: 'Larguez d\'abord la remorque.' };
   if (P.rhibOp) return { ok: false, why: 'Le semi-rigide est à l\'eau.' };
   if (P.heli && !P.heli.dead && P.heli.state !== 'deck') return { ok: false, why: 'Rappelez d\'abord l\'hélicoptère.' };
-  if (WALK.fly || WALK.sub || WALK.gun) return { ok: false, why: 'Quittez d\'abord le poste que vous tenez.' };
+  if (WALK.fly || WALK.gun) return { ok: false, why: 'Quittez d\'abord le poste que vous tenez.' };
   if (P.kind === 'sub' && (P.depth || 0) > 1) return { ok: false, why: 'Faites surface d\'abord.' };
   if (m.isOp) { const u = m.op.units[c]; if (!u) return { ok: false, why: 'Pas dans le groupe.' }; if (u.busy === 'deleg') return { ok: false, why: 'Sur un ordre confié par l\'amirale.' }; if (u.busy === 'relache') return { ok: false, why: 'En relâche au port.' }; if (u.st.fuel < 12) return { ok: false, why: 'Presque à sec.' }; return { ok: true }; }
   if (!UI.quickMode && !owned(c) && rankOf(CAREER.rep) < CLASSES[c].rank) return { ok: false, why: `Grade requis : ${RANKS[CLASSES[c].rank].n}.` };
@@ -7698,7 +7754,7 @@ function swapShip(c) {
   base(dt);
   for (const v of VESSELS.slice()) {
     const a = v.ai; if (!a || a.mode !== 'home' || v === PLAYER || v.removed) continue;
-    const tx = PORT.entrance.x, tz = PORT.entrance.z + 300, d = Math.hypot(tx - v.x, tz - v.z);
+    const hp = PL(-10, 770), tx = hp.x, tz = hp.z, d = Math.hypot(tx - v.x, tz - v.z);
     steerTo(v, avoidHeading(v, headingOf(tx - v.x, tz - v.z), 600), v.k.vmax * 0.7, dt);
     if (d < 500 || (PLAYER && distTo(v, PLAYER) > 9000)) { v.remove(); onVesselGone(v); }
   }
@@ -7747,7 +7803,7 @@ Object.assign(MREQ, { wildfire: ['opv', 'corvette', 'frigate', 'destroyer', 'tug
 OP_PHASES[0].pool.push('mine', 'wildfire'); OP_PHASES[1].pool.push('ferry', 'shadow'); OP_PHASES[2].pool.push('mine');
 // décors propres aux missions, retirés avec les navires
 const M3FX = [];
-{ const base = clearWorldEntities; clearWorldEntities = function () { base(); for (const o of M3FX.splice(0)) scene.remove(o); }; }
+{ const base = clearWorldEntities; clearWorldEntities = function () { base(); for (const o of M3FX.splice(0)) dropObj(o); }; }
 function fxAdd(o) { scene.add(o); M3FX.push(o); return o; }
 // point de côte : depuis l'intérieur des terres, on avance jusqu'à la mer
 function coastFrom(lon, lat, dx, dz) {
@@ -7790,7 +7846,7 @@ M_SETUP.wildfire = (m, d) => {
     for (const B of m.beaches) {
       if (B.done) { done++; continue; }
       B.fire = clamp(m.t / B.fireAt, 0, 1);
-      if (B.fire > 0.72 && !B.warned) { B.warned = 1; vhf('Pompiers du Var', `Le feu n'est plus qu'à quelques centaines de mètres de la plage ${B.n} ! Il reste ${B.left} personnes.`, 'alarm'); if (MS.warp > 1) MS.warp = 1; }
+      if (B.fire > 0.72 && !B.warned) { B.warned = 1; vhf('Pompiers du Var', `Le feu n'est plus qu'à quelques centaines de mètres de la plage ${B.n} ! Il reste ${B.left} personnes.`, 'alarm'); autoSlow(); }
       if (B.left <= 0) { B.done = true; vhf('CROSS Méditerranée', `Plage ${B.n} entièrement évacuée. Bravo.`, 'good'); continue; }
       if (B.fire >= 1) { B.done = true; m.lostP += B.left; vhf('Pompiers du Var', `Les flammes atteignent la plage ${B.n}. Les ${B.left} personnes restantes se sont mises à l'eau ; une vedette de la SNSM les récupère, plusieurs sont brûlées.`, 'alarm'); B.left = 0; wfPeople(B); }
       // fumée et flammes : un front qui descend vers la plage
@@ -7829,7 +7885,7 @@ function buildMine() {
   const wrap = new THREE.Group(); wrap.add(g); wrap.userData = { L: 1.3, B: 1.3 }; return wrap;
 }
 M_GEN.mine = (d, r, pl, rank, hard) => {
-  d.at = openWaterPoint(PORT.x + rr(-5000, 5000), PORT.z + 9000, 0, 1500, 60, 1500, r);
+  { const c = PL(rr(-5000, 5000), 9000); d.at = openWaterPoint(c.x, c.z, 0, 1500, 60, 1500, r); }
   d.cargo = pick(SHIPN2); d.time = pick([8, 10, 13, 15.5, 17.5]); d.weather = { wind: rr(3, 9), sea: rr(0.15, 0.45), cloud: rr(0.1, 0.6), rain: 0, fog: rr(0, 0.2), storm: 0 };
   d.title = 'Mine dérivante dans le rail';
   d.brief = `Le porte-conteneurs ${d.cargo} signale une mine marine ancienne, couverte d'algues, qui dérive dans le rail des cargos au large de Toulon. Localisez-la à vue (jumelles, hélicoptère, sonar à petite vitesse), diffusez un avis urgent pour écarter le trafic, puis détruisez-la : au canon à plus de 300 mètres, ou avec les plongeurs démineurs, le bâtiment éloigné à plus de 400 mètres pendant la mise à feu. Elle explose au contact : gardez vos distances.`;
@@ -7841,25 +7897,26 @@ M_SETUP.mine = (m, d) => {
   const M = new Vessel('raft', buildMine(), p.x, p.z, 0, { name: 'Mine' }); M.small = true; M.rcs = 0.25; M.ghost = true; M.mine = true; M.ais = false; m.mine = M; m.ents.push(M);
   m.marks.push({ x: d.at.x, z: d.at.z, r: 1500, kind: 'zone', label: 'Zone de recherche' });
   m.ships = [];
-  for (let i = 0; i < 3; i++) { const z = p.z + rr(-250, 250), x = p.x + (i % 2 ? -1 : 1) * rr(3500, 7000); const c = new Vessel('cargo', buildCargo(pick(SHIPNAMES)), x, z, i % 2 ? Math.PI / 2 : -Math.PI / 2, { name: SHIPN2[i] }); c.ais = true; c.rcs = 400; c.faction = 'neutral'; c.u = 6; c.ai = { mode: 'lane', dir: i % 2 ? 1 : -1, z, cx: p.x, half: 9000 }; m.ships.push(c); m.ents.push(c); }
+  const pl = portL(PORT, p.x, p.z);
+  for (let i = 0; i < 3; i++) { const lz = pl.z + rr(-250, 250), q = wet(PL(pl.x + (i % 2 ? -1 : 1) * rr(3500, 7000), lz), 20), ai = laneAI(i % 2 ? 1 : -1, PL(pl.x, lz), 9000); const c = new Vessel('cargo', buildCargo(pick(SHIPNAMES)), q.x, q.z, ai.hdg, { name: SHIPN2[i] }); c.ais = true; c.rcs = 400; c.faction = 'neutral'; c.u = 6; c.ai = ai; m.ships.push(c); m.ents.push(c); }
   addObj(m, 'find', 'Localiser la mine'); addObj(m, 'warn', 'Écarter le trafic (avis urgent sur le canal 16)'); addObj(m, 'destroy', 'Détruire la mine');
   m.cd = 0;
   const boom = (why) => { const M0 = m.mine; if (!M0 || M0.removed) return; explosion(M0.x, 1, M0.z, 2.6, true); for (let i = 0; i < 60; i++) SPRAY.emit(M0.x + rr(-4, 4), 1, M0.z + rr(-4, 4), rr(-6, 6), rr(20, 45), rr(-6, 6), rr(2.5, 4), rr(3, 6), 0.95); M0.remove(); m.mine = null; return why; };
   m.update = dt => {
     m.cd = Math.max(0, m.cd - dt); const M0 = m.mine; if (!M0) return;
     const P = PLAYER, dp = distTo(P, M0), H = P.heli;
-    if (O(m, 'find').state !== 'done' && (seen(M0, true) && dp < 900 || (H && !H.dead && H.state !== 'deck' && Math.hypot(H.x - M0.x, H.z - M0.z) < 380) || (P.gear.sonar && dp < 1500 && P.speed < 10 * KN))) { setObj(m, 'find', 'done'); m.marks.push({ v: M0, kind: 'hostile', label: 'Mine' }); vhf(dp < 1500 && P.gear.sonar && !seen(M0, true) ? 'Sonar' : 'Veille', `Mine en vue au ${bearingStr(headingOf(M0.x - P.x, M0.z - P.z))}, ${Math.round(dp)} mètres ! Une sphère couverte d'algues, les cornes bien visibles.`, 'good'); if (MS.warp > 1) MS.warp = 1; }
+    if (O(m, 'find').state !== 'done' && (seen(M0, true) && dp < 900 || (H && !H.dead && H.state !== 'deck' && Math.hypot(H.x - M0.x, H.z - M0.z) < 380) || (P.gear.sonar && dp < 1500 && P.speed < 10 * KN))) { setObj(m, 'find', 'done'); m.marks.push({ v: M0, kind: 'hostile', label: 'Mine' }); vhf(dp < 1500 && P.gear.sonar && !seen(M0, true) ? 'Sonar' : 'Veille', `Mine en vue au ${bearingStr(headingOf(M0.x - P.x, M0.z - P.z))}, ${Math.round(dp)} mètres ! Une sphère couverte d'algues, les cornes bien visibles.`, 'good'); autoSlow(); }
     if (dp < 180 && !m.flags.close) { m.flags.close = 1; vhf('Passerelle', 'Commandant, nous sommes à moins de 200 mètres de la mine ! Barre à gauche toute ?', 'alarm'); }
     if (dp > 300) m.flags.close = 0;
     for (const v of VESSELS) { if (v === M0 || v.removed || v.kind === 'raft' || v.kind === 'rhib') continue; if (hullDist(v, M0.x, M0.z) < v.B * 0.5 + 3) { boom(); if (v === PLAYER) { hitPlayer(40, 'mine'); startIncident('flood', 0.6); return endMission(false, 'Votre bâtiment a heurté la mine. Voie d\'eau importante, il faut rentrer.'); } damage(v, 220, 'mine'); return endMission(false, `Le ${v.name} a heurté la mine et coule. L'équipage est récupéré, mais c'est un drame.`); } }
     // les cargos prévenus contournent la zone
-    if (m.flags.warned) for (const c of m.ships) if (!c.removed && c.ai && c.ai.mode === 'lane' && !c.rerouted) { c.rerouted = true; c.ai.z = M0.z + (c.z > M0.z ? 1400 : -1400); }
+    if (m.flags.warned) for (const c of m.ships) if (!c.removed && c.ai && c.ai.mode === 'lane' && !c.rerouted) { c.rerouted = true; const nx = -Math.cos(c.ai.hdg), nz = -Math.sin(c.ai.hdg), sd = Math.sign((c.x - M0.x) * nx + (c.z - M0.z) * nz) || 1; c.ai.c = { x: M0.x + nx * 1400 * sd, z: M0.z + nz * 1400 * sd }; }
     if (m.fuse && m.t >= m.fuse) { m.fuse = null; const dd = distTo(P, M0); boom(); if (dd < 400) { hitPlayer(12, 'souffle'); vhf('Passerelle', 'Le souffle nous a secoués, nous étions trop près !', 'alarm'); } setObj(m, 'destroy', 'done'); endMission(true, 'La mine a été pétardée par les plongeurs démineurs.', { bonus: m.flags.warned && dd >= 400 ? 2500 : 0, note: m.flags.warned && dd >= 400 ? 'Trafic écarté et distance de sécurité respectée' : '' }); }
     m.status = O(m, 'find').state === 'done' ? `Mine à ${Math.round(dp)} m${m.fuse ? ` · mise à feu dans ${Math.max(0, Math.round(m.fuse - m.t))} s` : ''}` : 'Ralentissez et cherchez aux jumelles (B) ou envoyez l\'hélicoptère';
   };
   m.actions = () => {
     const out = [], P = PLAYER, M0 = m.mine; if (!M0) return out; const found = O(m, 'find').state === 'done', dp = distTo(P, M0);
-    if (found && !m.flags.warned) out.push({ id: 'avis', label: 'Avis urgent aux navigateurs (canal 16)', ok: true, run: () => { m.flags.warned = 1; setObj(m, 'warn', 'done'); vhf(P.C.n, `Sécurité, sécurité, sécurité. Mine dérivante au point ${bearingStr(headingOf(M0.x - PORT.x, M0.z - PORT.z))} de Toulon. Tous les navires s'écartent d'un mille.`, 'info'); setTimeout(() => vhf(m.ships[0] ? m.ships[0].name : 'Cargo', 'Bien reçu, nous modifions notre route.', 'info'), 2500); } });
+    if (found && !m.flags.warned) out.push({ id: 'avis', label: 'Avis urgent aux navigateurs (canal 16)', ok: true, run: () => { m.flags.warned = 1; setObj(m, 'warn', 'done'); vhf(P.C.n, `Sécurité, sécurité, sécurité. Mine dérivante au point ${bearingStr(headingOf(M0.x - PORT.x, M0.z - PORT.z))} de Toulon. Tous les navires s'écartent d'un mille.`, 'info'); later(2.5, () => vhf(m.ships[0] ? m.ships[0].name : 'Cargo', 'Bien reçu, nous modifions notre route.', 'info')); } });
     if (found && !m.fuse) {
       const G = gunOf(P);
       if (G) out.push({ id: 'mgun', label: `Canon : tirer sur la mine (${Math.round(dp)} m)`, ok: dp > 300 && dp < 1600 && m.cd <= 0 && !SHOTS.length && P.ammo.gun > 0, why: dp <= 300 ? 'Trop près : éloignez-vous à plus de 300 m.' : dp >= 1600 ? 'Rapprochez-vous à moins de 1 600 m.' : 'Rechargement.', run: () => { m.cd = 5; P.ammo.gun = Math.max(0, P.ammo.gun - 1); const pk = clamp(0.5 - dp / 4000 - ENV.sea * 0.3, 0.1, 0.45), hit = chance(pk); fireGun(M0, hit ? { x: 0, z: 0 } : { x: rr(-18, 18), z: rr(-18, 18) }, () => { if (hit && m.mine) { boom(); setObj(m, 'destroy', 'done'); vhf('Canonnier', 'Coup au but ! La mine a sauté.', 'good'); endMission(true, 'La mine a été détruite au canon.', { bonus: m.flags.warned ? 2500 : 0, note: m.flags.warned ? 'Trafic écarté avant le tir' : '' }); } else vhf('Canonnier', 'Manqué, la gerbe est tout près.', 'info'); }); } });
@@ -7898,11 +7955,11 @@ M_GEN.shadow = (d, r, pl, rank, hard) => {
 M_SETUP.shadow = (m, d) => {
   const S = new Vessel('vcorv', buildSpyShip(d.name.replace(/-.*/, '')), d.at.x, d.at.z, headingOf(d.zoneC.x - d.at.x, d.zoneC.z - d.at.z), { name: d.name });
   S.faction = 'neutral'; S.identAs = 'unk'; S.cls = 'Navire de renseignement de Varne'; S.ais = false; S.rcs = 40; S.u = 5; S.mode = 'probe'; S.modeT = 0; m.spy = S; m.ents.push(S);
-  for (let i = 0; i < 3; i++) { const p = openWaterPoint(d.zoneC.x - 4500, d.zoneC.z, 1500, 6000, 40, 0); const v = i ? new Vessel('trawler', buildTrawler(pick(BOATNAMES)), p.x, p.z, rnd() * TAU, { name: pick(BOATNAMES) }) : new Vessel('cargo', buildCargo(pick(SHIPN2)), p.x, p.z, -Math.PI / 2, { name: pick(SHIPN2) }); v.ais = true; v.rcs = i ? 25 : 400; v.faction = 'neutral'; v.u = i ? 2 : 6; v.ai = i ? { mode: 'trawl', home: p } : { mode: 'lane', dir: -1, z: p.z, cx: d.zoneC.x, half: 12000 }; m.ents.push(v); }
+  for (let i = 0; i < 3; i++) { const p = openWaterPoint(d.zoneC.x - 4500, d.zoneC.z, 1500, 6000, 40, 0); const v = i ? new Vessel('trawler', buildTrawler(pick(BOATNAMES)), p.x, p.z, rnd() * TAU, { name: pick(BOATNAMES) }) : new Vessel('cargo', buildCargo(pick(SHIPN2)), p.x, p.z, Math.PI, { name: pick(SHIPN2) }); v.ais = true; v.rcs = i ? 25 : 400; v.faction = 'neutral'; v.u = i ? 2 : 6; v.ai = i ? { mode: 'trawl', home: p } : laneAI(-1, p, 12000, 0); m.ents.push(v); }
   m.marks.push({ x: d.zoneC.x, z: d.zoneC.z, r: d.zoneR, kind: 'zone', label: 'Zone d\'essais' });
   addObj(m, 'find', `Identifier le ${d.name}`); addObj(m, 'photo', 'Photographier ses antennes (moins de 2,5 km)'); addObj(m, 'shadow', 'Le suivre à moins de 5 km pendant 15 minutes (0:00)');
   m.shadowT = 0; m.photoT = 0;
-  const found = () => { if (O(m, 'find').state === 'done') return; setObj(m, 'find', 'done'); S.identAs = 'neu'; const t = trackOf(S); if (t) { t.ident = 'neu'; t.cls = S.cls; } m.marks.push({ v: S, kind: 'hostile', label: d.name }); vhf('Veille', `C'est lui : coque grise, trois radômes, le ${d.name}.`, 'good'); if (MS.warp > 1) MS.warp = 1; };
+  const found = () => { if (O(m, 'find').state === 'done') return; setObj(m, 'find', 'done'); S.identAs = 'neu'; const t = trackOf(S); if (t) { t.ident = 'neu'; t.cls = S.cls; } m.marks.push({ v: S, kind: 'hostile', label: d.name }); vhf('Veille', `C'est lui : coque grise, trois radômes, le ${d.name}.`, 'good'); autoSlow(); };
   S.onHail = () => { found(); vhf(d.name, 'Ici navire de recherche océanographique. Nous naviguons dans les eaux internationales. Fin de transmission.', 'info'); };
   m.onSunk = v => { if (v === S) endMission(false, 'Vous avez coulé un navire en eaux internationales : incident majeur.'); };
   m.update = dt => {
@@ -7915,7 +7972,7 @@ M_SETUP.shadow = (m, d) => {
     const dz = Math.hypot(S.x - d.zoneC.x, S.z - d.zoneC.z), toZone = headingOf(d.zoneC.x - S.x, d.zoneC.z - S.z);
     const between = !hidden && dp < 2600 && Math.hypot(P.x - d.zoneC.x, P.z - d.zoneC.z) < dz + 300;
     S.modeT -= dt;
-    if (S.mode === 'probe') { steerTo(S, avoidHeading(S, toZone, 700), 6.5, dt); if (between && S.modeT <= 0) { S.mode = 'evade'; S.modeT = rr(70, 130); vhf('Central Op.', `Le ${d.name} vire : votre présence le dissuade.`, 'good'); } else if (S.modeT < -rr(150, 260)) { S.mode = 'dash'; S.modeT = rr(60, 90); vhf('Central Op.', `Le ${d.name} accélère brusquement vers la zone d'essais !`, 'alarm'); if (MS.warp > 1) MS.warp = 1; } }
+    if (S.mode === 'probe') { steerTo(S, avoidHeading(S, toZone, 700), 6.5, dt); if (between && S.modeT <= 0) { S.mode = 'evade'; S.modeT = rr(70, 130); vhf('Central Op.', `Le ${d.name} vire : votre présence le dissuade.`, 'good'); } else if (S.modeT < -rr(150, 260)) { S.mode = 'dash'; S.modeT = rr(60, 90); vhf('Central Op.', `Le ${d.name} accélère brusquement vers la zone d'essais !`, 'alarm'); autoSlow(); } }
     else if (S.mode === 'evade') { steerTo(S, avoidHeading(S, toZone + Math.PI * 0.6 * (S.id % 2 ? 1 : -1), 700), 5, dt); if (S.modeT <= 0) { S.mode = 'probe'; S.modeT = rr(30, 60); } }
     else if (S.mode === 'dash') { steerTo(S, avoidHeading(S, toZone, 700), 11.5, dt); if (between) { S.mode = 'evade'; S.modeT = rr(80, 140); vhf('Central Op.', `Le ${d.name} renonce et rompt.`, 'good'); } else if (S.modeT <= 0) { S.mode = 'probe'; S.modeT = 60; } }
     if (dz < d.zoneR) { if (dp < 3000 && !hidden) { S.mode = 'evade'; S.modeT = 120; } else return endMission(false, `Le ${d.name} a pénétré dans la zone d'essais : les tirs sont annulés.`); }
@@ -8005,7 +8062,7 @@ M_SETUP.sarex = (m, d) => {
     const P = PLAYER, H = P.heli;
     for (const v of m.persons) {
       if (v.done) continue;
-      if (!v.found && (seen(v, true) || (H && !H.dead && H.state !== 'deck' && Math.hypot(H.x - v.x, H.z - v.z) < 320))) { v.found = true; m.marks.push({ v, kind: 'target', label: 'Naufragé' }); vhf('Veille', `Un homme à l'eau au ${bearingStr(headingOf(v.x - P.x, v.z - P.z))}, ${Math.round(distTo(P, v))} mètres ! Il fait des signes.`, 'good'); if (MS.warp > 1) MS.warp = 1; }
+      if (!v.found && (seen(v, true) || (H && !H.dead && H.state !== 'deck' && Math.hypot(H.x - v.x, H.z - v.z) < 320))) { v.found = true; m.marks.push({ v, kind: 'target', label: 'Naufragé' }); vhf('Veille', `Un homme à l'eau au ${bearingStr(headingOf(v.x - P.x, v.z - P.z))}, ${Math.round(distTo(P, v))} mètres ! Il fait des signes.`, 'good'); autoSlow(); }
     }
     // le patrouilleur tunisien fouille son secteur et repêche
     if (!T.task || T.task.done || T.task.pickup) {
@@ -8024,7 +8081,7 @@ M_SETUP.sarex = (m, d) => {
   };
   m.actions = () => {
     const out = [], P = PLAYER;
-    if (!m.coord) out.push({ id: 'coord', label: `VHF : répartir les secteurs avec le ${d.partner}`, ok: distTo(P, T) < 22000, why: 'Hors de portée VHF.', run: () => { m.coord = true; setObj(m, 'coord', 'done'); vhf(P.C.n, `${d.partner}, ici ${P.C.n}. Proposition : vous prenez le secteur est de la zone, nous l'ouest.`, 'info'); setTimeout(() => vhf(d.partner, 'Bien reçu, nous prenons l\'est. Bonne chance, et merci de votre aide.', 'info'), 2600); } });
+    if (!m.coord) out.push({ id: 'coord', label: `VHF : répartir les secteurs avec le ${d.partner}`, ok: distTo(P, T) < 22000, why: 'Hors de portée VHF.', run: () => { m.coord = true; setObj(m, 'coord', 'done'); vhf(P.C.n, `${d.partner}, ici ${P.C.n}. Proposition : vous prenez le secteur est de la zone, nous l'ouest.`, 'info'); later(2.6, () => vhf(d.partner, 'Bien reçu, nous prenons l\'est. Bonne chance, et merci de votre aide.', 'info')); } });
     const near = m.persons.filter(v => v.found && !v.done && !v.pickup).sort((a, b) => distTo(P, a) - distTo(P, b))[0];
     if (near) {
       const a = rhibAvail(near, 450); out.push({ id: 'srhib', label: 'Semi-rigide : récupérer le naufragé', ok: a.ok, why: a.why, run: () => { near.pickup = true; launchRhib({ target: near, work: 25, say: 'Semi-rigide à l\'eau, on file vers le naufragé.', onWork: () => { near.visible = false; }, onDone: () => { near.done = true; m.us++; CAREER.stats.rescued++; near.remove(); } }); } });
@@ -8166,22 +8223,20 @@ CAST.cdt_carrier = { n: CDT.carrier[0], short: 'Claire Vauquelin', role: 'Comman
 { const base = radarRange; radarRange = function (P) { return P.kind === 'carrier' ? 60000 * (1 + upLv('radar') * 0.15) : base(P); }; }
 { const base = shipCosts; shipCosts = function (id) { if (id !== 'carrier') return base(id); const st = CAREER.ships[id], K = CLASSES[id]; let ammo = 0; for (const k in K.gear.ammo) ammo += Math.max(0, K.gear.ammo[k] - (st.ammo[k] || 0)) * ({ sam: 1600, decoy: 250 }[k] || 0); return { repair: Math.round(((100 - st.hull) * 180 + (100 - st.engine) * 140) * 4), fuel: Math.round((100 - st.fuel) * 45 * 4), ammo: Math.round(ammo) }; }; }
 // au port : le porte-avions est sur coffre au milieu du bassin, face à la passe, la vedette de rade y conduit depuis la jetée est
-{ const base = berthOf; berthOf = function (c) { if (c === 'carrier') return { x: PORT.x - 10, z: PORT.z + 200, psi: Math.PI }; return base(c); }; }
-{ const base = gangway; gangway = function (c) { if (c === 'carrier') return { x: PORT.x + 300, z: PORT.z + 150, sz: PORT.z + 150, yaw: Math.PI, side: 0, boat: true }; return base(c); }; }
 { const base = pwPlanks; pwPlanks = function () { const i = ALLC.indexOf('carrier'); if (i >= 0) ALLC.splice(i, 1); try { base(); } finally { if (i >= 0) ALLC.splice(i, 0, 'carrier'); }
-  if (!PW.boat) { const v = buildRhib('#2b3b4c'); v.scale.setScalar(1.5); PW.boat = v; } PW.boat.position.set(PORT.x + 284, 0.4, PORT.z + 152); PW.boat.rotation.y = 0; scene.add(PW.boat); PW.planks.push(PW.boat); }; }
+  if (!PW.boat) { const v = buildRhib('#2b3b4c'); v.scale.setScalar(1.5); PW.boat = v; } { const q = PL(284, 152); PW.boat.position.set(q.x, 0.4, q.z); } PW.boat.rotation.y = -PORT.ang; scene.add(PW.boat); PW.planks.push(PW.boat); }; }
 { const base = pwPlaces; pwPlaces = function () { const L = base(); for (const p of L) if (p.ship === 'carrier') p.label = p.board ? `★ Vedette de rade : rejoindre le porte-avions ${CLASSES.carrier.n}`.replace('★ ', CAREER && CAREER.ship === 'carrier' ? '★ ' : '') : `Vedette de rade : porte-avions ${CLASSES.carrier.n} (${CAREER && rankOf(CAREER.rep) < CLASSES.carrier.rank ? 'grade requis' : 'à acquérir'})`; return L; }; }
 
 // ---------- groupe aérien ----------
 const AIRN = ['Faucon 1', 'Faucon 2', 'Faucon 3', 'Faucon 4', 'Faucon 5', 'Faucon 6', 'Vigie'];
-const inBasin = v => Math.abs(v.x - PORT.x) < 420 && v.z - PORT.z > -60 && v.z - PORT.z < 520;
+const inBasin = v => { const l = portL(PORT, v.x, v.z); return Math.abs(l.x) < 420 && l.z > -60 && l.z < 520; };
 function wingInit(P) {
   const ud = P.mesh.userData;
   P.wing = { planes: AIRN.map((n, i) => ({ i, n, type: i === 6 ? 'aew' : 'jet', state: 'deck', fuel: 100, aa: i === 6 ? 0 : 4, as: i === 6 ? 0 : 2, slot: CV.slots[i], parked: ud.parked[i], f: null, x: 0, y: 0, z: 0, hdg: 0, spd: 0, task: null, t: 0 })), queue: [], cats: [0, 0], downed: [], brief: false, autoCap: false, sens: 0, said: {} };
 }
 function wingClear(P) {
   const W = P && P.wing; if (!W) return;
-  for (const p of W.planes) if (p.f) { scene.remove(p.f); p.f = null; }
+  for (const p of W.planes) if (p.f) { dropObj(p.f); p.f = null; }
   if (P.escort && !P.escort.removed) P.escort.ai = { mode: 'home' };
 }
 function deckW(P, x, yf, h) { const v = new THREE.Vector3(x, P.mesh.userData.fdY + (h || 0), -yf); P.mesh.localToWorld(v); return v; }
@@ -8189,7 +8244,7 @@ function planeMesh(p) { if (!p.f) { p.f = p.type === 'aew' ? buildAEW() : buildJ
 const PST = { deck: 'Paré sur le pont', queue: 'En attente de catapulte', cat: 'Sur catapulte', air: 'En vol', rtb: 'Retour vers le bord', final: 'En finale', land: 'Appontage', rearm: 'Ravitaillement et réarmement', lost: 'Perdu' };
 const TASKN = { cap: 'patrouille aérienne', strike: 'frappe', recon: 'reconnaissance', aew: 'guet aérien' };
 function airCmdOk() { return UI.screen === 'sea'; }
-function roomIs(id) { return WALK.on && !WALK.fly && !WALK.sub && !WALK.gun && WALK.level === 'deck' && IN.rooms && roomId('deck', WALK.x, WALK.z) === id; }
+function roomIs(id) { return WALK.on && !WALK.fly && !WALK.gun && WALK.level === 'deck' && IN.rooms && roomId('deck', WALK.x, WALK.z) === id; }
 function wingReady(type, need) { const W = PLAYER.wing; return W.planes.filter(p => p.type === type && p.state === 'deck' && p.fuel > 60 && (!need || p[need] > 0)); }
 function wingLaunch(p, task) { const W = PLAYER.wing; p.state = 'queue'; p.task = task; W.queue.push(p); }
 function wingCmd(kind) {
@@ -8237,7 +8292,7 @@ function wingStep(dt) {
     } else if (p.state === 'land') {
       p.v = Math.max(0, p.v - 34 * dt); p.u += p.v * dt;
       const w = deckW(P, CV.td[0] + Math.sin(CV.a) * p.u, CV.td[1] + Math.cos(CV.a) * p.u, 0); p.x = w.x; p.y = w.y; p.z = w.z; p.hdg = psA; p.pitch = 0;
-      if (p.v <= 0) { p.state = 'rearm'; p.t = p.type === 'aew' ? 150 : 110; scene.remove(m); p.f = null; if (!W.said[p.i] || CB.clock - W.said[p.i] > 30) { W.said[p.i] = CB.clock; vhf('PCA', `${p.n} appontée, brin ${1 + (p.i % 3)}.`, 'good'); } continue; }
+      if (p.v <= 0) { p.state = 'rearm'; p.t = p.type === 'aew' ? 150 : 110; dropObj(m); p.f = null; if (!W.said[p.i] || CB.clock - W.said[p.i] > 30) { W.said[p.i] = CB.clock; vhf('PCA', `${p.n} appontée, brin ${1 + (p.i % 3)}.`, 'good'); } continue; }
     } else {
       // en vol
       p.t += dt; p.fuel -= dt * (p.type === 'aew' ? 100 / 2400 : 100 / 1000);
@@ -8281,9 +8336,9 @@ function wingStep(dt) {
   if ((!P.escort || P.escort.removed || P.escort.sinking) && !inBasin(P) && MS.cur && !P.escortGone) escortSpawn(P);
 }
 function planeLost(p, why) {
-  const W = PLAYER.wing; p.state = 'lost'; if (p.f) { explosion(p.x, Math.max(2, p.y), p.z, 0.9, p.y < 30); scene.remove(p.f); p.f = null; }
+  const W = PLAYER.wing; p.state = 'lost'; if (p.f) { explosion(p.x, Math.max(2, p.y), p.z, 0.9, p.y < 30); dropObj(p.f); p.f = null; }
   p.parked.visible = false; W.downed.push({ x: p.x, z: p.z, n: p.n });
-  vhf('PCA', `${p.n} perdu (${why}) ! Le pilote s'est éjecté, le Vigilant part le récupérer.`, 'alarm'); sfx('alarm'); if (MS.warp > 1) MS.warp = 1;
+  vhf('PCA', `${p.n} perdu (${why}) ! Le pilote s'est éjecté, le Vigilant part le récupérer.`, 'alarm'); sfx('alarm'); autoSlow();
 }
 function escortSpawn(P) {
   const f = P.fwd, sd = { x: -f.z, z: f.x }; let x = P.x - f.x * 1000 - sd.x * 700, z = P.z - f.z * 1000 - sd.z * 700;
@@ -8314,7 +8369,7 @@ function escortSpawn(P) {
   if (P.cls === 'carrier') wingInit(P);
   return P;
 }; }
-{ const base = clearWorldEntities; clearWorldEntities = function () { if (PLAYER && PLAYER.wing) { for (const p of PLAYER.wing.planes) { if (p.f) { scene.remove(p.f); p.f = null; } if (p.state !== 'deck') { p.state = 'deck'; p.fuel = 100; p.parked.visible = true; } } PLAYER.wing.queue.length = 0; PLAYER.wing.downed.length = 0; PLAYER.wing.cats = [0, 0]; PLAYER.escort = null; } base(); }; }
+{ const base = clearWorldEntities; clearWorldEntities = function () { if (PLAYER && PLAYER.wing) { for (const p of PLAYER.wing.planes) { if (p.f) { dropObj(p.f); p.f = null; } if (p.state !== 'deck') { p.state = 'deck'; p.fuel = 100; p.parked.visible = true; } } PLAYER.wing.queue.length = 0; PLAYER.wing.downed.length = 0; PLAYER.wing.cats = [0, 0]; PLAYER.escort = null; } base(); }; }
 
 // ---------- panneau du groupe aérien (touche Y) ----------
 function airHTML() {
@@ -8328,9 +8383,9 @@ function airHTML() {
   ${rows}${W.downed.length ? `<p><em>${W.downed.length} pilote${W.downed.length > 1 ? 's' : ''} à l'eau : le Vigilant fait route.</em></p>` : ''}${W.brief ? '<p>Pilotes briefés : la prochaine frappe déjouera les défenses adverses.</p>' : ''}
   <div class="row2">${roomIs('pca') ? '' : '<button class="btn sm" data-act="roomgo" data-r="pca">Se rendre au PCA</button>'}<button class="btn sm ghost" data-act="airclose">Fermer (Y)</button></div>`;
 }
-function airOpen() { const P = PLAYER; if (!P || !P.wing || UI.screen !== 'sea') { toast('Seul le porte-avions a un groupe aérien.'); return; } const el = dlgEl('airUI', 'Groupe aérien'); if (document.pointerLockElement) document.exitPointerLock(); el.innerHTML = airHTML(); el.hidden = false; el._t = 0; }
+function airOpen() { const P = PLAYER; if (!P || !P.wing || UI.screen !== 'sea') { toast('Seul le porte-avions a un groupe aérien.'); return; } const el = dlgEl('airUI', 'Groupe aérien'); if (document.pointerLockElement) document.exitPointerLock(); el._h = airHTML(); el.innerHTML = el._h; el.hidden = false; el._t = 0; }
 function airClose() { const el = $('airUI'); if (el) el.hidden = true; }
-function airRefresh() { const el = $('airUI'); if (el && !el.hidden && PLAYER && PLAYER.wing) el.innerHTML = airHTML(); }
+function airRefresh() { const el = $('airUI'); if (el && !el.hidden && PLAYER && PLAYER.wing) { const h = airHTML(); if (el._h !== h) { el._h = h; el.innerHTML = h; } } }
 function dlgEl(id, label) { let el = $(id); if (!el) { el = document.createElement('div'); el.id = id; el.className = 'dlgx'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', label); el.hidden = true; document.body.appendChild(el); } return el; }
 Object.assign(ACT, { air: () => { const el = $('airUI'); if (el && !el.hidden) airClose(); else airOpen(); }, airclose: airClose, aircap: () => wingCmd('cap'), airstrike: () => wingCmd('strike'), airrecon: () => wingCmd('recon'), airaew: () => wingCmd('aew'), airrecall: () => wingCmd('recall'), airauto: () => wingCmd('auto') });
 addEventListener('keydown', e => {
@@ -8483,7 +8538,7 @@ function rMPA() {
 }
 function mpaStep(dt) {
   const A = MPA.a, P = PLAYER; if (!A) return;
-  if (!P || UI.screen !== 'sea' || !MS.cur || A.t > 660) { scene.remove(A.mesh); MPA.a = null; if (P && MS.cur && A.t > 660) rsay('Patmar', 'Fin d\'endurance, je rentre à la base. Bonne chasse.'); return; }
+  if (!P || UI.screen !== 'sea' || !MS.cur || A.t > 660) { dropObj(A.mesh); MPA.a = null; if (P && MS.cur && A.t > 660) rsay('Patmar', 'Fin d\'endurance, je rentre à la base. Bonne chasse.'); return; }
   A.t += dt; const ang = A.t * 0.03, tx = P.x + Math.cos(ang) * 9000, tz = P.z + Math.sin(ang) * 9000, want = headingOf(tx - A.x, tz - A.z);
   A.hdg += clamp(wrapA(want - A.hdg), -0.3 * dt, 0.3 * dt); A.x += Math.sin(A.hdg) * 110 * dt; A.z -= Math.cos(A.hdg) * 110 * dt;
   A.mesh.position.set(A.x, A.y, A.z); A.mesh.rotation.set(0, -A.hdg, -0.25, 'YXZ'); for (const p of A.mesh.userData.props) p.rotation.z += dt * 30;
@@ -8548,9 +8603,8 @@ function rMedical() { if (FLT.fat < 8) { rsay('Infirmerie', 'Vous êtes en forme
 { const base = simStep; simStep = function (dt) {
   base(dt); const P = PLAYER; if (!P || UI.screen !== 'sea') return;
   mpaStep(dt);
-  // surpuissance
-  if (P.vmax0 == null) P.vmax0 = P.vmaxMul;
-  const boost = P.boostT > nowT(); P.vmaxMul = P.vmax0 * (boost ? 1.1 : 1); if (boost) P.engine = Math.max(30, P.engine - dt * 0.015);
+  // surpuissance (le bonus de vitesse est appliqué dans playerStep, avant la physique)
+  const boost = P.boostT > nowT(); if (boost) P.engine = Math.max(30, P.engine - dt * 0.004);
   if (P.boostT && !boost && !P.boostSaid) { P.boostSaid = 1; rsay('Machine', 'Fin de la surpuissance, retour au régime normal.'); } if (boost) P.boostSaid = 0;
   // rechargement des tubes (il faut rester au poste torpilles)
   if (P.reloadT && CB.clock >= P.reloadT) { P.reloadT = 0; if (roomIs('torp')) { P.tubes = Math.min(6, P.ammo.torp || 0); rsay('Poste torpilles', `Tubes rechargés : ${P.tubes} torpille${P.tubes > 1 ? 's' : ''} prête${P.tubes > 1 ? 's' : ''} au tir.`, 'good'); } else rsay('Poste torpilles', 'Rechargement interrompu : le commandant a quitté le poste.', 'alarm'); }
@@ -8578,7 +8632,7 @@ function rMedical() { if (FLT.fat < 8) { rsay('Infirmerie', 'Vous êtes en forme
 { const base = spawnPlayer; spawnPlayer = function (x, z, psi, c) {
   const P = base(x, z, psi, c); const g = P.C.gear || {};
   P.reserve = { gun: Math.round(((g.ammo && g.ammo.gun) || 0) * 0.6) }; P.tubes = isSub(P) ? Math.min(6, P.ammo.torp || 0) : 0; P.battle = false; P.rcd = {}; P.vmax0 = null;
-  if (MPA.a) { scene.remove(MPA.a.mesh); MPA.a = null; }
+  if (MPA.a) { dropObj(MPA.a.mesh); MPA.a = null; }
   return P;
 }; }
 
@@ -8597,7 +8651,7 @@ function rMedical() { if (FLT.fat < 8) { rsay('Infirmerie', 'Vous êtes en forme
   base(); let el = $('wFx'); const u = $('walkUI'); if (!u) return;
   if (!el) { el = document.createElement('div'); el.id = 'wFx'; u.appendChild(el); }
   const rid = WALK.level === 'deck' ? roomId('deck', WALK.x, WALK.z) : '', s = (RFX[rid] || '') + (rid === 'co' && PLAYER.battle ? ' · postes de combat' : '') + (rid === 'torp' && PLAYER.reloadT ? ' · rechargement en cours' : '');
-  if (el.textContent !== s) el.textContent = s; el.hidden = !s || WALK.fly || WALK.sub || WALK.gun;
+  if (el.textContent !== s) el.textContent = s; el.hidden = !s || WALK.fly || WALK.gun;
 }; }
 function roomList() { const P = PLAYER; return BASEROOMS.concat(roomsOf(P.cls).map(id => ({ id, n: RDEF[id].n, d: RDEF[id].d }))); }
 function roomsHTML() {
@@ -8607,7 +8661,7 @@ function roomsHTML() {
 }
 function roomGo(id) {
   const P = PLAYER; if (!P || UI.screen !== 'sea') return; $('roomsUI') && ($('roomsUI').hidden = true); airClose();
-  if (WALK.on && (WALK.fly || WALK.sub || WALK.gun)) { toast('Quittez d\'abord le poste que vous tenez.'); return; }
+  if (WALK.on && (WALK.fly || WALK.gun)) { toast('Quittez d\'abord le poste que vous tenez.'); return; }
   if (!WALK.on) walkEnter(); else if (IN.for !== P) buildInterior();
   const G = IN.geo;
   if (id === 'bridge') { goLevel('bridge', 0.9, G.zf + 2.7, 0); return; }
@@ -8674,7 +8728,6 @@ function postResize(force) {
   POST.comp.setPixelRatio(pr); POST.comp.setSize(s.x, s.y);
   POST.fxaa.material.uniforms.resolution.value.set(1 / Math.max(1, s.x * pr), 1 / Math.max(1, s.y * pr));
 }
-const _rv = new THREE.Vector3();
 { const base = renderWorld; renderWorld = function () {
   const now = performance.now(), dt = POST.last ? (now - POST.last) / 1000 : 1 / 60; POST.last = now;
   if (dt < 0.5) POST.ema = lerp(POST.ema, dt, 0.05);
@@ -8685,8 +8738,9 @@ const _rv = new THREE.Vector3();
     const R = clamp(vis * 1.35, 2500, 20000) * clamp(v.L / 60, 0.45, 2.6); if (Math.hypot(m.position.x - cp.x, m.position.z - cp.z) > R) m.visible = false; }
   // ombres recalculées une image sur deux (sauf en Ultra)
   if (!GFX.ultra) { renderer.shadowMap.autoUpdate = false; if (frameN % 2 === 0) renderer.shadowMap.needsUpdate = true; }
-  const interior = WALK.on && UI.screen === 'sea' && IN.root && !(WALK.fly || WALK.sub || WALK.gun);
-  if (POST.on && !interior) {
+  const interior = WALK.on && UI.screen === 'sea' && IN.root && !(WALK.fly || WALK.gun);
+  // sous l'eau, on passe par le rendu de base (brouillard bleu, surface vue du dessous) : le post-traitement l'ignorerait
+  if (POST.on && !interior && !underwater()) {
     if (POST.tm) { renderer.toneMapping = THREE.NoToneMapping; POST.tm = false; }
     postResize(); POST.grade.uniforms.uExp.value = (POST.exp || 1) * 0.88;
     const night = sunDir().y < -0.05; POST.grade.uniforms.uWarm.value = night ? -0.02 : 0.02 * (1 - ENV.cloud);
@@ -8759,7 +8813,7 @@ function bakeInterior() {
 // ---------- coques patinées ----------
 const HULLTEX = new Map();
 { const base = hullTexture; hullTexture = function (sp, Dmax) {
-  const key = [sp.name, sp.mark, sp.L, sp.hullCol, sp.stripe, Dmax].join('|'); if (HULLTEX.has(key)) return HULLTEX.get(key);
+  const key = [sp.name, sp.mark, sp.L, sp.hullCol, sp.stripe, Dmax].join('|'); if (HULLTEX.has(key)) { const t0 = HULLTEX.get(key); HULLTEX.delete(key); HULLTEX.set(key, t0); return t0; }
   const t = base(sp, Dmax), c = t.image, g = c.getContext && c.getContext('2d');
   if (g) {
     const W = c.width, H = c.height, half = H / 2, rnd = mulberry(Math.round(sp.L * 131 + (sp.mark || '').length * 7));
@@ -8778,7 +8832,10 @@ const HULLTEX = new Map();
     }
     t.needsUpdate = true;
   }
-  HULLTEX.set(key, t); return t;
+  t.ysCached = true; HULLTEX.set(key, t);
+  // cache borné : les marquages aléatoires des chalutiers créeraient sinon une texture par sortie
+  while (HULLTEX.size > 40) { const k0 = HULLTEX.keys().next().value, t0 = HULLTEX.get(k0); HULLTEX.delete(k0); t0.ysCached = false; }
+  return t;
 }; }
 const HULLNRM = new Map();
 function hullNormal(sp, Dmax, W, H) {
@@ -8791,7 +8848,7 @@ function hullNormal(sp, Dmax, W, H) {
     for (let k = 1; k < 7; k++) { const y = Math.round(y0 + (1 - k / 7) * half); g.fillStyle = 'rgb(128,96,255)'; g.fillRect(0, y - 1, W, 1); g.fillStyle = 'rgb(128,160,255)'; g.fillRect(0, y + 1, W, 1); }
     for (let x = 0; x < W; x += 34) { g.fillStyle = 'rgb(100,128,255)'; g.fillRect(x - 1, y0, 1, half); g.fillStyle = 'rgb(156,128,255)'; g.fillRect(x + 1, y0, 1, half); }
   }
-  const t = new THREE.CanvasTexture(c); t.anisotropy = 4; HULLNRM.set(key, t); return t;
+  const t = new THREE.CanvasTexture(c); t.anisotropy = 4; t.ysCached = true; HULLNRM.set(key, t); return t;
 }
 { const base = shipFromSpec; shipFromSpec = function (sp) {
   const root = base(sp); if (GFX.quality === 'low') return root;
@@ -8802,7 +8859,7 @@ function hullNormal(sp, Dmax, W, H) {
 
 // ---------- la flotte reste visible au port pendant que vous êtes en mer ----------
 function fleetPresence() {
-  const P = PLAYER; if (UI.screen !== 'sea' || !P || PORT.x == null) return;
+  const P = PLAYER; if (UI.screen !== 'sea' || !P || PORT.x == null || P.removed) return;
   const busy = new Set([P.cls]); const m = curOp && curOp();
   if (m) for (const v of m.op.allies) if (!v.removed && v.ally) busy.add(v.ally.c);
   for (const v of VESSELS) if (v.ai && v.ai.mode === 'home') for (const c of ALLC) if (CLASSES[c].n === v.name) busy.add(c);
@@ -8847,7 +8904,7 @@ function mergeGroup(root, keep) {
 }
 const keepOf = (...objs) => { const s = new Set(); for (const o of objs.flat()) if (o && o.isObject3D) o.traverse(c => s.add(c)); return s; };
 { const base = village; village = function (...a) { return mergeGroup(base(...a)); }; }
-{ const base = portStructures; portStructures = function () { const g = base(); return mergeGroup(g, keepOf(Object.values(PORTFX), LIGHTHOUSES.map(L => [L.beam, L.lan]))); }; }
+{ const base = portStructures; portStructures = function (p) { const g = base(p); return mergeGroup(g, keepOf(p.flagMesh, LIGHTHOUSES.map(L => [L.beam, L.lan]))); }; }
 { const base = buildJet; buildJet = function (c) { const g = base(c); return mergeGroup(g, keepOf(g.userData.glow)); }; }
 { const base = buildAEW; buildAEW = function (c) { const g = base(c); return mergeGroup(g, keepOf(g.userData.props)); }; }
 // radar et écrans 2D redessinés une image sur deux
@@ -8861,9 +8918,9 @@ function pilotOut() {
   f.textContent = 'Le pilote de la rade sort le navire du port…'; f.style.opacity = 1; sfx('horn');
   if (WALK.on) walkExit(true);
   setTimeout(() => {
-    P.x = PORT.entrance.x; P.z = PORT.z + 1200; P.psi = Math.PI; P.v = 0; P.r = 0; P.rudCmd = 0; P.rudder = 0;
+    { const q = PL(-10, 1200); P.x = q.x; P.z = q.z; } P.psi = PORT.sea; P.v = 0; P.r = 0; P.rudCmd = 0; P.rudder = 0;
     P.tel = Math.max(P.tel, 6); P.rpm = TELEGRAPH[P.tel].v; P.u = Math.max(Math.abs(P.u), 5); P.aground = 0;
-    if (P.escort && !P.escort.removed) { P.escort.x = P.x - 700; P.escort.z = P.z - 900; }
+    if (P.escort && !P.escort.removed) { const f = P.fwd; P.escort.x = P.x - f.x * 900 + f.z * 600; P.escort.z = P.z - f.z * 900 - f.x * 600; P.escort.psi = P.psi; }
     ENV.time = (ENV.time + 0.2) % 24; UI.camSnap = 1; TRACKS.clear();
     vhf('Pilote de Toulon', 'Passe franchie, je redescends sur la pilotine. Vous avez la manœuvre, commandant. Bonne mer !', 'good');
     setTimeout(() => { f.style.opacity = 0; }, 350); hudUpdate(true);
@@ -8871,7 +8928,7 @@ function pilotOut() {
 }
 { const base = genericActions; genericActions = function () {
   const out = base(), P = PLAYER, m = MS.cur;
-  if (P && m && !m.over && UI.screen === 'sea' && inHarbor(P) && P.z - PORT.z < 1000 && !(isSub(P) && P.depth > 1)) out.unshift({ id: 'pilotout', label: 'Sortir du port avec le pilote', ok: true, run: pilotOut });
+  if (P && m && !m.over && UI.screen === 'sea' && inHarbor(P) && portL(PORT, P.x, P.z).z < 1000 && !(isSub(P) && P.depth > 1)) out.unshift({ id: 'pilotout', label: 'Sortir du port avec le pilote', ok: true, run: pilotOut });
   return out;
 }; }
 { const base = startMission; startMission = function (def, opts) { const r = base(def, opts); if (opts && opts.fromBerth) setTimeout(() => { if (PLAYER && inHarbor(PLAYER)) toast('Astuce : « Sortir du port avec le pilote » vous amène directement hors de la rade.'); }, 2500); return r; }; }
@@ -9111,7 +9168,6 @@ Object.assign(ACT, {
 document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('.crate [data-act="crateopen"]'); if (b) { b.closest('.crate').classList.add('open'); } }, true);
 
 // ---------- effets des pièces d'équipement ----------
-{ const base = spawnPlayer; spawnPlayer = function (x, z, psi, c) { const P = base(x, z, psi, c); const s = gfx('speed'); if (s) P.vmaxMul *= 1 + s; return P; }; }
 { const base = radarRange; radarRange = function (P) { return base(P) * (P === PLAYER ? 1 + gfx('radar') : 1); }; }
 { const base = sonarRange; sonarRange = function (P) { return base(P) * (P === PLAYER ? 1 + gfx('sonar') : 1); }; }
 { const base = damageHull; damageHull = function (v, why) { return base(v * (1 - gfx('armor')), why); }; }
@@ -9168,7 +9224,7 @@ addEventListener('keydown', e => { const el = $('careerUI'); if (el && !el.hidde
 function progChip(force) {
   const M = CAREER && meta(); let el = $('progChip');
   if (!el) { el = document.createElement('button'); el.id = 'progChip'; el.dataset.act = 'career'; el.setAttribute('aria-label', 'Carrière : niveau, défis, médailles'); document.body.appendChild(el); }
-  const show = M && !UI.quickMode && (UI.screen === 'sea' || UI.screen === 'port') && !(WALK.on && (WALK.fly || WALK.sub || WALK.gun)); el.hidden = !show; if (!show) return;
+  const show = M && !UI.quickMode && (UI.screen === 'sea' || UI.screen === 'port') && !(WALK.on && (WALK.fly || WALK.gun)); el.hidden = !show; if (!show) return;
   chals(); const dd = M.daily.list.filter(c => c.done).length;
   const h = `<b>${INSIG[M.ins] ? INSIG[M.ins].g : ''} Niv. ${M.lvl}</b><span class="bar"><i style="width:${Math.round(M.xp / xpFor(M.lvl) * 100)}%"></i></span><em>${M.xp}/${xpFor(M.lvl)} XP · défis ${dd}/3</em>`;
   if (force || el._h !== h) { el._h = h; el.innerHTML = h; }
@@ -9219,6 +9275,138 @@ setInterval(() => {
 }, 500);
 window.addEventListener('load', () => setTimeout(() => { applyNames(); progChip(true); }, 50));
 { const base = loadCareer; loadCareer = function () { const c = base(); setTimeout(applyNames, 0); return c; }; }
+
+// ===== RÉGLAGES DU JOUEUR (lus tôt : d'autres systèmes les consultent) =====
+const SET = Object.assign({ vol: 0.8, voice: true, subs: true, cine: true, autoSlow: false, sens: 1, marker: true, killcam: true }, (() => { try { return JSON.parse(localStorage.getItem('ysmar-settings') || '{}'); } catch (e) { return {}; } })());
+function saveSettings() { try { localStorage.setItem('ysmar-settings', JSON.stringify(SET)); } catch (e) { } }
+
+// ===== VITESSE DU JEU : toujours au choix du commandant, avec des pas de calcul adaptatifs =====
+const WARPS = [1, 2, 4, 8, 16, 32];
+function autoSlow() { if (TRANSIT.on) transitStop('Événement en mer : vous reprenez la main.'); if (SET.autoSlow && MS.warp > 1) MS.warp = 1; }
+// avance la simulation de dt × w secondes ; sans projectile en vol, les pas peuvent s'allonger (jusqu'à 0,1 s) pour tenir ×16 et ×32
+function simAdvance(dt, w) {
+  const total = dt * w, busy = AIR.length > 0 || SHOTS.length > 0 || (PLAYER && PLAYER.heli && PLAYER.heli.state === 'manual');
+  const hmax = busy ? Math.max(dt, 1 / 60) : 0.1, n = Math.max(1, Math.ceil(total / hmax - 1e-6)), h = total / n, t0 = performance.now();
+  for (let k = 0; k < n; k++) { simStep(h); if (k < n - 1 && performance.now() - t0 > 45) break; }
+}
+
+// ===== TRANSIT RAPIDE : le bâtiment file vers l'objectif en accéléré, et rend la main au moindre événement =====
+const TRANSIT = { on: false, route: [], i: 0, dest: null, cam: 0, start: 0, game: 0, why: '' };
+function markPos(mk) { return mk.v ? (mk.v.removed ? null : { x: mk.v.x, z: mk.v.z }) : { x: mk.x, z: mk.z }; }
+function transitTarget() {
+  const P = PLAYER, m = MS.cur; if (!P) return null;
+  if (UI.wp) return { x: UI.wp.x, z: UI.wp.z, label: 'le point de route', r: 160, d: Math.hypot(UI.wp.x - P.x, UI.wp.z - P.z) };
+  if (!m) return null;
+  let best = null;
+  for (const mk of m.marks) {
+    if (mk.kind === 'friend') continue; const p = markPos(mk); if (!p) continue;
+    const r = mk.kind === 'zone' ? (mk.r || 300) + 150 : mk.kind === 'goal' ? (mk.r || 200) + 250 : mk.kind === 'hostile' ? 6000 : 1100;
+    const d = Math.hypot(p.x - P.x, p.z - P.z); if (d < r + 400) continue;
+    if (!best || d < best.d) best = { x: p.x, z: p.z, r, d, label: mk.label || 'l\'objectif', mk };
+  }
+  return best;
+}
+function transitStart() {
+  const P = PLAYER; if (!P || UI.screen !== 'sea' || !MS.cur) return;
+  if (MS.cur.over && !MS.cur.free) { toast('La mission est terminée.'); return; }
+  if (AIR.some(a => !a.dead && hostileF(a.faction, 'ysmar')) || [...TRACKS.values()].some(t => t.ident === 'hos' && !t.ent.sinking && Math.hypot(t.x - P.x, t.z - P.z) < 15000)) { toast('Menace proche : le transit rapide reprendra quand la zone sera sûre.'); return; }
+  if (P.tow) { toast('Pas de transit rapide en remorquage : la remorque casserait.'); return; }
+  if (P.rhibOp) { toast('Attendez le retour du semi-rigide.'); return; }
+  const T = transitTarget(); if (!T) { toast('Aucun objectif lointain : placez un point de route sur la carte (M) puis relancez le transit.'); return; }
+  if (WALK.on) walkExit(true);
+  const route = [];
+  if (inHarbor(P)) route.push(portExit());
+  route.push(...routeAround(route[0] || P, T, Math.max(14, P.T + 8)));
+  Object.assign(TRANSIT, { on: true, route, i: 0, dest: T, cam: 0, start: CB.clock, game: 0, why: '', mk: T.mk || null });
+  if (P.tel < 7) setTel(7);
+  UI.ap = 1; UI.apHdg = headingOf(route[0].x - P.x, route[0].z - P.z);
+  document.body.classList.add('transit'); UI.lastHud = 0;
+  vhf(castOf('second').short || 'Second', `Transit rapide vers ${T.label}, ${(T.d / 1852).toFixed(1).replace('.', ',')} nautiques. Je vous préviens au moindre événement.`, 'info');
+}
+function portExit() { return portW(PORT, -10, 1250); }
+function transitStop(why) {
+  if (!TRANSIT.on) return; TRANSIT.on = false; document.body.classList.remove('transit'); UI.camSnap = 1; UI.lastHud = 0;
+  const P = PLAYER; if (P) { UI.ap = 1; UI.apHdg = P.psi; }
+  const dt = CB.clock - TRANSIT.start, min = Math.round(dt / 60);
+  toast(`${why || 'Transit terminé.'}${min >= 1 ? ` (${min} min de navigation)` : ''}`);
+  const el = $('transitBox'); if (el) el.hidden = true;
+}
+function transitCheck() {
+  const T = TRANSIT, P = PLAYER, m = MS.cur;
+  if (!P || !m || (m.over && !m.free)) return transitStop('Mission terminée.');
+  if (P.aground) return transitStop('Haut-fond : le transit est interrompu.');
+  if (T.mk) { const p = markPos(T.mk); if (!p) return transitStop('L\'objectif a disparu.'); T.dest.x = p.x; T.dest.z = p.z; T.route[T.route.length - 1] = { x: p.x, z: p.z }; }
+  const d = Math.hypot(T.dest.x - P.x, T.dest.z - P.z);
+  if (d < T.dest.r) return transitStop(`Arrivée : ${T.dest.label} à ${d > 1500 ? (d / 1000).toFixed(1).replace('.', ',') + ' km' : Math.round(d) + ' m'}.`);
+  let wp = T.route[T.i]; if (T.i < T.route.length - 1 && Math.hypot(wp.x - P.x, wp.z - P.z) < 350) { T.i++; wp = T.route[T.i]; }
+  // cap vers le point suivant, en contournant les terres
+  UI.ap = 1; UI.apHdg = avoidHeading(P, headingOf(wp.x - P.x, wp.z - P.z), Math.max(500, P.L * 6));
+  if (P.tel < 7) P.tel = 7;
+}
+function transitFrame(dt) {
+  const t0 = performance.now(); let game = 0;
+  while (TRANSIT.on && performance.now() - t0 < 14 && game < 15) { transitCheck(); if (!TRANSIT.on) break; simStep(0.25); game += 0.25; }
+  TRANSIT.game += game; TRANSIT.cam += dt;
+  transitHUD();
+  return Math.max(1, game / Math.max(dt, 1e-3));
+}
+function transitHUD() {
+  let el = $('transitBox'); if (!el) { el = document.createElement('div'); el.id = 'transitBox'; document.body.appendChild(el); }
+  if (!TRANSIT.on) { el.hidden = true; return; }
+  const P = PLAYER, T = TRANSIT.dest, d = Math.hypot(T.x - P.x, T.z - P.z), sp = Math.max(1, P.speed), eta = (ENV.time + d / sp / 3600) % 24;
+  const h = `<p class="eyebrow">Transit rapide · ${escH(P.C.n)}</p><b>Vers ${escH(T.label)}</b><span>${(d / 1852).toFixed(1).replace('.', ',')} nautiques · ${kn(P.speed).toFixed(0)} nœuds · arrivée vers ${clockStr(eta)}</span><span>Heure du bord ${clockStr(ENV.time)}</span><button class="btn sm" data-act="transit">Reprendre la main (Espace)</button>`;
+  if (el._h !== h) { el._h = h; el.innerHTML = h; } el.hidden = false;
+}
+ACT.transit = () => { if (TRANSIT.on) transitStop('Vous reprenez la main.'); else transitStart(); };
+// caméra de transit : un long travelling autour du bâtiment
+{ const base = cameraStep; cameraStep = function (dt) {
+  if (!(TRANSIT.on && UI.screen === 'sea' && PLAYER)) return base(dt);
+  const P = PLAYER, R = camFor() * 2.6, a = TRANSIT.cam * 0.08 + 2.2 - P.psi, h = R * 0.32;
+  _v.set(P.x + Math.sin(a) * R, P.heave + h, P.z + Math.cos(a) * R); const wy = waveH(_v.x, _v.z, GFX.t) + 3; if (_v.y < wy) _v.y = wy;
+  camera.position.lerp(_v, clamp(dt * 2, 0, 1)); camera.lookAt(P.x, P.heave + 8, P.z); camera.fov = lerp(camera.fov, 50, 0.1); camera.updateProjectionMatrix();
+  $('bridgeFrame').hidden = true; $('bino').hidden = true;
+}; }
+// toute alerte radio interrompt le transit
+{ const base = vhf; vhf = function (from, text, kind) { base(from, text, kind); if (kind === 'alarm' && TRANSIT.on) transitStop(`${from} : ${text}`); }; }
+{ const base = setScreen; setScreen = function (s) { if (s !== 'sea' && TRANSIT.on) transitStop('Transit interrompu.'); base(s); }; }
+{ const base = clearWorldEntities; clearWorldEntities = function () { if (TRANSIT.on) { TRANSIT.on = false; document.body.classList.remove('transit'); const el = $('transitBox'); if (el) el.hidden = true; } base(); }; }
+addEventListener('keydown', e => { if (TRANSIT.on && UI.screen === 'sea' && (e.code === 'Space' || e.code === 'Escape') && !e.target.matches('input, textarea')) { e.preventDefault(); e.stopImmediatePropagation(); transitStop('Vous reprenez la main.'); } }, true);
+
+// ----- vie en mer : dauphins, oiseaux, pour que la navigation ne soit jamais vide -----
+const LIFE = { next: 240, pods: [], birds: null };
+function dolphinMesh() {
+  const g = new THREE.Group(), m = std('#5b6a74', 0.35, 0.1);
+  const b = new THREE.Mesh(new THREE.SphereGeometry(0.35, 10, 8), m); b.scale.set(1, 0.9, 3.4); g.add(b);
+  const f = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.45, 6), m); f.position.set(0, 0.36, 0.1); f.rotation.x = -0.4; g.add(f);
+  const t = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.05, 0.3), m); t.position.z = 1.15; g.add(t);
+  return g;
+}
+function lifeStep(dt) {
+  const P = PLAYER; if (!P || UI.screen !== 'sea' || !MS.cur) return;
+  LIFE.next -= dt;
+  if (LIFE.next <= 0) {
+    LIFE.next = rr(300, 700);
+    const quiet = !AIR.some(a => !a.dead) && ![...TRACKS.values()].some(t => t.ident === 'hos');
+    if (quiet && P.speed > 2 && gridH(P.x, P.z) < -30 && !P.sink) {
+      const side = chance(0.5) ? 1 : -1, n = ri(3, 6), f = P.fwd, sd = { x: -f.z, z: f.x }, pod = { t: 0, life: 70, list: [] };
+      for (let i = 0; i < n; i++) { const m = dolphinMesh(); scene.add(m); pod.list.push({ m, off: rr(-12, 12), lat: side * (P.B / 2 + rr(8, 22)), ph: rr(0, TAU), sp: rr(0.9, 1.3) }); }
+      LIFE.pods.push(pod);
+      vhf('Veille', pick([`Des dauphins à ${side > 0 ? 'tribord' : 'bâbord'}, ils jouent dans la vague d'étrave !`, `Un banc de dauphins nous accompagne par ${side > 0 ? 'tribord' : 'bâbord'}.`]), 'good');
+    }
+  }
+  for (const pod of LIFE.pods.slice()) {
+    pod.t += dt; const f = P.fwd, sd = { x: -f.z, z: f.x };
+    for (const d of pod.list) {
+      const ph = pod.t * 2.2 * d.sp + d.ph, jump = Math.max(0, Math.sin(ph)), along = P.L * 0.35 + d.off + Math.sin(pod.t * 0.3 + d.ph) * 6;
+      const x = P.x + f.x * along + sd.x * d.lat, z = P.z + f.z * along + sd.z * d.lat, y = waveH(x, z, GFX.t) - 0.8 + jump * 2.2;
+      d.m.position.set(x, y, z); d.m.rotation.set(-Math.cos(ph) * 0.7, -P.psi, 0, 'YXZ'); d.m.visible = pod.t < pod.life;
+      if (jump > 0.05 && Math.cos(ph) < -0.9 && chance(0.3)) wakeSplash(x, z, 2, 0.25);
+    }
+    if (pod.t > pod.life) { for (const d of pod.list) dropObj(d.m); LIFE.pods.splice(LIFE.pods.indexOf(pod), 1); }
+  }
+}
+{ const base = simStep; simStep = function (dt) { base(dt); lifeStep(dt); }; }
+{ const base = clearWorldEntities; clearWorldEntities = function () { for (const pod of LIFE.pods.splice(0)) for (const d of pod.list) dropObj(d.m); LIFE.next = 240; base(); }; }
 
 </script>
 
