@@ -462,6 +462,26 @@ body.transit::before, body.cine::before { top: 0; } body.transit::after, body.ci
 #transitBox { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(10vh + env(safe-area-inset-bottom, 0px)); z-index: 34; width: min(420px, calc(100vw - 32px)); background: var(--panel2); border: 1px solid var(--amber); border-radius: 10px; padding: 10px 14px; display: grid; gap: 3px; text-align: center; }
 #transitBox[hidden] { display: none; } #transitBox .eyebrow { margin: 0; font-size: 11px; color: var(--amber2); letter-spacing: .08em; text-transform: uppercase; } #transitBox b { font-weight: 500; font-size: 15px; } #transitBox span { font-size: 12.5px; color: var(--mut); } #transitBox .btn { justify-self: center; margin-top: 6px; }
 @media (prefers-reduced-motion: reduce) { body.transit::before, body.transit::after, body.cine::before, body.cine::after { animation: none; } }
+/* ===== cinématiques ===== */
+body.cine::before, body.cine::after { z-index: 59; }
+body.cine #hud > :not(#vhf), body.cine #hub, body.cine #tuto, body.cine #progChip, body.cine #transitBox, body.cine #msgPop, body.cine #threat { visibility: hidden !important; }
+#cineCap { position: fixed; left: 0; right: 0; bottom: calc(8vh + 22px); z-index: 61; display: grid; justify-items: center; gap: 6px; pointer-events: none; text-align: center; padding: 0 16px; }
+#cineCap[hidden] { display: none; } #cineCap p { margin: 0; } #cineCap .ct { font: 600 clamp(24px, 3.6vw, 40px)/1.1 var(--fell, serif); color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.75); letter-spacing: .01em; }
+#cineCap .cs { max-width: 760px; font-size: 15px; color: #e8eef0; text-shadow: 0 1px 6px rgba(0,0,0,.85); }
+#cineCap.in .ct, #cineCap.in .cs { animation: cfade 1s ease-out both; } #cineCap.in .cs { animation-delay: .3s; }
+#cineCap .btn { position: fixed; right: 16px; top: calc(8vh + 12px); pointer-events: auto; background: rgba(0,0,0,.45); }
+@keyframes cfade { from { opacity: 0; transform: translateY(8px); } }
+#cineTitle { position: fixed; left: 50%; top: 26%; transform: translateX(-50%); z-index: 58; display: grid; justify-items: center; gap: 4px; pointer-events: none; text-align: center; width: min(640px, calc(100vw - 32px)); }
+#cineTitle[hidden] { display: none; } #cineTitle b { font: 600 clamp(26px, 4vw, 44px)/1.1 var(--fell, serif); color: var(--amber2); text-shadow: 0 2px 14px rgba(0,0,0,.7); } #cineTitle span { font-size: 15px; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,.8); }
+#cineTitle.in { animation: ctitle 3.2s ease-out both; } @keyframes ctitle { 0% { opacity: 0; transform: translateX(-50%) scale(.92); } 12% { opacity: 1; transform: translateX(-50%) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { #cineCap.in .ct, #cineCap.in .cs, #cineTitle.in { animation: none; } }
+/* ===== ports d'affectation : drapeaux, répartition de la flotte ===== */
+i.fl { display: inline-block; width: 18px; height: 12px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; box-shadow: 0 0 0 1px rgba(0,0,0,.25); flex: none; }
+i.fl.fr { background: linear-gradient(90deg, #1f4aa8 33.3%, #fff 33.3% 66.6%, #e1263a 66.6%); }
+i.fl.it { background: linear-gradient(90deg, #1b9a4b 33.3%, #fff 33.3% 66.6%, #d8303a 66.6%); }
+i.fl.tn { background: radial-gradient(circle at 50% 50%, #e70013 2.4px, #fff 2.6px 4.4px, #e70013 4.6px); }
+i.fl.dz { background: radial-gradient(circle at 52% 50%, #d21034 2.2px, transparent 2.4px), linear-gradient(90deg, #006233 50%, #fff 50%); }
+.fleetmap { display: grid; gap: 6px; } .fleetmap .fm { display: grid; gap: 4px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; } .fleetmap .fm > div:first-child { display: flex; justify-content: space-between; gap: 8px; } .fleetmap .fm span { font-size: 12px; color: var(--mut); }
 </style>
 <canvas id="gl" aria-label="Vue du bâtiment"></canvas>
 <div id="bridgeFrame" hidden></div>
@@ -1669,6 +1689,8 @@ function terrainH(x, z) {
   for (const p of PORTS) {
     const dx = x - p.x, dz = z - p.z; if (dx > 3000 || dx < -3000 || dz > 3000 || dz < -3000) continue;
     const lx = dx * p.c + dz * p.s, lz = -dx * p.s + dz * p.c;
+    // talus : pas de falaise au ras des quais, la pente s'adoucit autour de la ville
+    if (h > 3.2) { const ex = Math.max(0, Math.abs(lx) - 760), ez = Math.max(0, lz - 30, -520 - lz); h = Math.min(h, 3.2 + Math.max(0, -lz - 60) * 0.12 + Math.hypot(ex, ez) * 0.42); }
     if (lx > -1400 && lx < 1400 && lz > -700 && lz < 2600) {
       // terre-plein de la ville
       if (lx > -760 && lx < 760 && lz > -520 && lz < 30) { const w = smooth(760, 600, Math.abs(lx)) * smooth(-520, -380, lz); h = lerp(h, Math.max(3.2, Math.min(Math.max(h, 3.2), 3.2 + (-lz - 60) * 0.12)), w); }
@@ -3449,13 +3471,13 @@ function genMission(type, seed) {
     def.boat = pick(BOATNAMES);
     def.pos = openWaterPoint(PORT.entrance.x, PORT.entrance.z, 4500, 7500, 30, 600, r);
     def.title = `Évasan : chalutier ${def.boat}`;
-    def.brief = `Un matelot du chalutier ${def.boat} a la main prise dans un treuil. Il faut le récupérer avec le semi-rigide et le ramener à Toulon au plus vite. Demandez au chalutier de stopper quand vous approchez.`;
+    def.brief = `Un matelot du chalutier ${def.boat} a la main prise dans un treuil. Il faut le récupérer avec le semi-rigide et le ramener à ${PORT.n} au plus vite. Demandez au chalutier de stopper quand vous approchez.`;
     def.reward = 8500; def.rep = 50;
   } else if (type === 'fisheries') {
     def.zone = openWaterPoint(PORT.entrance.x, PORT.entrance.z, 3500, 6500, 25, 600, r);
     def.n = 3; def.bad = Math.floor(r() * 3);
     def.title = 'Police des pêches au large';
-    def.brief = `Des signalements font état de chalutage illégal dans la zone de cantonnement. Contrôlez les trois chalutiers présents avec l'équipe d'inspection. En cas d'infraction, déroutez le navire vers Toulon.`;
+    def.brief = `Des signalements font état de chalutage illégal dans la zone de cantonnement. Contrôlez les trois chalutiers présents avec l'équipe d'inspection. En cas d'infraction, déroutez le navire vers ${PORT.n}.`;
     def.reward = 8000; def.rep = 45;
   } else if (M_GEN[type]) M_GEN[type](def, r, pl, rank, hard);
   def.req = MREQ[type] || Object.keys(CLASSES);
@@ -3494,7 +3516,7 @@ function radarSees(target, rcs) {
 }
 function portOk(m, what) {
   if (inHarbor(PLAYER)) return true; if (!m.inOp) return false;
-  if (m.handAt == null) { m.handAt = m.t + 50; const o = O(m, 'return'); if (o) o.text = `Remettre ${what} à l'hélicoptère de la base`; m.marks = m.marks.filter(k => k.label !== 'Toulon'); vhf('Hélico de la base', `Nous arrivons pour prendre en charge ${what}. Gardez cap et vitesse, cinquante secondes.`, 'info'); }
+  if (m.handAt == null) { m.handAt = m.t + 50; const o = O(m, 'return'); if (o) o.text = `Remettre ${what} à l'hélicoptère de la base`; m.marks = m.marks.filter(k => k.label !== PORT.n); vhf('Hélico de la base', `Nous arrivons pour prendre en charge ${what}. Gardez cap et vitesse, cinquante secondes.`, 'info'); }
   return m.t >= m.handAt;
 }
 function inHarbor(v) { const l = portL(PORT, v.x, v.z); return Math.abs(l.x) < 700 && l.z > -60 && l.z < 1100; }
@@ -3582,7 +3604,7 @@ function freeSail(opts) {
   ENV.time = def.time; ENV.windDir = def.windDir; setWeather(def.weather, true); genWaves(ENV.windDir, 3);
   const m = newRuntime(def); m.free = true; m.limit = 1e9; MS.cur = m; MS.warp = 1; LOG.length = 0;
   { const s0 = PL(-10, 630); spawnPlayer(s0.x, s0.z, PORT.sea, cls); } m.cls = cls; PLAYER.u = 3; PLAYER.tel = 6; PLAYER.rpm = 0.5;
-  m.objs.push({ id: 'free', text: 'Naviguer librement au large de Toulon', state: 'active', prog: 0 });
+  m.objs.push({ id: 'free', text: `Naviguer librement au large de ${PORT.n}`, state: 'active', prog: 0 });
   m.update = () => { }; m.actions = () => [];
   spawnTraffic(m);
   vhf('Capitainerie', 'Albatros, bonne sortie. Météo réglable dans le menu.', 'info');
@@ -3620,7 +3642,7 @@ M_SETUP.rescue = (m, d) => {
     if (m.rafts.every(v => v.done)) {
       if (m.saved === 0) return endMission(false, 'Aucun naufragé n\'a pu être sauvé.');
       setObj(m, 'recover', 'done');
-      if (!O(m, 'return')) { addObj(m, 'return', `Ramener les rescapés à ${PORT.n}`); vhf('CROSS Méditerranée', 'Bien reçu Albatros. Les rescapés sont attendus au port, une ambulance est prévue.', 'info'); m.marks.push({ x: PORT.entrance.x, z: PORT.entrance.z, kind: 'goal', label: 'Toulon' }); }
+      if (!O(m, 'return')) { addObj(m, 'return', `Ramener les rescapés à ${PORT.n}`); vhf('CROSS Méditerranée', 'Bien reçu Albatros. Les rescapés sont attendus au port, une ambulance est prévue.', 'info'); m.marks.push({ x: PORT.entrance.x, z: PORT.entrance.z, kind: 'goal', label: PORT.n }); }
       if (portOk(m, 'les rescapés')) { setObj(m, 'return', 'done'); endMission(true, `${m.saved} personnes sauvées sur ${d.people}.`, { saved: m.saved }); }
     }
   };
@@ -3839,7 +3861,7 @@ M_SETUP.medevac = (m, d) => {
   const t = new Vessel('trawler', buildTrawler(d.boat), d.pos.x, d.pos.z, rnd() * TAU, { name: d.boat }); t.ais = true; t.rcs = 25; t.u = 2.2;
   t.ai = { mode: 'trawl', home: d.pos }; m.boat = t; m.ents.push(t); m.cond = 100;
   m.marks.push({ v: t, kind: 'target', label: d.boat });
-  addObj(m, 'rdv', `Rejoindre le ${d.boat}`); addObj(m, 'transfer', 'Transférer le blessé avec le semi-rigide'); addObj(m, 'return', 'Ramener le blessé à Toulon');
+  addObj(m, 'rdv', `Rejoindre le ${d.boat}`); addObj(m, 'transfer', 'Transférer le blessé avec le semi-rigide'); addObj(m, 'return', `Ramener le blessé à ${PORT.n}`);
   m.update = dt => {
     m.cond -= dt / 60 * (O(m, 'transfer').state === 'done' ? 1.0 / crewEff('medic') : 1.6);
     m.status = `État du blessé : ${Math.max(0, Math.round(m.cond))} %`;
@@ -3874,7 +3896,7 @@ M_SETUP.fisheries = (m, d) => {
     const near = m.boats.filter(b => !b.inspected).sort((a, b) => distTo(PLAYER, a) - distTo(PLAYER, b))[0];
     if (!near || PLAYER.rhibOp) return [];
     const a = rhibAvail(near, 400);
-    return [{ id: 'insp', label: `Inspecter le ${near.name}`, ok: a.ok, why: a.why, run: () => { near.ai.mode = 'stop'; near.dead = true; launchRhib({ target: near, work: 75, near: 14, say: `Équipe d'inspection en route vers le ${near.name}.`, onWork: () => { near.inspected = true; if (near.bad) { vhf('Bosco', `Infraction sur le ${near.name} : maillage illégal et 2 tonnes de juvéniles. On le déroute.`, 'alarm'); m.escorting = near; near.dead = false; near.ai.mode = 'escort'; addObj(m, 'escort', `Escorter le ${near.name} jusqu'à Toulon`); m.marks.push({ x: PORT.entrance.x, z: PORT.entrance.z, kind: 'goal', label: 'Toulon' }); } else { vhf('Bosco', `${near.name} : tout est en règle.`, 'good'); near.dead = false; near.ai.mode = 'trawl'; } } }); } }];
+    return [{ id: 'insp', label: `Inspecter le ${near.name}`, ok: a.ok, why: a.why, run: () => { near.ai.mode = 'stop'; near.dead = true; launchRhib({ target: near, work: 75, near: 14, say: `Équipe d'inspection en route vers le ${near.name}.`, onWork: () => { near.inspected = true; if (near.bad) { vhf('Bosco', `Infraction sur le ${near.name} : maillage illégal et 2 tonnes de juvéniles. On le déroute.`, 'alarm'); m.escorting = near; near.dead = false; near.ai.mode = 'escort'; addObj(m, 'escort', `Escorter le ${near.name} jusqu'à ${PORT.n}`); m.marks.push({ x: PORT.entrance.x, z: PORT.entrance.z, kind: 'goal', label: PORT.n }); } else { vhf('Bosco', `${near.name} : tout est en règle.`, 'good'); near.dead = false; near.ai.mode = 'trawl'; } } }); } }];
   };
 };
 
@@ -3995,8 +4017,10 @@ function defaultCls(def) {
   const req = def.req || ALLC;
   if (CAREER && req.includes(CAREER.ship) && owned(CAREER.ship)) return CAREER.ship;
   const rec = recommendCls(def);
-  if (owned(rec) && req.includes(rec)) return rec;
-  const o = req.find(c => owned(c)); return o || rec;
+  if (owned(rec) && req.includes(rec) && shipHere(rec)) return rec;
+  const o = req.find(c => owned(c) && shipHere(c)); if (o) return o;
+  if (!owned(rec) || !req.some(c => !owned(c))) return rec;
+  return req.find(c => !owned(c));
 }
 const SHIPN2 = ['KARINA B.', 'BALTIC SWAN', 'STELLA MARIS', 'NORTHERN LIGHT', 'PORTO BELLO', 'MERIDIAN'];
 const TANKN = ['YSTAD SPIRIT', 'NORDVIK', 'PETROMAR IV', 'SAINT-MALO'];
@@ -4020,8 +4044,8 @@ M_GEN.convoy = (d, r, pl, rank, hard) => {
   d.at = d.from; d.startAt = Object.assign(wet(PL(fl.x + 1400, fl.z - 600), 25), { psi: PORT.ang });
   { const a = SHIPN2.slice().sort(() => r() - 0.5); d.names = [pick(TANKN), a[0], a[1]]; }
   d.waves = hard ? 4 : 3;
-  d.title = `Convoi ${d.names[0]} vers Toulon`;
-  d.brief = `Trois navires marchands, dont le pétrolier ${d.names[0]}, remontent vers Toulon. Le renseignement signale des vedettes lance-missiles de la Flottille de Varne et des drones d'attaque dans le secteur sud. Restez au contact du convoi : votre défense rapprochée ne protège que ce qui est près de vous. Au moins deux navires doivent arriver.`;
+  d.title = `Convoi ${d.names[0]} vers ${PORT.n}`;
+  d.brief = `Trois navires marchands, dont le pétrolier ${d.names[0]}, font route vers ${PORT.n}. Le renseignement signale des vedettes lance-missiles de la Flottille de Varne et des drones d'attaque dans le secteur sud. Restez au contact du convoi : votre défense rapprochée ne protège que ce qui est près de vous. Au moins deux navires doivent arriver.`;
   d.radio = 'Convoi en route, ici le commandement. Les vedettes de Varne sont sorties cette nuit, restez vigilants.';
   d.reward = 26000; d.rep = 95; d.limit = 75 * 60;
 };
@@ -4039,8 +4063,8 @@ M_GEN.aaw = (d, r, pl, rank, hard) => {
   d.at = wet(PL(390, 3670), 30); d.startAt = Object.assign(wet(PL(-210, 5470), 30), { psi: PORT.ang });
   d.from = PORT.sea + rr(-0.7, 0.7); d.tankers = [pick(TANKN), pick(SHIPN2), pick(SHIPN2)];
   d.nwaves = 4 + (hard ? 1 : 0); d.missiles = hard || rank >= 2;
-  d.title = 'Bouclier de la rade de Toulon';
-  d.brief = `Des drones d'attaque lancés depuis la mer menacent les navires au mouillage devant Toulon. Plusieurs vagues sont attendues en provenance du ${bearingDesc(d.from)}${d.missiles ? ', dont des missiles de croisière' : ''}. Placez-vous entre la menace et la rade, et ne laissez rien passer : il faut sauver au moins deux des trois navires.`;
+  d.title = `Bouclier de la rade de ${PORT.n}`;
+  d.brief = `Des drones d'attaque lancés depuis la mer menacent les navires au mouillage devant ${PORT.n}. Plusieurs vagues sont attendues en provenance du ${bearingDesc(d.from)}${d.missiles ? ', dont des missiles de croisière' : ''}. Placez-vous entre la menace et la rade, et ne laissez rien passer : il faut sauver au moins deux des trois navires.`;
   d.radio = 'Ici le commandement. Les premiers drones sont attendus dans quelques minutes.';
   d.reward = 24000; d.rep = 90; d.limit = 40 * 60;
 };
@@ -4076,7 +4100,7 @@ M_GEN.suspect = (d, r, pl, rank, hard) => {
   d.atL = { x: rr(1000, 5000), z: rr(9500, 12500) }; d.at = wet(PL(d.atL.x, d.atL.z), 40); d.name = pick(['CALDER', 'MIRA BAY', 'KASSANDRA', 'BRANDT']);
   d.dest = wet(PL(-12250, d.atL.z + rr(-1500, 1500)), 40); d.escort = hard || r() < 0.35;
   d.title = `Cargo suspect : le ${d.name}`;
-  d.brief = `Le renseignement signale que le cargo ${d.name} transporte des armes pour les Corsaires de la Grise. Il navigue AIS coupé parmi d'autres navires dans le rail au large de Toulon. Trouvez-le (vue directe ou hélicoptère), sommez-le de stopper, tirez au besoin des coups de semonce, puis envoyez l'équipe de visite. Il ne doit pas sortir de notre zone de surveillance.`;
+  d.brief = `Le renseignement signale que le cargo ${d.name} transporte des armes pour les Corsaires de la Grise. Il navigue AIS coupé parmi d'autres navires dans le rail au large de ${PORT.n}. Trouvez-le (vue directe ou hélicoptère), sommez-le de stopper, tirez au besoin des coups de semonce, puis envoyez l'équipe de visite. Il ne doit pas sortir de notre zone de surveillance.`;
   d.reward = 19000; d.rep = 75; d.limit = 55 * 60;
 };
 
@@ -4106,7 +4130,7 @@ M_SETUP.convoy = (m, d) => {
   for (const v of m.convoy) { v.u = 6; v.rpm = 0.7; m.ents.push(v); m.marks.push({ v, kind: 'friend', label: v.name }); }
   m.marks.push({ x: d.dest.x, z: d.dest.z, r: 900, kind: 'goal', label: 'Arrivée du convoi' });
   m.total = Math.hypot(route[0].x - d.from.x, route[0].z - d.from.z) + (route[1] ? Math.hypot(route[1].x - route[0].x, route[1].z - route[0].z) : 0); m.travel = 0;
-  addObj(m, 'escort', 'Escorter le convoi jusqu\'à Toulon'); addObj(m, 'keep', 'Au moins deux navires doivent arriver (3/3)'); addObj(m, 'threat', `Repousser les attaques (0/${d.waves})`);
+  addObj(m, 'escort', `Escorter le convoi jusqu'à ${PORT.n}`); addObj(m, 'keep', 'Au moins deux navires doivent arriver (3/3)'); addObj(m, 'threat', `Repousser les attaques (0/${d.waves})`);
   fishingDecoys(m, { x: lerp(d.from.x, d.dest.x, 0.4), z: lerp(d.from.z, d.dest.z, 0.4) }, 3, false);
   m.wavesDone = 0; m.enemies = [];
   const tgt = () => pick(m.convoy.filter(alive).concat([PLAYER]));
@@ -4128,7 +4152,7 @@ M_SETUP.convoy = (m, d) => {
     const live = m.enemies.filter(v => alive(v) && !(v.cai && v.cai.fleeing)).length + AIR.filter(a => !a.dead && hostileF(a.faction, 'ysmar')).length;
     O(m, 'threat').text = `Repousser les attaques (${Math.min(m.wavesDone, d.waves)}/${d.waves})`; setObj(m, 'threat', m.wavesDone >= d.waves && !live ? 'done' : null, m.wavesDone / d.waves);
     const dc = distTo(PLAYER, lead); m.status = dc > 5000 ? `Vous êtes à ${(dc / 1000).toFixed(1).replace('.', ',')} km du convoi` : live ? `${live} menace${live > 1 ? 's' : ''} active${live > 1 ? 's' : ''}` : '';
-    if (m.leg === m.route.length - 1 && dw < 900) { setObj(m, 'escort', 'done'); setObj(m, 'keep', 'done'); endMission(true, `Le convoi est arrivé à Toulon avec ${n} navires sur 3.`, { bonus: n === 3 ? 4000 : 0, note: n === 3 ? 'Aucune perte dans le convoi' : '' }); }
+    if (m.leg === m.route.length - 1 && dw < 900) { setObj(m, 'escort', 'done'); setObj(m, 'keep', 'done'); endMission(true, `Le convoi est arrivé à ${PORT.n} avec ${n} navires sur 3.`, { bonus: n === 3 ? 4000 : 0, note: n === 3 ? 'Aucune perte dans le convoi' : '' }); }
   };
   m.actions = () => [];
 };
@@ -4316,7 +4340,7 @@ M_SETUP.suspect = (m, d) => {
       const G = gunOf(PLAYER);
       out.push({ id: 'warn', label: `Coup de semonce (${m.warns}/2)`, ok: !!G && m.hailed && dp < Math.min(G ? G.range : 0, 3000) && m.cd <= 0, why: !G ? 'Pas de canon.' : !m.hailed ? 'Faites d\'abord une sommation.' : dp >= 3000 ? 'Rapprochez-vous à 3 km.' : 'Rechargement.', run: () => { m.cd = 8; m.warns++; const f = S.fwd; fireGun(S, { x: f.x * (S.L * 0.5 + 150), z: f.z * (S.L * 0.5 + 150) }, () => { S.morale -= 0.34; vhf('Canonnier', 'Coup de semonce devant l\'étrave du cargo.', 'info'); }); } });
     }
-    if (S.mode === 'stop' && O(m, 'board').state !== 'done') { const a = rhibAvail(S, 600); out.push({ id: 'board', label: 'Équipe de visite : monter à bord', ok: a.ok, why: a.why, run: () => launchRhib({ target: S, work: 120, near: 16, say: `Équipe de visite en route vers le ${d.name}.`, onWork: () => vhf('Chef d\'équipe', 'Conteneurs ouverts : armes légères et munitions sous des sacs de riz. L\'équipage est consigné.', 'good'), onDone: () => { setObj(m, 'board', 'done'); CAREER.stats.seized++; endMission(true, `Le ${d.name} est saisi et dérouté vers Toulon avec une équipe de prise.`, { bonus: m.warns <= 1 && S.hpv >= S.maxHp ? 2000 : 0, note: m.warns <= 1 && S.hpv >= S.maxHp ? 'Arrêté sans dégâts' : '' }); } }) }); }
+    if (S.mode === 'stop' && O(m, 'board').state !== 'done') { const a = rhibAvail(S, 600); out.push({ id: 'board', label: 'Équipe de visite : monter à bord', ok: a.ok, why: a.why, run: () => launchRhib({ target: S, work: 120, near: 16, say: `Équipe de visite en route vers le ${d.name}.`, onWork: () => vhf('Chef d\'équipe', 'Conteneurs ouverts : armes légères et munitions sous des sacs de riz. L\'équipage est consigné.', 'good'), onDone: () => { setObj(m, 'board', 'done'); CAREER.stats.seized++; endMission(true, `Le ${d.name} est saisi et dérouté vers ${PORT.n} avec une équipe de prise.`, { bonus: m.warns <= 1 && S.hpv >= S.maxHp ? 2000 : 0, note: m.warns <= 1 && S.hpv >= S.maxHp ? 'Arrêté sans dégâts' : '' }); } }) }); }
     return out;
   };
 };
@@ -4743,7 +4767,7 @@ function screenHTML() {
     if (!C.board) C.board = missionBoard().map(d => d.seed + ':' + d.type);
     const board = C.board.map(k => { const [seed, type] = k.split(':'); return genMission(type, +seed); });
     const cost = shipCosts(C.ship);
-    return `<div class="port"><header class="ph"><div><p class="eyebrow">État-major de Toulon · jour ${C.day}</p><h2>${escH(RANKS[rk].n)}, commandant ${escH(deN(C.ship))}</h2></div>
+    return `<div class="port"><header class="ph"><div><p class="eyebrow">État-major de ${escH(PORT.n)} · jour ${C.day}</p><h2>${escH(RANKS[rk].n)}, commandant ${escH(deN(C.ship))}</h2></div>
       <div class="purse"><b>${fmtCr(C.credits)}</b><span>Réputation ${C.rep}${next ? ` / ${next.rep} (${escH(next.n)})` : ''}</span><em class="pb"><s style="width:${next ? Math.round((C.rep - RANKS[rk].rep) / (next.rep - RANKS[rk].rep) * 100) : 100}%"></s></em></div></header>
       <div class="cols">
         <section><h3>Ordres de mission</h3>${board.map((d, i) => { const dc = defaultCls(d); return `<article class="order ${d.hard ? 'hard' : ''}"><div class="oh"><span class="tag">${MTYPES[d.type].ic}</span><b>${escH(d.title)}</b></div><p>${escH(d.brief.split('. ')[0])}.</p><div class="wxl">${wxLine(d.weather, d.time)}</div><div class="of"><span>${fmtCr(d.reward)} · réputation +${d.rep}${d.hard ? ' · <b class="warn">difficile</b>' : ''}<br><i class="cls">${owned(dc) ? 'Avec ' + escH(leN(dc)) : 'Bâtiment prêté : ' + escH(CLASSES[dc].n)}</i></span><button class="btn pri" data-act="brief" data-i="${i}">Lire l'ordre</button></div></article>`; }).join('')}
@@ -4819,7 +4843,7 @@ const PRESETS = {
 };
 function helpHTML() {
   return `<div class="help"><div class="paper sm"><div class="rowsp"><h2>Commandes</h2><button class="btn ghost" data-act="closehelp">Fermer</button></div>
-    <table><tr><td>Au port</td><td>Vous êtes à pied sur le quai de Toulon : <kbd>Z</kbd> <kbd>Q</kbd> <kbd>S</kbd> <kbd>D</kbd> pour marcher, <kbd>E</kbd> pour entrer à l'état-major, à l'arsenal, au carré, à la capitainerie, ou pour monter à bord par la coupée. Un ordre accepté vous attend à bord.</td></tr>
+    <table><tr><td>Au port</td><td>Vous êtes à pied sur le quai de ${escH(PORT.n || 'Toulon')} : <kbd>Z</kbd> <kbd>Q</kbd> <kbd>S</kbd> <kbd>D</kbd> pour marcher, <kbd>E</kbd> pour entrer à l'état-major, à l'arsenal, au carré, à la capitainerie, ou pour monter à bord par la coupée. Un ordre accepté vous attend à bord.</td></tr>
     <tr><td><kbd>Z</kbd> <kbd>S</kbd></td><td>Chadburn : plus ou moins de machine (9 crans, de « Arrière toute » à « Avant forcée »)</td></tr>
     <tr><td><kbd>Q</kbd> <kbd>D</kbd></td><td>Barre à gauche / à droite (maintenir). <kbd>X</kbd> barre à zéro</td></tr>
     <tr><td><kbd>A</kbd> <kbd>E</kbd></td><td>Propulseur d'étrave : pousse l'avant à gauche / à droite, efficace sous 3 nœuds</td></tr>
@@ -5046,7 +5070,7 @@ function loop(now) {
     if (UI.chartFull && frameN % 4 === 0) drawChart($('chartFullC'), UI.fullCx, UI.fullCz, UI.fullScale, true);
     hudUpdate(); targetOverlay();
     if (CO.open) { if (frameN % 2 === 0) drawCO(); if (frameN % 12 === 0) renderCOPanel(); }
-    const m = MS.cur; if (m && m.over && !m.shown && m.debrief) { m.shownT = (m.shownT || 0) + dt; if (m.shownT > 5) { m.shown = true; setScreen('debrief'); } }
+    const m = MS.cur; if (m && m.over && !m.shown && m.debrief && !CINE.on) { m.shownT = (m.shownT || 0) + dt; if (m.shownT > 5) { m.shown = true; setScreen('debrief'); } }
   }
   if (UI.screen === 'port') hubFrame();
   audioUpdate();
@@ -5251,6 +5275,7 @@ function mooredFleet() {
   const act = CAREER ? CAREER.ship : 'opv';
   for (const c of ALLC) {
     if (c === act) { FLEET[c] = PLAYER; continue; }
+    if (!shipHere(c)) continue;
     const b = berthOf(c), K = CLASSES[c];
     const v = new Vessel(K.kind, K.build(), b.x, b.z, b.psi, { name: K.n }); v.faction = 'ysmar'; v.ai = { mode: 'moored', b }; v.moored = true; v.radar = false;
     FLEET[c] = v;
@@ -5358,7 +5383,7 @@ function hubRender() {
   $('hubTop').hidden = HUB.title; $('hubNav').hidden = HUB.title; $('hubLabels').hidden = HUB.title;
   if (HUB.title) { setH('hubTitle', titleCard()); $('hubPanel').hidden = true; return; }
   const C = CAREER, rk = rankOf(C.rep), next = RANKS[rk + 1];
-  setH('hubTop', `<div class="ht1"><p class="eyebrow">Toulon · jour ${C.day}</p><b>${escH(RANKS[rk].n)}</b><span>Commandant ${escH(deN(C.ship))}</span></div>
+  setH('hubTop', `<div class="ht1"><p class="eyebrow">${escH(PORT.n)} · ${escH(PORT.reg)} · jour ${C.day}</p><b>${escH(RANKS[rk].n)}</b><span>Commandant ${escH(deN(C.ship))}</span></div>
     <div class="ht2"><b class="cr">${fmtCr(C.credits)}</b><span>Réputation ${C.rep}${next ? ` / ${next.rep}` : ''}</span><em class="pb"><s style="width:${next ? Math.round((C.rep - RANKS[rk].rep) / (next.rep - RANKS[rk].rep) * 100) : 100}%"></s></em></div>
     <div class="ht3"><button class="btn sm msgb" data-act="msgs">Messages${unreadTotal() ? `<i class="badge">${unreadTotal()}</i>` : ''}</button><button class="btn sm" data-act="help" aria-label="Commandes">?</button><button class="btn sm ghost" data-act="title">Quitter</button></div>`);
   setH('hubNav', [['over', 'Vue du port'], ['em', 'État-major'], ['ship:' + C.ship, 'Mon bâtiment'], ['arsenal', 'Arsenal'], ['carre', 'Carré'], ['capit', 'Capitainerie']].map(([id, l]) => `<button class="${HUB.place === id ? 'on' : ''}" data-act="go" data-p="${id}">${l}</button>`).join(''));
@@ -5393,7 +5418,7 @@ function emPanel() {
     const req = d.req || ALLC, rec = recommendCls(d); const opts = req.filter(c => owned(c)); if (!opts.includes(rec) && req.includes(rec)) opts.push(rec);
     const canBerth = d.type !== 'escort' && !big && !d.startAt;
     body = `<div class="order ${d.hard ? 'hard' : ''}"><div class="oh"><span class="tag">${MTYPES[d.type].ic}</span><b>${escH(d.title)}</b></div><p>${escH(d.brief)}</p><div class="wxl">${wxLine(d.weather, d.time)}</div><p class="small ink">${fmtCr(d.reward)} et ${d.rep} points de réputation${d.hard ? ' · mission difficile' : ''}.</p></div>
-      <h4>Avec quel bâtiment ?</h4><div class="chips">${opts.map(c => `<button class="${cls === c ? 'on' : ''}" data-act="shipsel" data-v="${c}">${escH(CLASSES[c].n)}${owned(c) ? '' : ' (prêt)'}</button>`).join('')}</div>
+      <h4>Avec quel bâtiment ?</h4><div class="chips">${opts.map(c => `<button class="${cls === c ? 'on' : ''}" data-act="shipsel" data-v="${c}" ${owned(c) && !shipHere(c) ? 'disabled' : ''}>${escH(CLASSES[c].n)}${owned(c) ? (shipHere(c) ? '' : ` (à ${escH(portOf(shipPort(c)).n)})`) : ' (prêt)'}</button>`).join('')}</div>${owned(cls) && !shipHere(cls) ? `<p class="warn">${escH(K.n)} est affecté à ${escH(portOf(shipPort(cls)).n)} : choisissez un bâtiment présent, ou rejoignez-le (Affectations).</p>` : ''}
       <p class="small">${escH(K.cls)}. ${!owned(cls) ? 'Bâtiment prêté par l\'état-major : prime réduite de 25 %.' : ''}${owned(cls) && st.fuel < 35 ? ` Gasoil bas (${Math.round(st.fuel)} %).` : ''}${owned(cls) && st.hull < 50 ? ` Coque endommagée (${Math.round(st.hull)} %).` : ''}</p>
       <div class="row2"><button class="btn pri" data-act="start" data-v="sea">Appareiller${d.type === 'escort' || d.type === 'delivery' || d.startAt ? '' : ' (au large)'}</button>${canBerth ? '<button class="btn" data-act="start" data-v="berth">Appareiller du quai</button>' : ''}<button class="btn ghost" data-act="emorders">Autres ordres</button></div>`;
   } else if (HUB.sub && HUB.sub.career) {
@@ -5422,7 +5447,7 @@ function capitPanel() {
   if (s.free) {
     const f = UI.free || (UI.free = { time: 17.5, preset: 'brise', cls: C.ship });
     return `<header class="ph2"><h3>Sortie libre</h3><button class="btn sm ghost" data-act="capit">Retour</button></header>
-      <h4>Bâtiment</h4><div class="chips">${ALLC.filter(c => owned(c)).map(c => `<button class="${f.cls === c ? 'on' : ''}" data-act="fcls" data-v="${c}">${escH(CLASSES[c].n)}</button>`).join('')}</div>
+      <h4>Bâtiment</h4><div class="chips">${ALLC.filter(c => owned(c) && shipHere(c)).map(c => `<button class="${f.cls === c ? 'on' : ''}" data-act="fcls" data-v="${c}">${escH(CLASSES[c].n)}</button>`).join('')}</div>
       <h4>Heure</h4><div class="chips">${[[6, 'Aube'], [10, 'Matin'], [14, 'Après-midi'], [18.5, 'Crépuscule'], [22.5, 'Nuit']].map(([t, l]) => `<button class="${f.time === t ? 'on' : ''}" data-act="ftime" data-v="${t}">${l}</button>`).join('')}</div>
       <h4>Météo</h4><div class="chips">${Object.entries(PRESETS).map(([k, p]) => `<button class="${f.preset === k ? 'on' : ''}" data-act="fwx" data-v="${k}">${p.n}</button>`).join('')}</div>
       <div class="row2"><button class="btn pri" data-act="freego">Appareiller</button></div>`;
@@ -5438,13 +5463,13 @@ function capitPanel() {
       <div class="row2"><button class="btn pri" data-act="quickgo">Lancer l'exercice</button></div>`;
   }
   return `<header class="ph2"><h3>Capitainerie</h3><button class="btn sm ghost" data-act="go" data-p="over">Fermer</button></header>${dlgHTML()}
-    <div class="opts col"><button class="btn" data-act="capfree">Sortie libre au large de Toulon</button><button class="btn" data-act="capquick">Exercice (n'importe quel bâtiment)</button></div>
+    <div class="opts col"><button class="btn" data-act="capfree">Sortie libre au large de ${escH(PORT.n)}</button><button class="btn" data-act="capquick">Exercice (n'importe quel bâtiment)</button></div>
     <h4>Livre de bord</h4><ul class="hist">${C.history.slice(0, 8).map(h => `<li class="${h.win ? 'ok' : 'bad'}">${escH(h.title)}<span>${h.win ? '+' + fmtCr(h.pay) : 'échec'}</span></li>`).join('') || '<li>Aucune mission pour l\'instant.</li>'}</ul>
     <h4>Graphismes</h4><div class="chips">${[['ultra', 'Ultra'], ['high', 'Élevés'], ['med', 'Moyens'], ['low', 'Légers']].map(([k, l]) => `<button class="${UI.quality === k ? 'on' : ''}" data-act="quality" data-v="${k}">${l}</button>`).join('')}</div><button class="btn sm" style="margin-top:6px" data-act="models3d">Modèles 3D des navires (.glb)</button>`;
 }
 function titleCard() {
   const has = !!savedCareer();
-  return `<div class="tcard"><p class="eyebrow">Marine nationale · Méditerranée</p><h1>Flotte d'Ysmar</h1><p class="sub">Toulon, le soir. Cinq bâtiments attendent à quai, l'état-major a des ordres pour vous. Sauvetages dans la tempête, convois sous la menace des drones, chasse au sous-marin, abordages.</p>
+  return `<div class="tcard"><p class="eyebrow">Marine nationale · Méditerranée</p><h1>Flotte d'Ysmar</h1><p class="sub">${escH(PORT.n || 'Toulon')}, le soir. Cinq bâtiments attendent à quai, l'état-major a des ordres pour vous. Sauvetages dans la tempête, convois sous la menace des drones, chasse au sous-marin, abordages.</p>
     <div class="menu">${has ? '<button class="btn pri" data-act="continue">Reprendre mon poste</button>' : ''}<button class="btn ${has ? '' : 'pri'}" data-act="newcareer">${has ? 'Nouvelle carrière' : 'Prendre mon poste'}</button></div>
     <div class="qual"><span>Graphismes</span>${[['ultra', 'Ultra'], ['high', 'Élevés'], ['med', 'Moyens'], ['low', 'Légers']].map(([k, l]) => `<button class="${UI.quality === k ? 'on' : ''}" data-act="quality" data-v="${k}">${l}</button>`).join('')}</div><button class="btn sm" style="margin-top:6px" data-act="models3d">Modèles 3D des navires (.glb)</button></div>`;
 }
@@ -5533,7 +5558,7 @@ function suggestions(id) {
   if (id === 'amirale') { if (sea) { S.push('Point de situation : où en est-on ?'); if (m.rules === 'id') S.push('Je demande l\'autorisation de tir libre.'); if (m.rules) S.push('Avez-vous du renseignement sur les contacts hostiles ?'); S.push('Je demande un délai supplémentaire.'); } else S.push('Quels sont les ordres du jour ?', 'Quel bâtiment me conseillez-vous ?', 'Comment se passe ma carrière ?'); }
   else if (id === 'cross') { if (sea) S.push('Point de situation de la mission ?', 'Je demande un délai supplémentaire.'); else S.push('Des nouvelles de la météo ?', 'Que se passe-t-il sur la côte ?'); }
   else if (id === 'arsenal') S.push('Quelle amélioration me conseillez-vous ?', 'Dans quel état est mon bâtiment ?');
-  else if (id === 'port') S.push('La météo pour sortir ?', 'Une histoire de la rade de Toulon ?');
+  else if (id === 'port') S.push('La météo pour sortir ?', `Une histoire de la rade de ${PORT.n} ?`);
   else S.push('Comment va le moral ?', sea ? 'Rapport du bord ?' : 'Un mot pour l\'équipage.');
   return S;
 }
@@ -5563,7 +5588,7 @@ function sendMsg(text) {
 // ---------- état du jeu transmis au personnage ----------
 function gameBrief(id) {
   const C = CAREER, m = MS.cur, P = PLAYER, sea = UI.screen === 'sea' && m;
-  const s = { grade: RANKS[rankOf(C.rep)].n, reputation: C.rep, credits: C.credits, jour: C.day, heure: clockStr(ENV.time), batiment_actif: `${CLASSES[C.ship].n} (${CLASSES[C.ship].cls})`, flotte_possedee: ALLC.filter(c => owned(c)).map(c => CLASSES[c].n), missions: C.missions, reussites: C.wins, lieu: sea ? 'en mer' : 'à quai à Toulon' };
+  const s = { grade: RANKS[rankOf(C.rep)].n, reputation: C.rep, credits: C.credits, jour: C.day, heure: clockStr(ENV.time), batiment_actif: `${CLASSES[C.ship].n} (${CLASSES[C.ship].cls})`, flotte_possedee: ALLC.filter(c => owned(c)).map(c => CLASSES[c].n), missions: C.missions, reussites: C.wins, lieu: sea ? 'en mer' : `à quai à ${PORT.n}` };
   if (CAST[id] && CAST[id].crew) { const cm = crew(CAST[id].crew); s.mon_moral = Math.round(cm.morale); s.ma_competence = cm.skill + '/5'; }
   s.equipage = C.crew.map(c => `${c.n} (${c.role}) moral ${Math.round(c.morale)} %`);
   if (sea && m.isOp) { s.operation = opBrief(m); }
@@ -5731,7 +5756,7 @@ function opUpdate(m, dt) {
   for (const o of O_.orders) if (o.state === 'pending' && m.t > o.ackBy) opIgnored(m, o);
   // bâtiments à qui l'on a confié un ordre
   for (const d of O_.deleg) if (!d.done && m.t >= d.end) opDelegDone(m, d);
-  for (const u of Object.values(O_.units)) if (u.busy === 'relache' && m.t >= u.until) { u.busy = null; u.st.hull = Math.max(u.st.hull, 70); u.st.fuel = 100; postMsg('amirale', `${shipN(u.c)} a terminé sa relâche à Toulon : de nouveau disponible.`); }
+  for (const u of Object.values(O_.units)) if (u.busy === 'relache' && m.t >= u.until) { u.busy = null; u.st.hull = Math.max(u.st.hull, 70); u.st.fuel = 100; postMsg('amirale', `${shipN(u.c)} a terminé sa relâche à ${PORT.n} : de nouveau disponible.`); }
   // appuis et ravitailleur
   allyStep(m, dt); rasStep(m, dt);
   // nouvel ordre
@@ -5739,7 +5764,7 @@ function opUpdate(m, dt) {
   if (m.t >= O_.nextOrder && !open && live < 4 && O_.phase < OP_PHASES.length) opNewOrder(m);
   // tension : monte lentement en crise, plus vite si des ordres restent sans réponse
   O_.tension = clamp(O_.tension + dt / 60 * (O_.phase * 0.22 + (open ? 0.5 : 0) - (live ? 0 : 0.3)), 0, 100);
-  if (O_.tension >= 100) return opFinish(false, 'La situation a échappé au groupe d\'opération : la Flottille de Varne tient les approches de Toulon.');
+  if (O_.tension >= 100) return opFinish(false, `La situation a échappé au groupe d'opération : la Flottille de Varne tient les approches de ${PORT.n}.`);
   // météo : on suit le bulletin, avec un avis vingt minutes avant chaque dégradation
   const seg = O_.fc[Math.min(O_.fc.length - 1, Math.floor(m.t / 1200))];
   if (O_.wxI !== seg.at) { O_.wxI = seg.at; setWeather(PRESETS[seg.p].w, false); }
@@ -5803,7 +5828,7 @@ function opProgress(m, mine) {
   if (!O_.pmine) { if (!O_.askMine) { O_.askMine = true; O_.forceMine = true; postMsg('amirale', 'Le groupe tient bon, mais j\'attends que vous montriez l\'exemple : je vous confie personnellement le prochain ordre adapté à votre bâtiment. La phase ne sera pas close sans vous.'); } return; }
   O_.pmine = 0; O_.askMine = false;
   O_.phase++; O_.pw = 0;
-  if (O_.phase >= OP_PHASES.length) return opFinish(true, `${O_.name} est un succès : les approches de Toulon sont tenues.`);
+  if (O_.phase >= OP_PHASES.length) return opFinish(true, `${O_.name} est un succès : les approches de ${PORT.n} sont tenues.`);
   const P = OP_PHASES[O_.phase];
   O_.tension = clamp(O_.tension + 6, 0, 100);
   postMsg('amirale', `Phase ${O_.phase + 1} : ${P.n}. ${O_.phase === 1 ? 'La Flottille de Varne a pris la mer en force. Attendez-vous à du combat.' : 'Ils jouent leur va-tout. Tout le groupe est engagé.'}`);
@@ -5904,7 +5929,7 @@ function opDelegDone(m, d) {
   o.state = win ? 'done' : 'failed';
   O_.log.push({ id: o.id, title: def.title, win, text: win ? 'Exécuté' : 'Échec', pay, by: shipN(d.c) });
   let txt = win ? `${shipN(d.c)} rend compte : ordre n°${o.id} exécuté (${def.title}).` : `${shipN(d.c)} rend compte : échec sur l'ordre n°${o.id} (${def.title}).`;
-  if (st.hull < 30 || st.fuel < 20) { u.busy = 'relache'; u.until = m.t + 1500; txt += ` Coque à ${Math.round(st.hull)} %, gasoil à ${Math.round(st.fuel)} % : je le renvoie en relâche à Toulon.`; }
+  if (st.hull < 30 || st.fuel < 20) { u.busy = 'relache'; u.until = m.t + 1500; txt += ` Coque à ${Math.round(st.hull)} %, gasoil à ${Math.round(st.fuel)} % : je le renvoie en relâche à ${PORT.n}.`; }
   else txt += ` État : coque ${Math.round(st.hull)} %, gasoil ${Math.round(st.fuel)} %.`;
   postMsg('amirale', txt);
   vhf(shipN(d.c), win ? `Ordre n°${o.id} exécuté.` : `Échec sur l'ordre n°${o.id}.`, win ? 'good' : 'alarm');
@@ -6863,7 +6888,7 @@ function applyOrder(c, o, quiet) {
   if (o.type === 'rentrer') { const v = allyOf(c); if (v) allyRelease(m, v, true); jrn(`${kOf(c).n} quitte le groupe.`); return { ok: true, reply: orderReply(c, o, v || { name: kOf(c).n }) }; }
   if (o.type === 'attaque' && !o.ent) return { ok: false, reply: orderReply(c, o, {}) };
   if (u.busy === 'deleg') return { ok: false, reply: `Négatif, je suis sur l'ordre que l'amirale m'a confié. Je vous rejoins après.` };
-  if (u.busy === 'relache') return { ok: false, reply: 'Je suis en relâche à Toulon pour réparer. Pas avant une bonne demi-heure.' };
+  if (u.busy === 'relache') return { ok: false, reply: `Je suis en relâche à ${PORT.n} pour réparer. Pas avant une bonne demi-heure.` };
   if (u.st.fuel < 12) return { ok: false, reply: 'Je suis presque à sec, commandant. Il me faut le ravitailleur avant tout.' };
   const v = allySummon(c); if (!v) return { ok: false, reply: 'Impossible pour le moment.' };
   const A = v.ally, P = PLAYER; A.manual = false; A.dist = null;
@@ -7056,7 +7081,7 @@ function eventRun(k) {
   if (id === 'clan') { e.done = true; if (ch === 'garde') { CAREER.rep += 6; for (const c of CAREER.crew) c.morale = Math.min(100, c.morale + 3); FLT.clan = 'garde'; jrn('Le clandestin est pris en charge.'); return { reply: 'Bien, commandant. Le cuisinier lui a trouvé une soupe et des habits secs. L\'équipage apprécie.' }; } FLT.clan = 'cale'; jrn('Le clandestin est enfermé.'); return { reply: 'Compris. Il est au local de sécurité. Il ne dit plus un mot.' }; }
   if (id === 'mal') {
     const H = PLAYER.heli;
-    if (ch === 'helo') { if (!H || H.dead || H.state !== 'deck' || H.fuel < 40) { e.answered = false; return { reply: 'L\'hélicoptère n\'est pas disponible : il doit être sur le pont et avoir au moins 40 % de carburant.' }; } H.fuel -= 35; e.until = 0; e.at = m.t + 600; e.ok = () => { CAREER.rep += 6; postMsg('medic', 'L\'hélicoptère a déposé Daniel à l\'hôpital de Toulon. Il est au bloc. Merci, commandant.'); jrn('Évacuation sanitaire réussie par l\'hélicoptère du bord.'); }; return { reply: 'On le prépare sur la civière. L\'hélicoptère décolle dès qu\'il est sanglé.' }; }
+    if (ch === 'helo') { if (!H || H.dead || H.state !== 'deck' || H.fuel < 40) { e.answered = false; return { reply: 'L\'hélicoptère n\'est pas disponible : il doit être sur le pont et avoir au moins 40 % de carburant.' }; } H.fuel -= 35; e.until = 0; e.at = m.t + 600; e.ok = () => { CAREER.rep += 6; postMsg('medic', `L'hélicoptère a déposé Daniel à l'hôpital de ${PORT.n}. Il est au bloc. Merci, commandant.`); jrn('Évacuation sanitaire réussie par l\'hélicoptère du bord.'); }; return { reply: 'On le prépare sur la civière. L\'hélicoptère décolle dès qu\'il est sanglé.' }; }
     e.until = 0; e.at = m.t + 1100; e.ok = () => { CAREER.rep += 2; postMsg('medic', 'L\'hélicoptère de la base a récupéré Daniel. C\'était juste, mais il est entre de bonnes mains.'); jrn('Évacuation sanitaire par l\'hélicoptère de la base.'); }; return { reply: 'Demande transmise. L\'hélicoptère de la base sera là dans une vingtaine de minutes. Je le stabilise.' };
   }
   return { reply: 'Compris.' };
@@ -7065,14 +7090,14 @@ function escaleAction(m) {
   const P = PLAYER, B = BRENN, nearB = B && Math.hypot(P.x - B.x, P.z - B.z) < 500, nearP = inHarbor(P) || Math.hypot(P.x - PORT.entrance.x, P.z - PORT.entrance.z) < 500;
   if (!nearB && !nearP) return null;
   const ok = Math.abs(P.u) < 1.2 && m.t > FLT.escaleCd;
-  return { id: 'escale', label: `Escale à ${nearB ? 'Porquerolles' : 'Toulon'} : ravitaillement${nearP ? ' et réparations' : ''}`, ok, why: m.t <= FLT.escaleCd ? 'Escale déjà faite récemment.' : 'Stoppez le navire le long du quai.', run: () => {
+  return { id: 'escale', label: `Escale à ${nearB ? 'Porquerolles' : PORT.n} : ravitaillement${nearP ? ' et réparations' : ''}`, ok, why: m.t <= FLT.escaleCd ? 'Escale déjà faite récemment.' : 'Stoppez le navire le long du quai.', run: () => {
     const K = P.C; let cost = Math.round((100 - P.fuel) * 50); P.fuel = 100;
     for (const k in K.gear.ammo) { const miss = Math.max(0, K.gear.ammo[k] - (P.ammo[k] || 0)); P.ammo[k] = nearP ? K.gear.ammo[k] : (P.ammo[k] || 0) + Math.ceil(miss / 2); cost += miss * ({ ssm: 2500, sam: 1500, torp: 2000, decoy: 250 }[k] || 4); }
     if (nearP) { cost += Math.round((100 - P.hull) * 220); P.hull = 100; P.engine = 100; }
     CAREER.credits = Math.max(0, CAREER.credits - cost); FLT.escaleCd = m.t + 1800; sfx('horn');
     if (FLT.clan) { CAREER.rep += FLT.clan === 'garde' ? 4 : 1; postMsg('bosco', 'Le clandestin a été remis à la police maritime sur le quai. Il nous a fait un signe de la main.'); FLT.clan = null; }
     vhf(nearB ? 'Port de Porquerolles' : 'Capitainerie', `Escale terminée : gasoil complet${nearP ? ', coque réparée' : ''}, soutes ${nearP ? 'pleines' : 'à moitié recomplétées'}. Facture ${fmtCr(cost)}.`, 'good');
-    jrn(`Escale à ${nearB ? 'Porquerolles' : 'Toulon'} (${fmtCr(cost)}).`);
+    jrn(`Escale à ${nearB ? 'Porquerolles' : PORT.n} (${fmtCr(cost)}).`);
   } };
 }
 
@@ -7159,7 +7184,7 @@ const _qv = new THREE.Vector3();
 function quayLocal(wx, wz) { const h = terrainH(wx, wz); _qv.set(wx, h, wz); PLAYER.mesh.worldToLocal(_qv); return { x: _qv.x, y: _qv.y, z: _qv.z, h }; }
 function quayEnter() {
   const m = curOp(), P = PLAYER; if (!m) { toast('Les escales se font pendant une opération.'); return; }
-  const e = escaleAction(m); if (!e) { toast('Accostez d\'abord le long du quai de Porquerolles ou de Toulon.'); return; }
+  const e = escaleAction(m); if (!e) { toast(`Accostez d'abord le long du quai de Porquerolles ou de ${PORT.n}.`); return; }
   if (Math.abs(P.u) > 1.2) { toast('Stoppez le navire le long du quai.'); return; }
   P.mesh.updateMatrixWorld(true);
   let best = null;
@@ -7169,7 +7194,7 @@ function quayEnter() {
   }
   if (!best) { toast('Pas de quai à portée : rapprochez-vous à moins de 20 mètres du quai.'); return; }
   const B = BRENN, nearB = B && Math.hypot(P.x - B.x, P.z - B.z) < 500;
-  QUAY.name = nearB ? 'Quai de Porquerolles' : 'Quai de Toulon'; QUAY.gw = best; QUAY.wx = best.x; QUAY.wz = best.z;
+  QUAY.name = nearB ? 'Quai de Porquerolles' : 'Quai de ' + PORT.n; QUAY.gw = best; QUAY.wx = best.x; QUAY.wz = best.z;
   buildQuay(best, nearB);
   WALK.level = 'quay'; WALK.fade = 1; const l = quayLocal(QUAY.wx, QUAY.wz); WALK.x = l.x; WALK.y = WALK.ty = l.y; WALK.z = l.z;
   sfx('door'); jrn(`Le commandant descend à terre, ${QUAY.name.toLowerCase()}.`);
@@ -7514,6 +7539,7 @@ function pwPlaces() {
     W('carre', 205, -84.6, 'Carré de l\'équipage'),
     W('arsenal', -140, -87.6, 'Arsenal : améliorations et bâtiments')];
   for (const c of ALLC) {
+    if (!FLEET[c]) continue;
     const g = gangway(c), K = CLASSES[c], o = owned(c), act = CAREER && CAREER.ship === c, pend = PW.pend;
     const forOrder = pend && pend.kind === 'mission' && (pend.def.req || ALLC).includes(c) && pend.cls === c;
     const label = o || forOrder ? `${forOrder || (pend && act) ? '★ ' : ''}Monter à bord ${deN(c)}${act || forOrder ? '' : ' (en prendre le commandement)'}` : `${K.n} : voir le bâtiment (${CAREER && rankOf(CAREER.rep) < K.rank ? 'grade requis' : 'à acquérir'})`;
@@ -7627,8 +7653,8 @@ function pwToBerth(c) { const P = PLAYER, b = berthOf(c); P.x = b.x; P.z = b.z; 
 // les autres bâtiments restent à quai pendant l'appareillage
 function pwMoorOthers(c) {
   for (const k of ALLC) {
-    if (k === c) continue; const b = berthOf(k), K = CLASSES[k];
-    const v = new Vessel(K.kind, K.build(), b.x, b.z, b.psi, { name: K.n }); v.faction = 'ysmar'; v.ai = { mode: 'moored', b }; v.moored = true; v.radar = false; v.ambient = true; v.ais = false;
+    if (k === c || !shipHere(k)) continue; const b = berthOf(k), K = CLASSES[k];
+    const v = new Vessel(K.kind, K.build(), b.x, b.z, b.psi, { name: K.n }); v.faction = 'ysmar'; v.ai = { mode: 'moored', b }; v.moored = true; v.radar = false; v.ambient = true; v.ais = false; v.portFleet = k; v.portId = PORT.id;
   }
 }
 // au retour : accoster et débarquer
@@ -7659,7 +7685,7 @@ function autoCareer() {
 { const base = screenHTML; screenHTML = function () {
   let h = base();
   if (UI.screen === 'pause') {
-    h = h.replace('<button class="btn ghost" data-act="title">Menu principal</button>', MS.cur ? '<button class="btn ghost" data-act="title">Retour au quai de Toulon</button>' : `<button class="btn ghost" data-act="pwnew">${UI.newSure ? 'Confirmer : tout recommencer' : 'Nouvelle carrière'}</button>`);
+    h = h.replace('<button class="btn ghost" data-act="title">Menu principal</button>', MS.cur ? `<button class="btn ghost" data-act="title">Retour au quai de ${escH(PORT.n)}</button>` : `<button class="btn ghost" data-act="pwnew">${UI.newSure ? 'Confirmer : tout recommencer' : 'Nouvelle carrière'}</button>`);
   }
   return h;
 }; }
@@ -7742,7 +7768,7 @@ function swapShip(c) {
   UI.radarRange = P.kind === 'patrol' || P.kind === 'tug' ? 6000 : 12000; CO.scale = P.kind === 'patrol' || P.kind === 'tug' ? 16000 : 40000; UI.camDist = camFor(); UI.camSnap = 1; UI.ap = 0;
   sfx('horn');
   vhf(P.C.n, `Commandant à bord ${deN(c)}, transféré par l'hélicoptère de la base. Le bord est à vous.`, 'good');
-  postMsg('second', `Je ramène ${leN(oc)} au port avec l'équipage de quart. Bonne mission, commandant, on se retrouve à Toulon.`);
+  postMsg('second', `Je ramène ${leN(oc)} au port avec l'équipage de quart. Bonne mission, commandant, on se retrouve à ${PORT.n}.`);
   jrn(`Le commandant quitte ${leN(oc)} et prend le commandement ${deN(c)} en pleine mission.`);
   if (m.lent) toast(`${CLASSES[c].n} est prêté par l'état-major : prime réduite de 25 %.`);
   if (m.def && m.def.req && !m.def.req.includes(c) && !m.free) postMsg(missionGiver(m.type), `Vous êtes passé sur ${leN(c)}. Attention, ce n'est pas le bâtiment prévu pour « ${m.title} » : certains moyens vous manqueront.`);
@@ -7888,7 +7914,7 @@ M_GEN.mine = (d, r, pl, rank, hard) => {
   { const c = PL(rr(-5000, 5000), 9000); d.at = openWaterPoint(c.x, c.z, 0, 1500, 60, 1500, r); }
   d.cargo = pick(SHIPN2); d.time = pick([8, 10, 13, 15.5, 17.5]); d.weather = { wind: rr(3, 9), sea: rr(0.15, 0.45), cloud: rr(0.1, 0.6), rain: 0, fog: rr(0, 0.2), storm: 0 };
   d.title = 'Mine dérivante dans le rail';
-  d.brief = `Le porte-conteneurs ${d.cargo} signale une mine marine ancienne, couverte d'algues, qui dérive dans le rail des cargos au large de Toulon. Localisez-la à vue (jumelles, hélicoptère, sonar à petite vitesse), diffusez un avis urgent pour écarter le trafic, puis détruisez-la : au canon à plus de 300 mètres, ou avec les plongeurs démineurs, le bâtiment éloigné à plus de 400 mètres pendant la mise à feu. Elle explose au contact : gardez vos distances.`;
+  d.brief = `Le porte-conteneurs ${d.cargo} signale une mine marine ancienne, couverte d'algues, qui dérive dans le rail des cargos au large de ${PORT.n}. Localisez-la à vue (jumelles, hélicoptère, sonar à petite vitesse), diffusez un avis urgent pour écarter le trafic, puis détruisez-la : au canon à plus de 300 mètres, ou avec les plongeurs démineurs, le bâtiment éloigné à plus de 400 mètres pendant la mise à feu. Elle explose au contact : gardez vos distances.`;
   d.radio = 'Ici le commandement. Zone de recherche transmise. Prudence, ces engins sont encore très dangereux.';
   d.reward = 17000; d.rep = 75; d.limit = 50 * 60;
 };
@@ -7916,7 +7942,7 @@ M_SETUP.mine = (m, d) => {
   };
   m.actions = () => {
     const out = [], P = PLAYER, M0 = m.mine; if (!M0) return out; const found = O(m, 'find').state === 'done', dp = distTo(P, M0);
-    if (found && !m.flags.warned) out.push({ id: 'avis', label: 'Avis urgent aux navigateurs (canal 16)', ok: true, run: () => { m.flags.warned = 1; setObj(m, 'warn', 'done'); vhf(P.C.n, `Sécurité, sécurité, sécurité. Mine dérivante au point ${bearingStr(headingOf(M0.x - PORT.x, M0.z - PORT.z))} de Toulon. Tous les navires s'écartent d'un mille.`, 'info'); later(2.5, () => vhf(m.ships[0] ? m.ships[0].name : 'Cargo', 'Bien reçu, nous modifions notre route.', 'info')); } });
+    if (found && !m.flags.warned) out.push({ id: 'avis', label: 'Avis urgent aux navigateurs (canal 16)', ok: true, run: () => { m.flags.warned = 1; setObj(m, 'warn', 'done'); vhf(P.C.n, `Sécurité, sécurité, sécurité. Mine dérivante au point ${bearingStr(headingOf(M0.x - PORT.x, M0.z - PORT.z))} de ${PORT.n}. Tous les navires s'écartent d'un mille.`, 'info'); later(2.5, () => vhf(m.ships[0] ? m.ships[0].name : 'Cargo', 'Bien reçu, nous modifions notre route.', 'info')); } });
     if (found && !m.fuse) {
       const G = gunOf(P);
       if (G) out.push({ id: 'mgun', label: `Canon : tirer sur la mine (${Math.round(dp)} m)`, ok: dp > 300 && dp < 1600 && m.cd <= 0 && !SHOTS.length && P.ammo.gun > 0, why: dp <= 300 ? 'Trop près : éloignez-vous à plus de 300 m.' : dp >= 1600 ? 'Rapprochez-vous à moins de 1 600 m.' : 'Rechargement.', run: () => { m.cd = 5; P.ammo.gun = Math.max(0, P.ammo.gun - 1); const pk = clamp(0.5 - dp / 4000 - ENV.sea * 0.3, 0.1, 0.45), hit = chance(pk); fireGun(M0, hit ? { x: 0, z: 0 } : { x: rr(-18, 18), z: rr(-18, 18) }, () => { if (hit && m.mine) { boom(); setObj(m, 'destroy', 'done'); vhf('Canonnier', 'Coup au but ! La mine a sauté.', 'good'); endMission(true, 'La mine a été détruite au canon.', { bonus: m.flags.warned ? 2500 : 0, note: m.flags.warned ? 'Trafic écarté avant le tir' : '' }); } else vhf('Canonnier', 'Manqué, la gerbe est tout près.', 'info'); }); } });
@@ -7995,7 +8021,7 @@ M_GEN.ferry = (d, r, pl, rank, hard) => {
   d.name = pick(['ÉTOILE DE BALAGNE', 'CINARCA', 'SAN GAVINU']); d.pax = 600 + ri(0, 220); d.time = pick([7, 10.5, 13, 16, 18.5]);
   d.weather = { wind: rr(16, 21), sea: rr(0.68, 0.84), cloud: rr(0.05, 0.3), rain: 0, fog: 0.04, storm: 0 };
   d.title = `Ferry en avarie dans le mistral`;
-  d.brief = `Le ferry ${d.name}, parti de Toulon pour Ajaccio avec ${d.pax} passagers, a perdu ses deux moteurs après un incendie maîtrisé en salle des machines. Le mistral le pousse vers ${P.n}. Prenez-le en remorque et amenez-le à l'abri, sous le vent de l'île, où il pourra mouiller. Un passager victime d'un malaise cardiaque doit aussi être évacué au semi-rigide. Une remorque trop tendue casse : douceur.`;
+  d.brief = `Le ferry ${d.name}, parti de ${PORT.id === 'ajaccio' ? 'Ajaccio pour Toulon' : PORT.id === 'toulon' ? 'Toulon pour Ajaccio' : PORT.n + ' pour Marseille'} avec ${d.pax} passagers, a perdu ses deux moteurs après un incendie maîtrisé en salle des machines. Le mistral le pousse vers ${P.n}. Prenez-le en remorque et amenez-le à l'abri, sous le vent de l'île, où il pourra mouiller. Un passager victime d'un malaise cardiaque doit aussi être évacué au semi-rigide. Une remorque trop tendue casse : douceur.`;
   d.radio = 'Ici le CROSS Méditerranée. Mistral force huit à neuf, rafales plus fortes encore. Le ferry dérive à deux nœuds.';
   d.reward = 25000; d.rep = 95; d.limit = 60 * 60;
 };
@@ -8019,7 +8045,7 @@ M_SETUP.ferry = (m, d) => {
   };
   m.actions = () => {
     const P = PLAYER, out = [];
-    if (O(m, 'med').state === 'active' && !P.rhibOp) { const a = rhibAvail(F, 500); out.push({ id: 'fmed', label: 'Semi-rigide : évacuer le passager malade', ok: a.ok && !P.tow, why: P.tow ? 'Pas pendant le remorquage.' : a.why, run: () => launchRhib({ target: F, near: 18, work: 75, say: 'Semi-rigide vers la porte de coupée du ferry, avec le docteur Haddad.', onWork: () => vhf('Infirmerie', 'Patient sanglé sur la civière, on rentre.', 'info'), onDone: () => { setObj(m, 'med', 'done'); vhf('Infirmerie', 'Le passager est à l\'infirmerie, sous perfusion. L\'hélicoptère de la base le prendra à Toulon.', 'good'); } }) }); }
+    if (O(m, 'med').state === 'active' && !P.rhibOp) { const a = rhibAvail(F, 500); out.push({ id: 'fmed', label: 'Semi-rigide : évacuer le passager malade', ok: a.ok && !P.tow, why: P.tow ? 'Pas pendant le remorquage.' : a.why, run: () => launchRhib({ target: F, near: 18, work: 75, say: 'Semi-rigide vers la porte de coupée du ferry, avec le docteur Haddad.', onWork: () => vhf('Infirmerie', 'Patient sanglé sur la civière, on rentre.', 'info'), onDone: () => { setObj(m, 'med', 'done'); vhf('Infirmerie', `Le passager est à l'infirmerie, sous perfusion. L'hélicoptère de la base le prendra à ${PORT.n}.`, 'good'); } }) }); }
     if (P.tow) out.push({ id: 'droptow', label: 'Larguer la remorque', ok: true, run: () => dropTow('Remorque larguée.') });
     else { const f = F.fwd, bow = { x: F.x + f.x * F.L * 0.5, z: F.z + f.z * F.L * 0.5 }, d1 = distTo(P, bow), rel = Math.abs(P.u - F.u); out.push({ id: 'ftow', label: 'Passer la remorque', ok: d1 < 100 && rel < 2 * KN, why: d1 >= 100 ? `Présentez votre poupe à moins de 100 m de l'étrave du ferry (${Math.round(d1)} m).` : 'Vitesse relative trop élevée (moins de 2 nœuds).', run: () => { startTow(F); m.flags.ds0 = Math.hypot(F.x - d.safe.x, F.z - d.safe.z); vhf('Bosco', 'Remorque passée sur l\'étrave du ferry ! Doucement, il pèse son poids.', 'good'); } }); }
     return out;
@@ -8378,7 +8404,7 @@ function airHTML() {
     const arm = p.type === 'jet' ? ` · ${p.aa} air-air, ${p.as} air-mer` : ''; return `<div class="sw ${p.state === 'lost' ? 'off' : ''}"><b>${escH(p.n)} <span>· ${p.type === 'jet' ? 'chasseur' : 'avion de guet'}</span></b><span>${st} · carburant ${Math.round(p.fuel)} %${arm}</span></div>`; }).join('');
   const sel = CB.sel && CB.sel.type === 'surf' ? CB.sel.num : null, a = W.planes[6];
   const B = (act, lbl, pri) => `<button class="btn sm ${pri ? 'pri' : ''}" data-act="${act}" ${ok ? '' : 'disabled'}>${lbl}</button>`;
-  return `<h3>Groupe aérien du ${escH(P.C.n)}</h3><p>${roomIs('pca') ? 'Vous êtes au PCA : catapultages deux fois plus rapides.' : 'Cliquez sur un ordre : les avions sont catapultés dans la minute. Astuce : depuis le <b>PCA</b>, les catapultages vont deux fois plus vite.'}${inBasin(P) ? ' <em>Sortez d\'abord du bassin de Toulon pour faire décoller les avions.</em>' : ''}</p>
+  return `<h3>Groupe aérien du ${escH(P.C.n)}</h3><p>${roomIs('pca') ? 'Vous êtes au PCA : catapultages deux fois plus rapides.' : 'Cliquez sur un ordre : les avions sont catapultés dans la minute. Astuce : depuis le <b>PCA</b>, les catapultages vont deux fois plus vite.'}${inBasin(P) ? ` <em>Sortez d'abord du bassin de ${escH(PORT.n)} pour faire décoller les avions.</em>` : ''}</p>
   <div class="row2" style="flex-wrap:wrap;gap:6px;margin-bottom:10px">${B('aircap', 'Patrouille aérienne (2 Faucon)', 1)}${B('airstrike', sel ? `Frappe sur ${sel}` : 'Frappe (désignez une cible)')}${B('airrecon', sel ? `Reconnaissance sur ${sel}` : 'Reconnaissance sur l\'avant')}${B('airaew', a.state === 'air' ? 'Rappeler la Vigie' : 'Lancer la Vigie (guet 90 km)')}${B('airrecall', 'Rappel général')}${B('airauto', W.autoCap ? 'Relève auto : oui' : 'Relève auto : non')}</div>
   ${rows}${W.downed.length ? `<p><em>${W.downed.length} pilote${W.downed.length > 1 ? 's' : ''} à l'eau : le Vigilant fait route.</em></p>` : ''}${W.brief ? '<p>Pilotes briefés : la prochaine frappe déjouera les défenses adverses.</p>' : ''}
   <div class="row2">${roomIs('pca') ? '' : '<button class="btn sm" data-act="roomgo" data-r="pca">Se rendre au PCA</button>'}<button class="btn sm ghost" data-act="airclose">Fermer (Y)</button></div>`;
@@ -8922,7 +8948,7 @@ function pilotOut() {
     P.tel = Math.max(P.tel, 6); P.rpm = TELEGRAPH[P.tel].v; P.u = Math.max(Math.abs(P.u), 5); P.aground = 0;
     if (P.escort && !P.escort.removed) { const f = P.fwd; P.escort.x = P.x - f.x * 900 + f.z * 600; P.escort.z = P.z - f.z * 900 - f.x * 600; P.escort.psi = P.psi; }
     ENV.time = (ENV.time + 0.2) % 24; UI.camSnap = 1; TRACKS.clear();
-    vhf('Pilote de Toulon', 'Passe franchie, je redescends sur la pilotine. Vous avez la manœuvre, commandant. Bonne mer !', 'good');
+    vhf('Pilote de ' + PORT.n, 'Passe franchie, je redescends sur la pilotine. Vous avez la manœuvre, commandant. Bonne mer !', 'good');
     setTimeout(() => { f.style.opacity = 0; }, 350); hudUpdate(true);
   }, 650);
 }
@@ -9246,7 +9272,7 @@ setInterval(() => { if (UI.screen === 'port') progChip(); }, 1000);
 // ---------- tutoriel des premières minutes ----------
 const TUTO = { on: false, i: 0, chart: false };
 const TSTEPS = [
-  { t: 'Marchez jusqu\'à la préfecture maritime (Z Q S D) et entrez avec E.', ok: () => UI.screen === 'sea' || (typeof HUB !== 'undefined' && HUB.place === 'em') },
+  { t: 'Marchez jusqu\'à l\'état-major (Z Q S D) et entrez avec E.', ok: () => UI.screen === 'sea' || (typeof HUB !== 'undefined' && HUB.place === 'em') },
   { t: 'Lisez un ordre et acceptez-le.', ok: () => UI.screen === 'sea' || !!PW.pend },
   { t: 'Rejoignez votre navire (★ à la coupée) et montez à bord avec E.', ok: () => UI.screen === 'sea' },
   { t: 'Sortez du port : action « Sortir du port avec le pilote » (touche 1).', ok: () => PLAYER && UI.screen === 'sea' && !inHarbor(PLAYER) },
@@ -9407,6 +9433,324 @@ function lifeStep(dt) {
 }
 { const base = simStep; simStep = function (dt) { base(dt); lifeStep(dt); }; }
 { const base = clearWorldEntities; clearWorldEntities = function () { for (const pod of LIFE.pods.splice(0)) for (const d of pod.list) dropObj(d.m); LIFE.next = 240; base(); }; }
+
+// ===== CINÉMATIQUES : plans de caméra scénarisés, bandeaux noirs et sous-titres (Espace, Échap ou clic pour passer) =====
+const CINE = { on: false, shots: [], i: 0, t: 0, end: null, snap: false, kc: 0 };
+function cineBox() {
+  let el = $('cineCap');
+  if (!el) {
+    el = document.createElement('div'); el.id = 'cineCap'; el.hidden = true; el.setAttribute('aria-live', 'polite');
+    el.innerHTML = '<p class="ct"></p><p class="cs"></p><button class="btn sm ghost" data-act="cineskip">Passer (Espace)</button>';
+    document.body.appendChild(el);
+  }
+  return el;
+}
+// shots : [{ dur, title, sub, enter(), step(dt, k), cam(k, e) -> { p, l, fov } }] ; end() est appelé à la fin, même si l'on passe
+function cinePlay(shots, end) {
+  if (CINE.on) cineEnd();
+  shots = (shots || []).filter(Boolean);
+  if (!SET.cine || !shots.length) { if (end) end(); return false; }
+  if (TRANSIT.on) transitStop('Cinématique.');
+  Object.assign(CINE, { on: true, shots, i: -1, t: 0, end }); document.body.classList.add('cine');
+  cineNext(); return true;
+}
+function cineNext() {
+  CINE.i++; CINE.t = 0; const s = CINE.shots[CINE.i]; if (!s) { cineEnd(); return; }
+  if (s.enter) s.enter();
+  const el = cineBox(); el.hidden = false; el.querySelector('.ct').textContent = s.title || ''; el.querySelector('.cs').textContent = s.sub || '';
+  el.classList.remove('in'); void el.offsetWidth; if (s.title || s.sub) el.classList.add('in');
+  CINE.snap = true;
+}
+function cineEnd() {
+  if (!CINE.on) return; CINE.on = false; document.body.classList.remove('cine');
+  const el = $('cineCap'); if (el) el.hidden = true;
+  const rest = CINE.shots.slice(CINE.i + 1), f = CINE.end; CINE.end = null; CINE.shots = [];
+  for (const s of rest) if (s.must) s.must();          // les effets indispensables des plans sautés
+  UI.camSnap = 1; if (typeof PW !== 'undefined' && PW.on) PW.snap = 1;
+  if (f) f();
+}
+const _cl = new THREE.Vector3();
+function cineStep(dt) {
+  const s = CINE.shots[CINE.i]; if (!s) { cineEnd(); return; }
+  CINE.t += dt; const k = clamp(CINE.t / s.dur, 0, 1), e = k * k * (3 - 2 * k);
+  if (s.step) s.step(dt, k);
+  if (!CINE.on || CINE.shots[CINE.i] !== s) return;
+  const v = s.cam(k, e);
+  const floor = Math.max(waveH(v.p.x, v.p.z, GFX.t) + 2.5, terrainH(v.p.x, v.p.z) + 4);
+  _v.set(v.p.x, Math.max(v.p.y, floor), v.p.z);
+  if (CINE.snap) { camera.position.copy(_v); CINE.snap = false; } else camera.position.lerp(_v, clamp(dt * 8, 0, 1));
+  _cl.set(v.l.x, v.l.y, v.l.z); camera.lookAt(_cl);
+  camera.fov = v.fov || 48; camera.updateProjectionMatrix();
+  $('bridgeFrame').hidden = true; $('bino').hidden = true;
+  if (typeof PW !== 'undefined' && PW.av) PW.av.visible = false;
+  if (CINE.t >= s.dur) cineNext();
+}
+// plan autour d'une cible mobile (navire) : b = angle compté depuis l'étrave (0 devant, π derrière), en radians
+function shotShip(getV, o) {
+  return Object.assign({ dur: 5 }, o, {
+    cam: (k, e) => {
+      const v = getV(); if (!v) return { p: camera.position, l: camera.position };
+      const f = v.fwd || { x: Math.sin(v.psi), z: -Math.cos(v.psi) }, sd = { x: -f.z, z: f.x }, b = lerp(o.b0, o.b1 == null ? o.b0 : o.b1, e);
+      const L = v.L || 60, R = L * lerp(o.r0, o.r1 == null ? o.r0 : o.r1, e), h = L * lerp(o.h0, o.h1 == null ? o.h0 : o.h1, e), y0 = v.heave || 0;
+      return { p: { x: v.x + (f.x * Math.cos(b) + sd.x * Math.sin(b)) * R, y: y0 + h, z: v.z + (f.z * Math.cos(b) + sd.z * Math.sin(b)) * R }, l: { x: v.x + f.x * L * (o.lead || 0), y: y0 + L * (o.ly == null ? 0.08 : o.ly), z: v.z + f.z * L * (o.lead || 0) }, fov: o.fov || 46 };
+    }
+  });
+}
+// plan fixe qui glisse d'un point à un autre (coordonnées monde, ou fonctions)
+function shotPan(o) {
+  const val = x => typeof x === 'function' ? x() : x;
+  return Object.assign({ dur: 5 }, o, {
+    cam: (k, e) => { const a = val(o.p0), b = val(o.p1 || o.p0), la = val(o.l0), lb = val(o.l1 || o.l0); return { p: { x: lerp(a.x, b.x, e), y: lerp(a.y, b.y, e), z: lerp(a.z, b.z, e) }, l: { x: lerp(la.x, lb.x, e), y: lerp(la.y, lb.y, e), z: lerp(la.z, lb.z, e) }, fov: o.fov || 46 }; }
+  });
+}
+// survol d'un port : du large vers les quais
+function shotPort(p, o) {
+  const W = (lx, y, lz) => Object.assign(portW(p, lx, lz), { y });
+  // on survole depuis le côté le plus dégagé (pas de falaise devant l'objectif)
+  const relief = sx => Math.max(...[[650, 1300], [450, 860], [260, 420]].map(([x, z]) => { const q = portW(p, x * sx, z); return terrainH(q.x, q.z); }));
+  const sx = relief(-1) <= relief(1) ? -1 : 1, lift = Math.max(0, relief(sx) + 25);
+  return shotPan(Object.assign({ dur: 5.5, p0: W(650 * sx, 160 + lift, 1300), p1: W(260 * sx, 70 + lift * 0.6, 420), l0: W(0, 10, 0), l1: W(60 * -sx, 8, -60), fov: 50 }, o));
+}
+// grand titre sans changer la caméra (phases d'opération, alertes)
+function cineTitle(title, sub, ms) {
+  let el = $('cineTitle'); if (!el) { el = document.createElement('div'); el.id = 'cineTitle'; el.setAttribute('aria-live', 'polite'); document.body.appendChild(el); }
+  el.innerHTML = `<b>${escH(title)}</b>${sub ? `<span>${escH(sub)}</span>` : ''}`; el.hidden = false;
+  el.classList.remove('in'); void el.offsetWidth; el.classList.add('in');
+  clearTimeout(el._t); el._t = setTimeout(() => { el.hidden = true; }, ms || 3200);
+}
+ACT.cineskip = () => cineEnd();
+{ const base = cameraStep; cameraStep = function (dt) { if (CINE.on) { cineStep(dt); return; } base(dt); }; }
+// la scène change pendant une cinématique : on l'arrête sans enchaîner
+{ const base = clearWorldEntities; clearWorldEntities = function () { if (CINE.on) { CINE.end = null; CINE.shots = []; cineEnd(); } base(); }; }
+addEventListener('keydown', e => {
+  if (!CINE.on || e.target.matches('input, textarea')) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  if (!e.repeat && (e.code === 'Space' || e.code === 'Escape' || e.code === 'Enter')) cineEnd();
+}, true);
+addEventListener('pointerdown', e => { if (CINE.on && e.target === $('gl')) { e.preventDefault(); e.stopImmediatePropagation(); cineEnd(); } }, true);
+
+// ----- appareillage : quelques secondes autour du bâtiment, avec le titre de la mission -----
+function missionIntro(m) {
+  const P = PLAYER; if (!P || !m || m.cined) return; m.cined = true;
+  const obj = m.objs && m.objs.find(o => o.state === 'active'), wx = `${clockStr(ENV.time)} · vent force ${beaufort(ENV.wind)} · mer ${DOUGLAS[douglas()].toLowerCase()}`;
+  const getP = () => PLAYER, berth = m.flags && m.flags.fromBerth;
+  cinePlay([
+    berth ? shotPort(PORT, { dur: 4.5, title: m.isOp ? (m.op && m.op.name) || 'Grande opération' : m.title, sub: `${P.C.n} · ${PORT.n}`, p0: Object.assign(PL(-420, 260), { y: 120 }), p1: Object.assign(PL(-300, 140), { y: 60 }), l0: { x: P.x, y: 6, z: P.z }, l1: { x: P.x, y: 6, z: P.z } })
+      : shotShip(getP, { dur: 4.5, title: m.isOp ? (m.op && m.op.name) || 'Grande opération' : m.title, sub: `${P.C.n} · ${P.C.cls}`, b0: 0.55, b1: 1.15, r0: 1.1, r1: 1.5, h0: 0.12, h1: 0.22, lead: 0.1 }),
+    shotShip(getP, { dur: 4, sub: obj ? obj.text : wx, b0: 2.5, b1: 2.9, r0: 2.2, r1: 3.6, h0: 0.5, h1: 1.1, ly: 0, fov: 50 })
+  ], () => { hudUpdate(true); });
+}
+{ const base = setScreen; setScreen = function (s) {
+  base(s);
+  if (s === 'sea' && MS.cur && !MS.cur.cined && PLAYER && !MS.cur.t) setTimeout(() => { if (UI.screen === 'sea' && MS.cur && !MS.cur.cined) missionIntro(MS.cur); }, 90);
+}; }
+// fin de mission : un dernier plan avant le bilan
+{ const base = endMission; endMission = function (win, text, extra) {
+  const m = MS.cur, was = m && m.over; base(win, text, extra);
+  if (!m || was || !m.over || m.free || UI.screen !== 'sea' || !PLAYER) return;
+  const P = PLAYER;
+  cinePlay([shotShip(() => PLAYER, { dur: 5.5, title: win ? 'Mission accomplie' : 'Mission échouée', sub: text, b0: P.sinking ? 1.2 : 2.3, b1: P.sinking ? 1.5 : 3.4, r0: 1.6, r1: 2.6, h0: 0.25, h1: 0.6, fov: 48 })]);
+}; }
+// à quai : survol du port à l'arrivée
+function portArrival(p, sub) { return shotPort(p, { title: p.n, sub: sub || `${p.reg} · ${p.hq}` }); }
+// caméra de la victoire : un bâtiment adverse coule
+{ const base = simStep; simStep = function (dt) {
+  base(dt);
+  if (!SET.killcam || CINE.on || TRANSIT.on || UI.screen !== 'sea' || !PLAYER || !MS.cur) return;
+  CINE.kc -= dt; if (CINE.kc > 0) return;
+  for (const v of VESSELS) if (v.sinking && !v._kc && v !== PLAYER && hostileF(v.faction, 'ysmar') && !v.small) {
+    v._kc = 1; if (Math.hypot(v.x - PLAYER.x, v.z - PLAYER.z) > 16000) continue;
+    CINE.kc = 40; cinePlay([shotShip(() => v.removed ? null : v, { dur: 3.2, title: `${v.name || 'Le contact'} coule`, b0: 1.9, b1: 2.3, r0: 1.4, r1: 1.9, h0: 0.12, h1: 0.2 })]); break;
+  }
+}; }
+// grandes opérations : un titre à chaque changement de phase
+{ const base = opProgress; opProgress = function (m, mine) { const ph = m.op.phase; base(m, mine); if (m.op.phase !== ph && m.op.phase < OP_PHASES.length) cineTitle(`Phase ${m.op.phase + 1}`, OP_PHASES[m.op.phase].n); }; }
+
+// ===== PORTS D'AFFECTATION : le commandant choisit ses ports ; les bâtiments y sont répartis (à la main ou au hasard) =====
+// CAREER.ports : ports choisis · CAREER.port : port où se trouve le commandant · CAREER.portOf[c] : port d'attache de chaque bâtiment
+function careerPorts() {
+  const C = CAREER; if (!C || !PORTS.length) return C;
+  const ids = PORTS.map(p => p.id);
+  C.ports = (Array.isArray(C.ports) ? C.ports : ['toulon']).filter((id, i, a) => ids.includes(id) && a.indexOf(id) === i);
+  if (!ids.includes(C.port)) C.port = C.ports[0] || ids[0];
+  if (!C.ports.includes(C.port)) C.ports.unshift(C.port);
+  C.portOf = C.portOf || {};
+  for (const c of ALLC) if (owned(c) && c !== C.ship && !C.ports.includes(C.portOf[c])) C.portOf[c] = pick(C.ports);
+  C.portOf[C.ship] = C.port;
+  return C;
+}
+// port d'attache d'un bâtiment (null : bâtiment à vendre, visible dans chaque arsenal)
+function shipPort(c) {
+  const C = CAREER; if (!C) return PORT.id;
+  if (c === C.ship) return C.port || PORT.id;
+  if (!owned(c)) return null;
+  return (C.portOf && C.portOf[c]) || C.port || PORT.id;
+}
+function shipHere(c, pid) { const p = shipPort(c); return p == null || p === (pid || PORT.id); }
+function berthAt(p, cls) { const l = berthLocal(cls), w = portW(p, l.x, l.z); return { x: w.x, z: w.z, psi: l.psi + p.ang }; }
+const portName = id => portOf(id).n;
+{ const base = newCareer; newCareer = function () {
+  const real = UI.realCareer, C = base();
+  C.ports = [real && real.port ? real.port : 'toulon']; C.port = C.ports[0]; C.portOf = {};
+  careerPorts(); return C;
+}; }
+{ const base = loadCareer; loadCareer = function () { const c = base(); if (c) careerPorts(); return c; }; }
+// à l'arrivée au port : on charge le bon port, puis un survol si l'on rentre de mer
+{ const base = enterHub; enterHub = function (title) {
+  if (CAREER && !CAREER.temp) { careerPorts(); if (PORT.id !== CAREER.port) { setPort(CAREER.port); terrainUpdate({ x: PORT.x, z: PORT.z }, true); } }
+  const arr = UI.arrival; UI.arrival = null;
+  base(title);
+  if (arr && UI.screen === 'port') cinePlay([portArrival(PORT, arr.sub)]);
+}; }
+{ const base = toPort; toPort = function () { if (MS.cur && !UI.quickMode) UI.arrival = UI.arrival || {}; base(); }; }
+
+// répartition aléatoire des bâtiments (le bâtiment actif reste avec le commandant)
+function shuffleFleet() {
+  const C = CAREER, moved = [];
+  for (const c of ALLC) if (owned(c) && c !== C.ship) { const p = pick(C.ports); if (C.portOf[c] !== p) moved.push(c); C.portOf[c] = p; }
+  return moved;
+}
+// la flotte reste visible dans chaque port proche pendant que vous êtes en mer
+fleetPresence = function () {
+  const P = PLAYER; if (UI.screen !== 'sea' || !P || P.removed || !PORTS.length) return;
+  const busy = new Set([P.cls]); const m = curOp && curOp();
+  if (m) for (const v of m.op.allies) if (!v.removed && v.ally) busy.add(v.ally.c);
+  for (const v of VESSELS) if (v.ai && v.ai.mode === 'home') for (const c of ALLC) if (CLASSES[c].n === v.name) busy.add(c);
+  const have = new Map();
+  for (const v of VESSELS) if (v !== P && !v.removed && v.ai && v.ai.mode === 'moored' && v.ai.b) { const c = v.portFleet || ALLC.find(k => CLASSES[k].n === v.name); if (c) have.set((v.portId || PORT.id) + ':' + c, v); }
+  for (const p of PORTS) {
+    const near = Math.hypot(P.x - p.x, P.z - p.z) < 9000;
+    for (const c of ALLC) {
+      const key = p.id + ':' + c, v = have.get(key), want = near && !busy.has(c) && shipHere(c, p.id);
+      if (!want) { if (v && (busy.has(c) || Math.hypot(P.x - p.x, P.z - p.z) > 12000 || !shipHere(c, p.id))) { v.remove(); onVesselGone(v); } continue; }
+      if (v) continue;
+      const b = berthAt(p, c), K = CLASSES[c]; if (Math.hypot(P.x - b.x, P.z - b.z) < 160) continue;
+      const n = new Vessel(K.kind, K.build(), b.x, b.z, b.psi, { name: K.n }); n.faction = 'ysmar'; n.ai = { mode: 'moored', b }; n.moored = true; n.radar = false; n.ambient = true; n.ais = false; n.portFleet = c; n.portId = p.id;
+    }
+  }
+};
+
+// ----- distances et durées de traversée (carte à l'échelle : 1 km réel ≈ 74 m dans le jeu) -----
+function travelInfo(cls, to) {
+  const a = portOf(CAREER.port), b = portOf(to), d = Math.hypot(a.x - b.x, a.z - b.z) * 1.12;
+  const nm = Math.round(d / 0.074 / 1852), kn0 = Math.max(10, Math.round(KINDS[CLASSES[cls].kind].vmax / KN * 0.78));
+  const h = Math.max(2, Math.round(nm / kn0)), days = Math.max(1, Math.ceil(h / 20)), fuel = clamp(Math.round(nm / 12), 4, 70);
+  return { nm, kn: kn0, h, days, fuel };
+}
+// ----- bureau des affectations (état-major, capitainerie) -----
+const FLAGS = { fr: 'France', it: 'Italie', tn: 'Tunisie', dz: 'Algérie' };
+const flagI = p => `<i class="fl ${p.flag}" title="${FLAGS[p.flag] || ''}"></i>`;
+function affectPanel() {
+  const C = careerPorts(), ships = ALLC.filter(c => owned(c));
+  return `<header class="ph2"><h3>Bureau des affectations</h3><button class="btn sm ghost" data-act="go" data-p="over">Fermer</button></header>${dlgHTML()}
+    <h4>Mes ports d'affectation</h4><div class="chips">${PORTS.map(p => `<button class="${C.ports.includes(p.id) ? 'on' : ''}" data-act="affport" data-v="${p.id}" ${p.id === C.port ? 'disabled title="Vous êtes ici"' : ''}>${flagI(p)}${escH(p.n)}</button>`).join('')}</div>
+    <p class="small">Vous êtes à ${escH(PORT.n)} (${escH(PORT.reg)}). Cochez les bases où vous acceptez d'être affecté : vos bâtiments y sont répartis, et chaque nouveau bâtiment rejoint l'une d'elles au hasard.</p>
+    <h4>Répartition de la flotte</h4><div class="fleetmap">${ships.map(c => { const at = shipPort(c), act = c === C.ship; return `<div class="fm"><div><b>${escH(CLASSES[c].n)}</b><span>${act ? `avec vous à ${escH(portName(at))}` : `à ${escH(portName(at))}`}</span></div>${act || C.ports.length < 2 ? '' : `<div class="chips">${C.ports.map(id => `<button class="${at === id ? 'on' : ''}" data-act="affship" data-c="${c}" data-v="${id}">${escH(portName(id))}</button>`).join('')}</div>`}</div>`; }).join('')}</div>
+    ${C.ports.length > 1 && ships.length > 1 ? '<button class="btn sm" data-act="affrandom">Répartir la flotte au hasard</button>' : ''}
+    <h4>Rejoindre un autre port</h4>${travelHTML()}`;
+}
+function travelHTML() {
+  const C = CAREER, others = C.ports.filter(id => id !== C.port);
+  if (!others.length) return '<p class="small">Ajoutez d\'abord un autre port d\'affectation.</p>';
+  const T = UI.trav || (UI.trav = {}); if (!others.includes(T.to)) T.to = others[0];
+  const here = ALLC.filter(c => owned(c) && shipHere(c)); if (!here.includes(T.cls)) T.cls = C.ship;
+  const R = travelInfo(T.cls, T.to), st = C.ships[T.cls], ok = st.fuel >= R.fuel + 5;
+  return `<div class="chips">${others.map(id => `<button class="${T.to === id ? 'on' : ''}" data-act="travto" data-v="${id}">${flagI(portOf(id))}${escH(portName(id))}</button>`).join('')}</div>
+    <h4>À bord de</h4><div class="chips">${here.map(c => `<button class="${T.cls === c ? 'on' : ''}" data-act="travcls" data-v="${c}">${escH(CLASSES[c].n)}</button>`).join('')}</div>
+    <p class="small">${R.nm} nautiques, environ ${R.h} h de mer à ${R.kn} nœuds · gasoil ${R.fuel} % (il reste ${Math.round(st.fuel)} %). Le bâtiment reste ensuite affecté à ${escH(portName(T.to))}.</p>
+    <div class="row2"><button class="btn pri" data-act="travel" data-v="quick" ${ok ? '' : 'disabled'}>Traversée (${R.days > 1 ? R.days + ' jours' : 'une journée'})</button><button class="btn" data-act="travel" data-v="sail">Naviguer moi-même</button></div>
+    ${ok ? '' : '<p class="warn">Gasoil insuffisant pour la traversée : faites le plein à l\'arsenal, ou naviguez vous-même avec une escale.</p>'}`;
+}
+{ const base = panelHTML; panelHTML = function () {
+  if (HUB.place === 'affect') return affectPanel();
+  let h = base();
+  if (HUB.place === 'em') h = h.replace('data-act="emcareer">Mon dossier</button>', 'data-act="emcareer">Mon dossier</button><button class="btn sm" data-act="go" data-p="affect">Affectations et traversées</button>');
+  if (HUB.place === 'capit' && !(HUB.sub && (HUB.sub.free || HUB.sub.quick))) h = h.replace('data-act="capquick">', 'data-act="go" data-p="affect">Traversée vers un autre port</button><button class="btn" data-act="capquick">');
+  return h;
+}; }
+{ const base = hubGo; hubGo = function (id) {
+  if (id !== 'affect') return base(id);
+  HUB.place = 'affect'; HUB.sub = null; HUB.dlg = { who: 'amirale', lines: [say('amirale', CAREER.ports.length > 1 ? `Vous servez sur ${CAREER.ports.length} bases. Dites-moi où vous voulez vos bâtiments, je signe.` : 'Une seule base pour l\'instant. La flotte d\'Ysmar a des points d\'appui partout en Méditerranée : choisissez.')] };
+  sfx('click'); hubRender();
+}; }
+const affRefresh = () => { saveCareer(); const keep = HUB.cam, pl = HUB.place, at = HUB.openAt, x = PW.x, z = PW.z, yaw = PW.yaw; enterHub(false); HUB.cam = keep; if (PW.on) { PW.x = x; PW.z = z; PW.yaw = yaw; PW.snap = 1; } HUB.openAt = at; hubGo(pl); };
+Object.assign(ACT, {
+  affport: d => {
+    const C = CAREER, id = d.v; if (id === C.port) return;
+    if (C.ports.includes(id)) { if (C.ports.length < 2) return; C.ports = C.ports.filter(k => k !== id); } else C.ports.push(id);
+    const moved = shuffleFleet();
+    postMsg('amirale', C.ports.includes(id) ? `C'est signé : ${portName(id)} s'ajoute à vos bases.${moved.length ? ` Mouvements de la flotte : ${moved.map(c => `${CLASSES[c].n} à ${portName(C.portOf[c])}`).join(', ')}.` : ''}` : `Entendu, vous n'êtes plus affecté à ${portName(id)}.${moved.length ? ` La flotte est redistribuée : ${moved.map(c => `${CLASSES[c].n} à ${portName(C.portOf[c])}`).join(', ')}.` : ''}`);
+    affRefresh();
+  },
+  affship: d => { const C = CAREER; if (!owned(d.c) || d.c === C.ship || !C.ports.includes(d.v)) return; C.portOf[d.c] = d.v; toast(`${CLASSES[d.c].n} : nouvelle affectation à ${portName(d.v)}.`); affRefresh(); },
+  affrandom: () => { const moved = shuffleFleet(); toast(moved.length ? `Flotte redistribuée : ${moved.map(c => `${CLASSES[c].n} → ${portName(CAREER.portOf[c])}`).join(', ')}.` : 'Le hasard a tout laissé en place.'); affRefresh(); },
+  travto: d => { UI.trav.to = d.v; hubRender(); },
+  travcls: d => { UI.trav.cls = d.v; hubRender(); },
+  travel: d => {
+    const C = CAREER, T = UI.trav; if (!T || !T.to || !owned(T.cls) || !shipHere(T.cls)) return;
+    if (d.v === 'sail') { UI.free = Object.assign(UI.free || {}, { time: ENV.time, preset: 'brise', cls: T.cls, travel: T.to }); HUB.openAt = null; hubGo('over'); pwAccept({ kind: 'free', cls: T.cls, free: Object.assign({}, UI.free) }); return; }
+    const R = travelInfo(T.cls, T.to), st = C.ships[T.cls]; if (st.fuel < R.fuel + 5) return;
+    st.fuel -= R.fuel; C.day += R.days - 1; for (const c of C.crew) c.morale = Math.min(100, c.morale + 2);
+    const from = C.port; HUB.openAt = null; hubGo('over');
+    travelCine(T.cls, T.to, R, () => { C.ship = T.cls; C.port = T.to; C.portOf[T.cls] = T.to; C.board = null; C.stats.nm = (C.stats.nm || 0) + R.nm; jrn(`Traversée de ${portName(from)} à ${portName(T.to)} à bord ${deN(T.cls)} (${R.nm} nautiques).`); saveCareer(); UI.arrival = null; toPort(); toast(`Bienvenue à ${portName(T.to)}, commandant.`); });
+  }
+});
+// la traversée en trois plans : appareillage, pleine mer (le temps file), arrivée
+function travelCine(cls, to, R, done) {
+  const A = PORT, B = portOf(to), V = FLEET[cls] || PLAYER, K = KINDS[CLASSES[cls].kind], spd = R.kn * KN;
+  const hdg0 = headingOf(B.x - A.x, B.z - A.z); let hdg = hdg0;
+  // le joueur est tenu à son poste à quai par la simulation du port : on le déplace donc à la main
+  const drive = (dt, s) => { V.psi = hdg; V.r = 0; V.v = 0; V.u = s; V.rpm = 0.8; if (V === PLAYER) { V.x += Math.sin(hdg) * s * dt; V.z -= Math.cos(hdg) * s * dt; UI.portSpot = { x: V.x, z: V.z, psi: hdg }; } };
+  cinePlay([
+    shotShip(() => V, { dur: 4.5, title: 'Appareillage', sub: `${CLASSES[cls].n} quitte ${A.n} pour ${B.n}`, b0: 0.9, b1: 1.6, r0: 1.2, r1: 2.4, h0: 0.15, h1: 0.5,
+      enter: () => { V.ai = { mode: 'cine' }; V.moored = false; hdg = A.sea; }, step: (dt, k) => drive(dt, spd * 0.25 * k) }),
+    shotShip(() => V, { dur: 6.5, title: 'En mer', sub: `${R.nm} nautiques · environ ${R.h} heures de mer`, b0: 2.6, b1: 1.2, r0: 2.2, r1: 1.4, h0: 0.35, h1: 0.12, lead: 0.1,
+      enter: () => { const q = wet({ x: lerp(A.x, B.x, 0.45), z: lerp(A.z, B.z, 0.45) }, 40); V.x = q.x; V.z = q.z; hdg = hdg0; if (V === PLAYER) UI.portSpot = { x: q.x, z: q.z, psi: hdg }; },
+      step: dt => { drive(dt, spd); ENV.time = (ENV.time + dt * R.h / 6.5) % 24; } }),
+    shotPort(B, { dur: 5.5, title: B.n, sub: `${B.reg} · ${B.hq}`,
+      enter: () => { setPort(B.id); terrainUpdate({ x: B.x, z: B.z }, true); const q = portW(B, -10, 700); V.x = q.x; V.z = q.z; hdg = headingOf(B.x - q.x, B.z - q.z); if (V === PLAYER) UI.portSpot = { x: q.x, z: q.z, psi: hdg }; },
+      step: dt => drive(dt, 3) })
+  ], done);
+}
+// naviguer soi-même vers un autre port : objectif, marque d'arrivée, transit rapide possible
+{ const base = freeSail; freeSail = function (opts) {
+  const m = base(opts), to = UI.free && UI.free.travel; if (!to || !CAREER) return m;
+  UI.free.travel = null; const B = portOf(to);
+  if (B.id === PORT.id) return m;
+  m.travel = to; const o = m.objs.find(x => x.id === 'free'); if (o) o.text = `Rejoindre ${B.n} et y accoster`;
+  m.marks.push({ x: B.entrance.x, z: B.entrance.z, kind: 'goal', r: 350, label: B.n });
+  m.update = () => { const P = PLAYER; if (o && o.state !== 'done' && P && portAt(P) === B) { o.state = 'done'; vhf(`Capitainerie de ${B.n}`, `Bienvenue à ${B.n}, ${P.C.n}. Accostez au quai, on vous attend.`, 'good'); } };
+  const R = travelInfo(m.cls, to);
+  setTimeout(() => vhf(castOf('second').short || 'Second', `Route sur ${B.n}, ${R.nm} nautiques. Le transit rapide (Maj+T) nous y mène, je vous préviens au moindre événement.`, 'info'), 2500);
+  return m;
+}; }
+// accoster dans un autre port que celui du départ
+function dockAt(pid) {
+  const C = CAREER, m = MS.cur, P = PLAYER, p = portOf(pid);
+  if (!C || C.temp || UI.quickMode) { toPort(); return; }
+  const fresh = !C.ports.includes(pid); if (fresh) C.ports.push(pid);
+  if (m && m.cls && owned(m.cls) && !m.lent) { if (m.free && P) { const st = C.ships[m.cls]; st.hull = P.hull; st.engine = P.engine; st.fuel = P.fuel; } C.ship = m.cls; }
+  C.port = pid; C.portOf[C.ship] = pid; C.board = null; saveCareer();
+  UI.arrival = { sub: fresh ? `Nouvelle base d'affectation · ${p.reg}` : null };
+  if (fresh) postMsg('amirale', `Bien reçu, commandant : ${p.n} s'ajoute à vos bases d'affectation. ${p.hq} vous attend.`);
+  if (m && m.over && !m.shown && m.debrief) { m.shown = true; setScreen('debrief'); } else toPort();
+}
+{ const base = genericActions; genericActions = function () {
+  const out = base(), P = PLAYER, m = MS.cur;
+  if (P && m && (m.free || m.over) && !m.isOp && UI.screen === 'sea' && P.speed < 0.8 * KN && !UI.quickMode) {
+    const p = portAt(P); if (p && p.id !== PORT.id) out.unshift({ id: 'debark', label: `Accoster et débarquer à ${p.n}`, ok: true, run: () => dockAt(p.id) });
+  }
+  return out;
+}; }
+// achats : le nouveau bâtiment rejoint l'une de vos bases au hasard
+ACT.buyship = d => {
+  const C = CAREER, K = CLASSES[d.v]; if (!C || owned(d.v) || C.credits < K.price || rankOf(C.rep) < K.rank) return;
+  careerPorts(); C.credits -= K.price; C.ships[d.v] = freshShip(d.v); const p = pick(C.ports); C.portOf[d.v] = p; saveCareer();
+  if (p === C.port) { postMsg('arsenal', `${K.n} est à vous, affecté ici à ${portName(p)}. Je vous ai laissé les clés sur la passerelle, façon de parler.`); ACT.activeship(d); }
+  else { postMsg('arsenal', `${K.n} est à vous. L'état-major l'affecte à ${portName(p)} : il appareille ce soir pour sa nouvelle base.`); toast(`${K.n} acquis, affecté à ${portName(p)}.`); affRefresh(); }
+};
+{ const base = ACT.activeship; ACT.activeship = d => { const C = CAREER; if (!C || !owned(d.v) || !shipHere(d.v)) return; const old = C.ship; base(d); if (C.ship !== old) { C.portOf[old] = C.port; C.portOf[C.ship] = C.port; saveCareer(); } }; }
+{ const base = ACT.start; ACT.start = d => { const c = UI.shipCls; if (UI.screen === 'port' && CAREER && !CAREER.temp && c && owned(c) && !shipHere(c)) { toast(`${CLASSES[c].n} est à ${portName(shipPort(c))}. Choisissez un bâtiment présent à ${PORT.n}.`); return; } base(d); }; }
 
 </script>
 
