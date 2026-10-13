@@ -117,19 +117,16 @@ kbd { font: 600 10px var(--mono); color: var(--mut); border: 1px solid var(--lin
 #screen { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; overflow: auto; }
 .eyebrow { font: 600 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--amber); margin: 0 0 8px; }
 .title { position: absolute; inset: 0; display: grid; align-items: end; padding: 0 0 8vh 6vw; background: linear-gradient(90deg, rgba(4, 9, 13, .82) 0, rgba(4, 9, 13, .35) 46%, transparent 70%); }
-.tcard { max-width: 520px; }
 .title h1 { font: 400 clamp(52px, 8vw, 104px)/0.92 var(--fellsc); margin: 0 0 16px; color: #f4ecda; text-wrap: balance; letter-spacing: .01em; text-shadow: 0 2px 30px rgba(0, 0, 0, .5); }
 .title .sub { font: italic 19px/1.45 var(--fell); color: #d9d2c0; margin: 0 0 26px; max-width: 30em; }
 .menu { display: flex; flex-wrap: wrap; gap: 10px; }
 .menu .btn { padding: 11px 18px; font-size: 15px; }
-.qual, .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; align-items: center; }
-.qual span { color: var(--mut); font-size: 13px; margin-right: 6px; }
-.qual button, .chips button { background: rgba(255, 255, 255, .06); border: 1px solid var(--line); border-radius: 20px; padding: 4px 12px; font-size: 13px; }
-.qual button.on, .chips button.on { background: var(--amber); color: #150e03; border-color: var(--amber); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; align-items: center; }
+.chips button { background: rgba(255, 255, 255, .06); border: 1px solid var(--line); border-radius: 20px; padding: 4px 12px; font-size: 13px; }
+.chips button.on { background: var(--amber); color: #150e03; border-color: var(--amber); }
 .port { position: absolute; inset: 0; overflow: auto; background: linear-gradient(180deg, rgba(5, 10, 14, .55), rgba(5, 10, 14, .92) 35%); padding: calc(26px + env(safe-area-inset-top, 0px)) 4vw 30px; display: flex; flex-direction: column; gap: 20px; }
 .ph { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
 .ph h2 { font: 400 clamp(26px, 3.4vw, 40px)/1.05 var(--fell); margin: 0; color: #f4ecda; }
-.purse { text-align: right; display: grid; gap: 3px; min-width: 220px; } .purse b { font: 600 26px var(--mono); color: var(--amber); } .purse span { color: var(--mut); font-size: 13px; }
 .cols { display: grid; grid-template-columns: 1.15fr 1fr 0.9fr; gap: 18px; align-items: start; }
 .cols section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 10px; min-width: 0; }
 .cols h3 { font: 400 22px var(--fell); margin: 0; color: #f0e7d2; } .cols h4 { font: 600 11px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--mut); margin: 8px 0 0; }
@@ -198,7 +195,7 @@ kbd { font: 600 10px var(--mono); color: var(--mut); border: 1px solid var(--lin
   #incidents { top: auto; left: 10px; right: 10px; width: auto; transform: none; bottom: calc(300px + env(safe-area-inset-bottom, 0px)); }
   .cols { grid-template-columns: 1fr; } .ups { grid-template-columns: 1fr; }
   .title { padding: 0 16px 6vh; align-items: end; background: linear-gradient(0deg, rgba(4, 9, 13, .9) 0, rgba(4, 9, 13, .4) 55%, transparent); }
-  .paper { padding: 20px 18px; } .port { padding-left: 16px; padding-right: 16px; } .purse { text-align: left; }
+  .paper { padding: 20px 18px; } .port { padding-left: 16px; padding-right: 16px; }
   #chartFull { inset: 8px; } #chartFull .leg { display: none; }
 }
 .telnav { display: none; gap: 4px; } .telnav .btn { flex: 1; padding: 6px 0; }
@@ -328,10 +325,6 @@ kbd { font: 600 10px var(--mono); color: var(--mut); border: 1px solid var(--lin
 .fs p { grid-column: 1; margin: 0; color: var(--mut); font-size: 12px; } .fs > :last-child { grid-column: 2; grid-row: 1 / span 2; justify-self: end; }
 .fs.on { border-color: rgba(242, 179, 61, .55); background: rgba(242, 179, 61, .06); } .fs .ok { font-size: 12.5px; }
 .order .cls { font-style: normal; color: #5a4c33; }
-.qships { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
-.qships button { text-align: left; padding: 8px 10px; border: 1px solid rgba(43, 36, 22, .3); border-radius: 4px; background: rgba(43, 36, 22, .05); color: var(--ink); display: grid; gap: 2px; }
-.qships button b { font: 400 18px var(--fell); } .qships button span { font-size: 12px; color: var(--inkm); }
-.qships button.on { background: #2b2416; color: var(--paper); } .qships button.on span { color: #cbbf9f; }
 .paper .small.dark { color: var(--inkm); font: 14px/1.45 var(--fell); }
 @media (max-height: 820px) and (min-width: 761px) { #radarBox, #chartBox { width: 200px; height: 200px; } #weapons { bottom: calc(224px + env(safe-area-inset-bottom, 0px)); } #vhf { bottom: 234px; } }
 @media (max-width: 1100px) { #weapons { bottom: calc(214px + env(safe-area-inset-bottom, 0px)); } #co { grid-template-columns: minmax(0, 1fr) 290px; } }
@@ -1659,7 +1652,7 @@ function buildLandMask() {
   g.beginPath(); for (const r of rings) { r.forEach((p, i) => { const [a, b] = C(p[0], p[1]); i ? g.lineTo(a, b) : g.moveTo(a, b); }); g.closePath(); } g.fill('evenodd');
   // petites îles ajoutées (contour irrégulier)
   const pre = g.getImageData(0, 0, G, G).data;
-  for (const [n, lon, lat, L, W, ang, k] of EXTRA_ISLES) {
+  for (const [, lon, lat, L, W, ang, k] of EXTRA_ISLES) {
     const p = geoXZ(lon, lat), [cx, cy] = C(p.x, p.z); if (pre[(Math.round(cy) * G + Math.round(cx)) * 4] > 127) continue;
     const a = L / 2 * GEO.S * k / WORLD.size * G, b = W / 2 * GEO.S * k / WORLD.size * G, t = -ang * DEG;
     g.beginPath(); for (let i = 0; i < 28; i++) { const u = i / 28 * TAU, w = 0.82 + 0.3 * vnoise(Math.cos(u) * 2 + lon * 9, Math.sin(u) * 2 + lat * 9); const ex = Math.cos(u) * a * w, ey = Math.sin(u) * b * w; const X = cx + ex * Math.cos(t) - ey * Math.sin(t), Y = cy + ex * Math.sin(t) + ey * Math.cos(t); i ? g.lineTo(X, Y) : g.moveTo(X, Y); } g.closePath(); g.fill();
@@ -2908,7 +2901,7 @@ function onVesselGone(v) { for (const [id, t] of TRACKS) if (t.ent === v) TRACKS
 
 // ---------- capteurs et pistes ----------
 const horizon = (h1, h2) => 4120 * (Math.sqrt(Math.max(1, h1)) + Math.sqrt(Math.max(0.5, h2)));
-function radarRange(P) { const g = P.gear || {}; const base = { patrol: 8000, corvette: 22000, frigate: 45000, destroyer: 70000, tug: 9000 }[P.kind] || 8000; return base * (P.kind === 'patrol' ? [1, 1.5, 2][upLv('radar')] : 1 + upLv('radar') * 0.15); }
+function radarRange(P) { const base = { patrol: 8000, corvette: 22000, frigate: 45000, destroyer: 70000, tug: 9000 }[P.kind] || 8000; return base * (P.kind === 'patrol' ? [1, 1.5, 2][upLv('radar')] : 1 + upLv('radar') * 0.15); }
 function sonarRange(P) { const s = (P.gear && P.gear.sonar) || 0; if (!s) return 0; const own = smooth(15 * KN, 24 * KN, P.speed); return (s === 2 ? 14000 : 8000) * (1 + 0.25 * upLv('sonar')) * (1 - own * 0.7) * (1 - ENV.sea * 0.35); }
 function entHeight(e) { if (e.air) return e.y; if (e.sub) return e.depth > 4 ? 0 : 3; return Math.max(2, e.L * 0.12); }
 function entities() { const out = []; for (const v of VESSELS) if (v !== PLAYER && v.kind !== 'rhib' && !v.removed) out.push(v); for (const a of AIR) if (!a.dead && a.kind !== 'sam') out.push(a); return out; }
@@ -3300,7 +3293,7 @@ function symbol(g, x, y, type, ident, k, sel) {
 function drawCO() {
   const cv = $('coC'); const { w: W, h: H, k } = sizeCanvas(cv); if (W < 10) return; const g = cv.getContext('2d'); const P = PLAYER, c = coCenter(), sc = Math.min(W, H) / CO.scale;
   g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = '#050f17'; g.fillRect(0, 0, W, H);
-  if (CO.land) { const s = CO.land.width / WORLD.size; const [x0, y0] = coToScreen(WORLD.min, WORLD.min, W, H, c); g.imageSmoothingEnabled = true; g.drawImage(CO.land, x0, y0, WORLD.size * sc, WORLD.size * sc); }
+  if (CO.land) { const [x0, y0] = coToScreen(WORLD.min, WORLD.min, W, H, c); g.imageSmoothingEnabled = true; g.drawImage(CO.land, x0, y0, WORLD.size * sc, WORLD.size * sc); }
   // quadrillage et cercles de distance
   const step = CO.scale > 60000 ? 10000 : CO.scale > 20000 ? 5000 : 1000;
   g.strokeStyle = 'rgba(90,150,180,0.09)'; g.lineWidth = 1;
@@ -3541,7 +3534,7 @@ function visualRange(target, small) {
   let rng = Math.min(visibility(), lerp(small ? 260 : 1800, small ? 2200 : 9000, day)) * (1 - ENV.rain * 0.3) * (1 - ENV.sea * (small ? 0.45 : 0.1));
   const P = PLAYER;
   if (upLv('thermal')) rng = Math.max(rng, small ? 1500 : 3000);
-  if (P.spotOn) { const d = distTo(P, target), b = Math.abs(wrapA(headingOf(target.x - P.x, target.z - P.z) - P.psi - (P.spotAim || 0))); if (b < 0.2) rng = Math.max(rng, upLv('spot') ? 1500 : 800); }
+  if (P.spotOn) { const b = Math.abs(wrapA(headingOf(target.x - P.x, target.z - P.z) - P.psi - (P.spotAim || 0))); if (b < 0.2) rng = Math.max(rng, upLv('spot') ? 1500 : 800); }
   for (const f of FLARES) if (Math.hypot(f.x - target.x, f.z - target.z) < 1300 && f.t < f.T) rng = Math.max(rng, 1800);
   return rng;
 }
@@ -4799,49 +4792,6 @@ function wxLine(w, time) {
 function screenHTML() {
   const s = UI.screen;
   if (s === 'port' || s === 'title') return '';
-  if (s === 'title0') {
-    const has = !!loadCareer();
-    return `<div class="title"><div class="tcard"><p class="eyebrow">Marine nationale · Méditerranée</p><h1>Flotte d'Ysmar</h1><p class="sub">Du patrouilleur <i>Albatros</i> au destroyer <i>Tempête</i>, prenez la passerelle de cinq bâtiments. Sauvetages dans la tempête, convois sous la menace des drones, chasse au sous-marin, abordages : chaque sortie est différente.</p>
-      <div class="menu">${has ? '<button class="btn pri" data-act="continue">Reprendre la carrière</button>' : ''}<button class="btn ${has ? '' : 'pri'}" data-act="newcareer">${has ? 'Nouvelle carrière' : 'Commencer la carrière'}</button><button class="btn" data-act="quicksetup">Mission rapide</button><button class="btn" data-act="freesetup">Navigation libre</button><button class="btn" data-act="help">Commandes</button></div>
-      <div class="qual"><span>Graphismes</span>${[['ultra', 'Ultra'], ['high', 'Élevés'], ['med', 'Moyens'], ['low', 'Légers']].map(([k, l]) => `<button class="${UI.quality === k ? 'on' : ''}" data-act="quality" data-v="${k}">${l}</button>`).join('')}</div><button class="btn sm" style="margin-top:6px" data-act="models3d">Modèles 3D des navires (.glb)</button></div></div>`;
-  }
-  if (s === 'port0') {
-    const C = CAREER, rk = rankOf(C.rep), next = RANKS[rk + 1], sh = CLASSES[C.ship], st = CAREER.ships[C.ship];
-    if (!C.board) C.board = missionBoard().map(d => d.seed + ':' + d.type);
-    const board = C.board.map(k => { const [seed, type] = k.split(':'); return genMission(type, +seed); });
-    const cost = shipCosts(C.ship);
-    return `<div class="port"><header class="ph"><div><p class="eyebrow">État-major ${escH(deP(PORT.n))} · jour ${C.day}</p><h2>${escH(RANKS[rk].n)}, commandant ${escH(deN(C.ship))}</h2></div>
-      <div class="purse"><b>${fmtCr(C.credits)}</b><span>Réputation ${C.rep}${next ? ` / ${next.rep} (${escH(next.n)})` : ''}</span><em class="pb"><s style="width:${next ? Math.round((C.rep - RANKS[rk].rep) / (next.rep - RANKS[rk].rep) * 100) : 100}%"></s></em></div></header>
-      <div class="cols">
-        <section><h3>Ordres de mission</h3>${board.map((d, i) => { const dc = defaultCls(d); return `<article class="order ${d.hard ? 'hard' : ''}"><div class="oh"><span class="tag">${MTYPES[d.type].ic}</span><b>${escH(d.title)}</b></div><p>${escH(d.brief.split('. ')[0])}.</p><div class="wxl">${wxLine(d.weather, d.time)}</div><div class="of"><span>${fmtCr(d.reward)} · réputation +${d.rep}${d.hard ? ' · <b class="warn">difficile</b>' : ''}<br><i class="cls">${owned(dc) ? 'Avec ' + escH(leN(dc)) : 'Bâtiment prêté : ' + escH(CLASSES[dc].n)}</i></span><button class="btn pri" data-act="brief" data-i="${i}">Lire l'ordre</button></div></article>`; }).join('')}
-          <button class="btn ghost" data-act="newboard">Attendre de nouveaux ordres (1 jour)</button></section>
-        <section><h3>La flotte</h3>
-          <div class="active"><div class="ah"><b>${escH(sh.n)}</b><span>${escH(sh.cls)} · ${KINDS[sh.kind].L} m · ${sh.crew} marins</span></div>
-          <div class="shipst">${gauge('Coque', st.hull, st.hull < 50)}${gauge('Machine', st.engine, st.engine < 60)}${gauge('Gasoil', st.fuel, st.fuel < 30)}</div>
-          ${ammoLine(sh, st.ammo)}
-          <div class="row2"><button class="btn sm" data-act="repair" ${cost.repair > 0 && C.credits >= cost.repair ? '' : 'disabled'}>Réparer (${fmtCr(cost.repair)})</button><button class="btn sm" data-act="refuel" ${cost.fuel > 0 && C.credits >= cost.fuel ? '' : 'disabled'}>Plein (${fmtCr(cost.fuel)})</button>${Object.keys(sh.gear.ammo).length ? `<button class="btn sm" data-act="rearm" ${cost.ammo > 0 && C.credits >= cost.ammo ? '' : 'disabled'}>Réarmer (${fmtCr(cost.ammo)})</button>` : ''}</div></div>
-          <div class="fleet">${ALLC.map(id => { const K = CLASSES[id], o = owned(id), lock = rk < K.rank; return `<div class="fs ${C.ship === id ? 'on' : ''} ${o ? '' : 'buy'}"><div><b>${escH(K.n)}</b><span>${escH(K.cls)}</span></div><p>${escH(K.d)}</p>${C.ship === id ? '<span class="ok">Bâtiment actif</span>' : o ? `<button class="btn sm" data-act="activeship" data-v="${id}">Prendre le commandement</button>` : lock ? `<span class="small">Grade requis : ${escH(RANKS[K.rank].n)}</span>` : `<button class="btn sm" data-act="buyship" data-v="${id}" ${C.credits >= K.price ? '' : 'disabled'}>Acquérir (${fmtCr(K.price)})</button>`}</div>`; }).join('')}</div>
-          <p class="small">Sans le bon bâtiment, l'état-major vous en prête un pour la mission : la prime est alors réduite de 25 %.</p>
-          <h4>Améliorations (toute la flotte)</h4><div class="ups">${Object.entries(UPGRADES).map(([k, U]) => { const lv = upLv(k), max = U.cost.length, cost = U.cost[lv]; return `<div class="up"><div><b>${escH(U.n)}</b><span class="lv">${'●'.repeat(lv)}${'○'.repeat(max - lv)}</span></div><p>${escH(U.d)}</p>${lv < max ? `<button class="btn sm" data-act="buy" data-k="${k}" ${C.credits >= cost ? '' : 'disabled'}>${fmtCr(cost)}</button>` : '<span class="ok">Installé</span>'}</div>`; }).join('')}</div></section>
-        <section><h3>L'équipage</h3>${C.crew.map(c => `<div class="crew"><div><b>${escH(c.n)}</b><span>${escH(c.role)}</span></div><span class="lv">${'●'.repeat(c.skill)}${'○'.repeat(5 - c.skill)}</span>${gauge('Moral', c.morale, c.morale < 40)}<div class="row2"><button class="btn sm" data-act="train" data-id="${c.id}" ${c.skill < 5 && C.credits >= 3000 * c.skill ? '' : 'disabled'}>Formation (${fmtCr(3000 * c.skill)})</button></div></div>`).join('')}
-          <button class="btn sm" data-act="leave" ${C.credits >= 2500 ? '' : 'disabled'}>Permission à terre pour tous (${fmtCr(2500)}, moral +25)</button>
-          <h4>Livre de bord</h4><ul class="hist">${C.history.slice(0, 6).map(h => `<li class="${h.win ? 'ok' : 'bad'}">${escH(h.title)}<span>${h.win ? '+' + fmtCr(h.pay) : 'échec'}</span></li>`).join('') || '<li>Aucune mission pour l\'instant.</li>'}</ul>
-          <p class="small">Sauvés ${C.stats.rescued} · Saisies ${C.stats.seized} · Remorquages ${C.stats.towed} · Bâtiments adverses neutralisés ${C.stats.sunk} · Menaces aériennes abattues ${C.stats.kills}</p></section>
-      </div><footer class="pf"><button class="btn" data-act="freesetup">Navigation libre</button><button class="btn ghost" data-act="title">Menu principal</button></footer></div>`;
-  }
-  if (s === 'brief') {
-    const d = UI.briefDef, cls = UI.shipCls, K = CLASSES[cls], st = shipState(cls), big = K.kind === 'frigate' || K.kind === 'destroyer';
-    const canBerth = d.type !== 'escort' && !big && !d.startAt && !UI.quickMode;
-    const req = d.req || ALLC, rec = recommendCls(d);
-    const opts = req.filter(c => owned(c)); if (!opts.includes(rec) && req.includes(rec)) opts.push(rec);
-    return `<div class="brief"><div class="paper"><p class="eyebrow">${UI.quickMode ? 'Mission rapide' : `Ordre de mission n° ${CAREER.missions + 1}`} · ${d.type && !CIVIL.includes(d.type) ? 'État-major de la Marine' : 'CROSS Méditerranée'}</p><h2>${escH(d.title)}</h2><p>${escH(d.brief)}</p>
-      <h4>Bulletin météo</h4><div class="wxl dark">${wxLine(d.weather, d.time)}</div>
-      <h4>Bâtiment</h4><div class="chips">${opts.map(c => `<button class="${cls === c ? 'on' : ''}" data-act="shipsel" data-v="${c}">${escH(CLASSES[c].n)}${owned(c) || UI.quickMode ? '' : ' (prêt)'}</button>`).join('')}</div>
-      <p class="small dark">${escH(K.cls)} · ${escH(K.d)}${!owned(cls) && !UI.quickMode ? ' Bâtiment prêté par l\'état-major : prime réduite de 25 %.' : ''}</p>
-      ${UI.quickMode ? '' : `<h4>Récompense</h4><p>${fmtCr(d.reward)} et ${d.rep} points de réputation${d.hard ? ' · mission difficile' : ''}.</p>`}
-      ${owned(cls) && st.fuel < 35 ? '<p class="warn">Attention : gasoil bas (' + Math.round(st.fuel) + ' %).</p>' : ''}${owned(cls) && st.hull < 50 ? '<p class="warn">Attention : coque endommagée (' + Math.round(st.hull) + ' %).</p>' : ''}${owned(cls) && K.gear.ammo.sam != null && st.ammo.sam < K.gear.ammo.sam * 0.5 ? '<p class="warn">Attention : soutes à missiles à moitié vides.</p>' : ''}
-      <div class="row2"><button class="btn pri" data-act="start" data-v="sea">Appareiller${d.type === 'escort' || d.type === 'delivery' || d.startAt ? '' : ' (départ au large)'}</button>${canBerth ? '<button class="btn" data-act="start" data-v="berth">Appareiller depuis le quai</button>' : ''}<button class="btn ghost" data-act="${UI.quickMode ? 'quicksetup' : 'portback'}">Retour</button></div></div></div>`;
-  }
   if (s === 'debrief') {
     const m = MS.cur, D = m.debrief;
     if (m.isOp) return opDebriefHTML(m);
@@ -4850,26 +4800,6 @@ function screenHTML() {
       <div class="kvs">${UI.quickMode ? '' : `<div><span>Prime</span><b>${fmtCr(D.pay)}</b></div><div><span>Réputation</span><b>${D.rep >= 0 ? '+' : ''}${D.rep}</b></div>`}<div><span>Durée</span><b>${Math.round(D.time / 60)} min</b></div><div><span>Dégâts coque</span><b>${Math.round(D.dmgHull)} %</b></div><div><span>Gasoil consommé</span><b>${Math.round(D.fuelUsed)} %</b></div></div>
       ${D.ammoUsed && D.ammoUsed.length ? `<p class="small dark">Munitions tirées : ${escH(D.ammoUsed.join(', '))}.</p>` : ''}
       <div class="row2">${UI.quickMode ? '<button class="btn pri" data-act="port">Rentrer au port</button><button class="btn" data-act="stay">Rester en mer</button>' : '<button class="btn pri" data-act="port">Rentrer à l\'état-major</button><button class="btn" data-act="stay">Rester en mer</button>'}</div></div></div>`;
-  }
-  if (s === 'free') {
-    const f = UI.free || (UI.free = { time: 17.5, preset: 'brise' });
-    return `<div class="brief"><div class="paper"><p class="eyebrow">Navigation libre</p><h2>Sortie d'entraînement</h2><p>Aucune mission : explorez la côte varoise et les îles d'Hyères, entraînez-vous à accoster, essayez le gros temps.</p>
-      <h4>Bâtiment</h4><div class="chips">${ALLC.map(c => `<button class="${(f.cls || 'opv') === c ? 'on' : ''}" data-act="fcls" data-v="${c}">${escH(CLASSES[c].n)}</button>`).join('')}</div>
-      <h4>Heure de départ</h4><div class="chips">${[[6, 'Aube'], [10, 'Matin'], [14, 'Après-midi'], [18.5, 'Crépuscule'], [22.5, 'Nuit']].map(([t, l]) => `<button class="${f.time === t ? 'on' : ''}" data-act="ftime" data-v="${t}">${l}</button>`).join('')}</div>
-      <h4>Météo</h4><div class="chips">${Object.entries(PRESETS).map(([k, p]) => `<button class="${f.preset === k ? 'on' : ''}" data-act="fwx" data-v="${k}">${p.n}</button>`).join('')}</div>
-      <div class="row2"><button class="btn pri" data-act="freego">Appareiller</button><button class="btn ghost" data-act="${UI.prev === 'port' ? 'portback' : 'title'}">Retour</button></div></div></div>`;
-  }
-  if (s === 'quick') {
-    const q = UI.quick;
-    const types = Object.keys(MTYPES).filter(t => (MREQ[t] || ALLC).includes(q.cls));
-    if (!types.includes(q.type)) q.type = types[0];
-    return `<div class="brief"><div class="paper"><p class="eyebrow">Mission rapide</p><h2>Prenez la passerelle</h2><p>Choisissez un bâtiment et une mission : vous appareillez aussitôt, sans enjeu de carrière.</p>
-      <h4>Bâtiment</h4><div class="qships">${ALLC.map(c => { const K = CLASSES[c]; return `<button class="${q.cls === c ? 'on' : ''}" data-act="qcls" data-v="${c}"><b>${escH(K.n)}</b><span>${escH(K.cls)} · ${KINDS[K.kind].L} m</span></button>`; }).join('')}</div>
-      <h4>Mission</h4><div class="chips">${types.map(t => `<button class="${q.type === t ? 'on' : ''}" data-act="qtype" data-v="${t}">${escH(MTYPES[t].n)}</button>`).join('')}</div>
-      <p class="small dark">${escH(MTYPES[q.type].d)}</p>
-      <h4>Météo</h4><div class="chips"><button class="${!q.preset ? 'on' : ''}" data-act="qwx" data-v="">Selon la mission</button>${Object.entries(PRESETS).map(([k, p]) => `<button class="${q.preset === k ? 'on' : ''}" data-act="qwx" data-v="${k}">${p.n}</button>`).join('')}</div>
-      <h4>Heure</h4><div class="chips"><button class="${q.time == null ? 'on' : ''}" data-act="qtime" data-v="">Selon la mission</button>${[[7, 'Matin'], [14, 'Après-midi'], [19, 'Crépuscule'], [23, 'Nuit']].map(([t, l]) => `<button class="${q.time === t ? 'on' : ''}" data-act="qtime" data-v="${t}">${l}</button>`).join('')}</div>
-      <div class="row2"><button class="btn pri" data-act="quickgo">Lire l'ordre de mission</button><button class="btn ghost" data-act="title">Retour</button></div></div></div>`;
   }
   if (s === 'pause') {
     return `<div class="brief"><div class="paper sm"><p class="eyebrow">Pause</p><h2>${escH(MS.cur ? MS.cur.title : '')}</h2><div class="menu"><button class="btn pri" data-act="resume">Reprendre</button><button class="btn" data-act="cheat">Codes</button><button class="btn" data-act="voice">Voix : ${typeof VOX !== 'undefined' && VOX.on ? 'oui' : 'non'}</button><button class="btn" data-act="help">Commandes</button>${MS.cur && !MS.cur.free && !MS.cur.over ? '<button class="btn" data-act="abandon">Abandonner la mission</button>' : ''}${MS.cur && (MS.cur.free || MS.cur.over) && CAREER && !UI.quickMode ? '<button class="btn" data-act="port">Rentrer à l\'état-major</button>' : ''}<button class="btn ghost" data-act="title">Menu principal</button></div>
@@ -5140,20 +5070,6 @@ const ACT = {
   coact: d => { const a = UI.coActs && UI.coActs[+d.i]; if (!a) return; if (!a.ok) { toast(a.why || 'Action indisponible.'); return; } a.run(); renderCOPanel(true); },
   co: () => openCO(), seltrack: d => { CB.sel = TRACKS.get(+d.id) || null; renderCOPanel(true); },
   coz: d => { CO.scale = clamp(CO.scale * (+d.v > 0 ? 0.6 : 1.6), 3000, 160000); renderCOPanel(true); }, cocenter: () => { CO.pan = null; },
-  shipsel: d => { UI.shipCls = d.v; renderScreen(); },
-  activeship: d => { if (!owned(d.v)) return; CAREER.ship = d.v; saveCareer(); clearWorldEntities(); portShip(); spawnTraffic({ ents: [] }); renderScreen(); toast(`Vous prenez le commandement ${deN(d.v)}.`); },
-  buyship: d => { const K = CLASSES[d.v]; if (owned(d.v) || CAREER.credits < K.price || rankOf(CAREER.rep) < K.rank) return; CAREER.credits -= K.price; CAREER.ships[d.v] = freshShip(d.v); ACT.activeship(d); toast(`${K.n} acquis : ${K.cls.toLowerCase()} à vos ordres.`); },
-  rearm: () => { const C = CAREER, cost = shipCosts(C.ship).ammo; if (C.credits < cost) return; C.credits -= cost; C.ships[C.ship].ammo = JSON.parse(JSON.stringify(CLASSES[C.ship].gear.ammo)); saveCareer(); renderScreen(); },
-  quicksetup: () => { audioInit(); UI.quick = UI.quick || { cls: 'frigate', type: 'convoy', preset: '', time: null }; if (MS.cur) { clearWorldEntities(); MS.cur = null; titleScene(); } setScreen('quick'); },
-  qcls: d => { UI.quick.cls = d.v; renderScreen(); }, qtype: d => { UI.quick.type = d.v; renderScreen(); },
-  qwx: d => { UI.quick.preset = d.v; renderScreen(); }, qtime: d => { UI.quick.time = d.v === '' ? null : +d.v; renderScreen(); },
-  quickgo: () => {
-    const q = UI.quick; newCareer(); CAREER.temp = true; CAREER.credits = 0; CAREER.rep = CLASSES[q.cls].rank ? RANKS[CLASSES[q.cls].rank].rep : 0;
-    for (const c of ALLC) CAREER.ships[c] = freshShip(c); CAREER.ship = q.cls;
-    const def = genMission(q.type, Math.floor(Math.random() * 1e9)); if (q.time != null) def.time = q.time; if (q.preset) def.weather = Object.assign({}, PRESETS[q.preset].w);
-    UI.quickMode = true; UI.briefDef = def; UI.shipCls = q.cls; setScreen('brief');
-  },
-  fcls: d => { UI.free.cls = d.v; renderScreen(); },
   assign: d => { const inc = ACTIVE_INC.find(i => i.id === d.id); if (inc) { inc.assigned = !inc.assigned; vhf('Second', inc.assigned ? 'Équipe engagée sur l\'incident.' : 'Équipe désengagée.', 'info'); } },
   ap: () => { const P = PLAYER; if (UI.ap === 0) { UI.ap = 1; UI.apHdg = P.psi; } else if (UI.ap === 1 && UI.wp) UI.ap = 2; else UI.ap = 0; sfx('click'); },
   rudzero: () => { PLAYER.rudCmd = 0; if (UI.ap) UI.ap = 0; },
@@ -5163,23 +5079,13 @@ const ACT = {
   chartz: d => { UI.chartScale = clamp(UI.chartScale * (+d.v > 0 ? 0.6 : 1.6), 1200, 64000); },
   debrief: () => setScreen('debrief'),
   // écrans
-  continue: () => { audioInit(); if (loadCareer()) toPort(); },
-  newcareer: () => { audioInit(); newCareer(); saveCareer(); toPort(); },
   port: () => { audioInit(); if (!CAREER) newCareer(); toPort(); },
-  title: () => { titleScene(); },
-  brief: d => { const C = CAREER; const [seed, type] = C.board[+d.i].split(':'); UI.briefDef = genMission(type, +seed); UI.shipCls = defaultCls(UI.briefDef); setScreen('brief'); },
-  newboard: () => { CAREER.board = null; CAREER.day++; for (const c of CAREER.crew) c.morale = Math.min(100, c.morale + 3); saveCareer(); renderScreen(); },
   start: d => { audioInit(); if (COMMS.open) closeMsgs(); const def = UI.briefDef; startMission(def, { atSea: d.v === 'sea', fromBerth: d.v === 'berth', cls: UI.shipCls }); UI.flares = 6; UI.wp = null; UI.ap = 0; TRACK.length = 0; UI.cam = 'orbit'; UI.camDist = camFor(); UI.camPitch = 0.22; UI.camYaw = 2.6; UI.camSnap = 1; UI.radarRange = PLAYER.kind === 'patrol' || PLAYER.kind === 'tug' ? 6000 : 12000; CO.scale = PLAYER.kind === 'patrol' || PLAYER.kind === 'tug' ? 16000 : 40000; setScreen('sea'); hudUpdate(true); },
   stay: () => { const m = MS.cur; m.free = true; m.objs.push({ id: 'free', text: 'Navigation libre : rentrez au port quand vous voulez (menu)', state: 'active', prog: 0 }); setScreen('sea'); },
   abandon: () => { endMission(false, 'Mission abandonnée sur ordre du commandant.', { abandon: true }); setScreen('debrief'); },
-  repair: () => { const C = CAREER, cost = shipCosts(C.ship).repair, st = C.ships[C.ship]; if (C.credits < cost) return; C.credits -= cost; st.hull = 100; st.engine = 100; saveCareer(); renderScreen(); },
-  refuel: () => { const C = CAREER, cost = shipCosts(C.ship).fuel, st = C.ships[C.ship]; if (C.credits < cost) return; C.credits -= cost; st.fuel = 100; saveCareer(); renderScreen(); },
   buy: d => { const C = CAREER, U = UPGRADES[d.k], lv = upLv(d.k), cost = U.cost[lv]; if (cost == null || C.credits < cost) return; C.credits -= cost; C.up[d.k] = lv + 1; saveCareer(); renderScreen(); toast(`${U.n} : installé.`); },
   train: d => { const c = crew(d.id), cost = 3000 * c.skill; if (CAREER.credits < cost || c.skill >= 5) return; CAREER.credits -= cost; c.skill++; saveCareer(); renderScreen(); },
   leave: () => { if (CAREER.credits < 2500) return; CAREER.credits -= 2500; for (const c of CAREER.crew) c.morale = Math.min(100, c.morale + 25); saveCareer(); renderScreen(); },
-  freesetup: () => { UI.prev = UI.screen; UI.free = UI.free || { time: 17.5, preset: 'brise', cls: CAREER && CAREER.ship || 'opv' }; setScreen('free'); },
-  portback: () => setScreen('port'),
-  ftime: d => { UI.free.time = +d.v; renderScreen(); }, fwx: d => { UI.free.preset = d.v; renderScreen(); },
   freego: () => { audioInit(); if (!CAREER) newCareer(); freeSail({ time: UI.free.time, weather: PRESETS[UI.free.preset].w, cls: UI.free.cls || 'opv' }); UI.flares = 6; UI.wp = null; UI.ap = 0; TRACK.length = 0; UI.cam = 'orbit'; UI.camDist = camFor(); UI.camSnap = 1; setScreen('sea'); hudUpdate(true); },
   help: () => { UI.help = true; renderScreen(); }, closehelp: () => { UI.help = false; renderScreen(); },
   quality: d => { UI.quality = d.v; try { localStorage.setItem('ysmar-q', d.v); } catch (e) { } toast('Le réglage s\'applique au prochain chargement de la page.'); renderScreen(); }
@@ -5429,9 +5335,7 @@ function portLine() { return say('port', pick([`Vent de ${bearingDesc(ENV.windDi
 function hubRender() {
   if (UI.screen !== 'port') return;
   const hub = $('hub'); hub.hidden = false;
-  $('hubTitle').hidden = !HUB.title;
-  $('hubTop').hidden = HUB.title; $('hubNav').hidden = HUB.title; $('hubLabels').hidden = HUB.title;
-  if (HUB.title) { setH('hubTitle', titleCard()); $('hubPanel').hidden = true; return; }
+  $('hubTitle').hidden = true; $('hubTop').hidden = false; $('hubNav').hidden = false; $('hubLabels').hidden = false;
   const C = CAREER, rk = rankOf(C.rep), next = RANKS[rk + 1];
   setH('hubTop', `<div class="ht1"><p class="eyebrow">${escH(PORT.n)} · ${escH(PORT.reg)} · jour ${C.day}</p><b>${escH(RANKS[rk].n)}</b><span>Commandant ${escH(deN(C.ship))}</span></div>
     <div class="ht2"><b class="cr">${fmtCr(C.credits)}</b><span>Réputation ${C.rep}${next ? ` / ${next.rep}` : ''}</span><em class="pb"><s style="width:${next ? Math.round((C.rep - RANKS[rk].rep) / (next.rep - RANKS[rk].rep) * 100) : 100}%"></s></em></div>
@@ -5472,7 +5376,6 @@ function emPanel() {
       <p class="small">${escH(K.cls)}. ${!owned(cls) ? 'Bâtiment prêté par l\'état-major : prime réduite de 25 %.' : ''}${owned(cls) && st.fuel < 35 ? ` Gasoil bas (${Math.round(st.fuel)} %).` : ''}${owned(cls) && st.hull < 50 ? ` Coque endommagée (${Math.round(st.hull)} %).` : ''}</p>
       <div class="row2"><button class="btn pri" data-act="start" data-v="sea">Appareiller${d.type === 'escort' || d.type === 'delivery' || d.startAt ? '' : ' (au large)'}</button>${canBerth ? '<button class="btn" data-act="start" data-v="berth">Appareiller du quai</button>' : ''}<button class="btn ghost" data-act="emorders">Autres ordres</button></div>`;
   } else if (HUB.sub && HUB.sub.career) {
-    const rk = rankOf(C.rep), next = RANKS[rk + 1];
     body = `<div class="kvs dark"><div><span>Missions</span><b>${C.missions}</b></div><div><span>Réussites</span><b>${C.wins}</b></div><div><span>Sauvés</span><b>${C.stats.rescued}</b></div><div><span>Saisies</span><b>${C.stats.seized}</b></div><div><span>Neutralisés</span><b>${C.stats.sunk}</b></div><div><span>Menaces abattues</span><b>${C.stats.kills}</b></div></div>
       <div class="row2"><button class="btn sm" data-act="emorders">Voir les ordres</button></div>`;
   } else {
@@ -5517,13 +5420,6 @@ function capitPanel() {
     <h4>Livre de bord</h4><ul class="hist">${C.history.slice(0, 8).map(h => `<li class="${h.win ? 'ok' : 'bad'}">${escH(h.title)}<span>${h.win ? '+' + fmtCr(h.pay) : 'échec'}</span></li>`).join('') || '<li>Aucune mission pour l\'instant.</li>'}</ul>
     <h4>Graphismes</h4><div class="chips">${[['ultra', 'Ultra'], ['high', 'Élevés'], ['med', 'Moyens'], ['low', 'Légers']].map(([k, l]) => `<button class="${UI.quality === k ? 'on' : ''}" data-act="quality" data-v="${k}">${l}</button>`).join('')}</div><button class="btn sm" style="margin-top:6px" data-act="models3d">Modèles 3D des navires (.glb)</button>`;
 }
-function titleCard() {
-  const has = !!savedCareer();
-  return `<div class="tcard"><p class="eyebrow">Marine nationale · Méditerranée</p><h1>Flotte d'Ysmar</h1><p class="sub">${escH(PORT.n || 'Toulon')}, le soir. Cinq bâtiments attendent à quai, l'état-major a des ordres pour vous. Sauvetages dans la tempête, convois sous la menace des drones, chasse au sous-marin, abordages.</p>
-    <div class="menu">${has ? '<button class="btn pri" data-act="continue">Reprendre mon poste</button>' : ''}<button class="btn ${has ? '' : 'pri'}" data-act="newcareer">${has ? 'Nouvelle carrière' : 'Prendre mon poste'}</button></div>
-    <div class="qual"><span>Graphismes</span>${[['ultra', 'Ultra'], ['high', 'Élevés'], ['med', 'Moyens'], ['low', 'Légers']].map(([k, l]) => `<button class="${UI.quality === k ? 'on' : ''}" data-act="quality" data-v="${k}">${l}</button>`).join('')}</div><button class="btn sm" style="margin-top:6px" data-act="models3d">Modèles 3D des navires (.glb)</button></div>`;
-}
-function savedCareer() { try { const s = localStorage.getItem(SAVE_KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
 
 // ---------- événements du port (messages qui arrivent) ----------
 function portEvents() {
@@ -5547,7 +5443,6 @@ Object.assign(ACT, {
   shipsel: d => { UI.shipCls = d.v; hubRender(); },
   newboard: () => { CAREER.board = null; CAREER.day++; for (const c of CAREER.crew) c.morale = Math.min(100, c.morale + 3); saveCareer(); HUB.sub = null; HUB.dlg = { who: 'amirale', lines: [say('amirale', 'Une nuit de passée. De nouveaux ordres sont arrivés au petit matin.')] }; hubRender(); },
   activeship: d => { if (!owned(d.v)) return; CAREER.ship = d.v; saveCareer(); const keep = HUB.cam; enterHub(false); HUB.cam = keep; hubGo('ship:' + d.v); toast(`Vous prenez le commandement ${deN(d.v)}.`); postMsg('second', `Bienvenue à bord ${deN(d.v)}, commandant. L'équipage a déjà déménagé ses affaires.`); },
-  buyship: d => { const K = CLASSES[d.v]; if (owned(d.v) || CAREER.credits < K.price || rankOf(CAREER.rep) < K.rank) return; CAREER.credits -= K.price; CAREER.ships[d.v] = freshShip(d.v); saveCareer(); postMsg('arsenal', `${K.n} est à vous. Je vous ai laissé les clés sur la passerelle, façon de parler.`); ACT.activeship(d); },
   repair: d => { const c = d.v || CAREER.ship, C = CAREER, cost = shipCosts(c).repair, st = C.ships[c]; if (C.credits < cost) return; C.credits -= cost; st.hull = 100; st.engine = 100; saveCareer(); hubRender(); },
   refuel: d => { const c = d.v || CAREER.ship, C = CAREER, cost = shipCosts(c).fuel, st = C.ships[c]; if (C.credits < cost) return; C.credits -= cost; st.fuel = 100; saveCareer(); hubRender(); },
   rearm: d => { const c = d.v || CAREER.ship, C = CAREER, cost = shipCosts(c).ammo; if (C.credits < cost) return; C.credits -= cost; C.ships[c].ammo = JSON.parse(JSON.stringify(CLASSES[c].gear.ammo)); saveCareer(); hubRender(); },
@@ -5569,10 +5464,6 @@ Object.assign(ACT, {
   freesetup: () => { hubGo('capit'); ACT.capfree(); },
   portback: () => toPort(),
   title: () => titleScene(),
-  continue: () => { audioInit(); if (loadCareer()) { HUB.title = false; enterHub(false); } },
-  newcareer: () => { audioInit(); newCareer(); saveCareer(); HUB.title = false; enterHub(false); setTimeout(() => { hubGo('em'); }, 300);
-    postMsg('amirale', 'Bienvenue à Toulon, commandant. L\'Albatros est à vous. Passez à l\'état-major : j\'ai des ordres. Et écrivez-moi si quelque chose cloche, ma porte est ouverte.');
-    postMsg('second', 'Maëlle Kerbrat, votre seconde. L\'équipage est à bord et le café est chaud. On attend vos ordres, commandant.'); }
 });
 
 // ===== MESSAGERIE : communication directe par messages avec l'état-major, le CROSS, l'arsenal et l'équipage =====
@@ -6633,7 +6524,7 @@ function flyStart() {
   if (!WALK.toldFly) { WALK.toldFly = 1; toast('Z/S : vitesse · Q/D : virer · R/F ou ↑/↓ : monter/descendre · G : torpille · V : vue cockpit · I : rendre les commandes'); }
 }
 function flyEnd(how) {
-  const P = PLAYER, G = IN.geo; WALK.fly = false; WALK.passenger = false; document.body.classList.remove('fly'); WALK.fade = 1;
+  const G = IN.geo; WALK.fly = false; WALK.passenger = false; document.body.classList.remove('fly'); WALK.fade = 1;
   if (how === 'deck' && G.hd) { WALK.level = 'ext'; WALK.x = 2.8; WALK.z = G.hd.z - 3.6; const f = floorAt(2.8, G.hd.y + 2, G.hd.z - 3.6, 6); WALK.y = WALK.ty = f == null ? G.hd.y : f; WALK.yaw = 0.6; }
   else { WALK.level = 'deck'; WALK.x = -2.0; WALK.z = G.zc + 6.0; WALK.yaw = 2.32; vhf(castOf('medic').short || 'Infirmerie', 'Le semi-rigide vous a repêché, commandant. Rien de cassé, mais restez assis cinq minutes.', 'alarm'); }
 }
@@ -6777,7 +6668,6 @@ function extStep(dt) {
 // ---------- détails ----------
 const DET = { bell: -1, quart: -1, stepT: 0, alarm: 0, lookT: 0 };
 function detailsStep(dt) {
-  const P = PLAYER;
   // cloche du bord à chaque heure, relève de quart toutes les quatre heures
   const h = Math.floor(ENV.time);
   if (DET.bell < 0) DET.bell = h;
@@ -7010,7 +6900,7 @@ function fleetCmdList(id) {
   return L;
 }
 function fleetRun(k) {
-  const [a, c, t] = k.split(':'), P = PLAYER;
+  const [a, c, t] = k.split(':');
   if (a === 'ff') return { reply: formation(c) };
   if (a === 'fg') { const m = curOp(); const vs = m ? m.op.allies.filter(v => !v.removed && !v.leaving) : []; return { reply: vs.length ? vs.map(v => applyOrder(v.ally.c, { type: c }).reply).join(' / ') : 'Aucun bâtiment avec vous.' }; }
   if (a === 'fo') { const o = { type: t }; if (t === 'attaque' || t === 'escorte') o.ent = CB.sel && CB.sel.ent; return applyOrder(c, o); }
@@ -8642,7 +8532,7 @@ function rDamageReport() {
   const P = PLAYER; rsay('PC Sécurité', `Coque ${Math.round(P.hull)} %, moteurs ${Math.round(P.engine)} %.${ACTIVE_INC.length ? ' En cours : ' + ACTIVE_INC.map(i => INCIDENTS[i.id].n.toLowerCase()).join(', ') + '.' : ' Aucune avarie en cours.'}${P.battle ? ' Équipage aux postes de combat.' : ''}`);
 }
 function rSonarAnalysis() {
-  const P = PLAYER; if (!rcd('acou', 45)) return; let n = 0;
+  if (!rcd('acou', 45)) return; let n = 0;
   for (const t of TRACKS.values()) { const e = t.ent; if (!e || e.removed) continue; if ((t.type === 'sub' || t.via === 'sonar') && t.ident === 'unk') { upsertTrack(e, t.via, identOf(e)); n++; } }
   rsay('Sonar', n ? `Analyse terminée : ${n} contact${n > 1 ? 's' : ''} classifié${n > 1 ? 's' : ''} d'après leur signature acoustique.` : 'Aucun contact à classifier pour l\'instant. On écoute.', n ? 'good' : 'info');
 }
