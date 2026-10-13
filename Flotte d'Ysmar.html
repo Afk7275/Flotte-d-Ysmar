@@ -484,6 +484,27 @@ i.fl.dz { background: radial-gradient(circle at 52% 50%, #d21034 2.2px, transpar
 .fleetmap { display: grid; gap: 6px; } .fleetmap .fm { display: grid; gap: 4px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; } .fleetmap .fm > div:first-child { display: flex; justify-content: space-between; gap: 8px; } .fleetmap .fm span { font-size: 12px; color: var(--mut); }
 #hqRoom { position: absolute; left: 14px; bottom: calc(44px + env(safe-area-inset-bottom, 0px)); font: 600 11px var(--mono, monospace); letter-spacing: .08em; text-transform: uppercase; color: var(--amber2); background: rgba(8,14,20,.6); padding: 4px 10px; border-radius: 6px; pointer-events: none; }
 #hqRoom[hidden] { display: none; }
+/* ===== réglages, mode photo, marqueur d'objectif, texte agrandi ===== */
+.setr { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.setr > div { display: grid; gap: 1px; } .setr b { font-weight: 500; font-size: 13.5px; } .setr span { font-size: 12px; color: var(--mut); }
+.setr input[type=range] { width: 160px; accent-color: var(--amber); }
+.tg { min-width: 58px; background: rgba(255,255,255,.06); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; color: var(--fg); font: 600 12px var(--mono, monospace); }
+.tg.on { background: var(--amber); color: #120c03; border-color: var(--amber); }
+body.photo #hud, body.photo #hub, body.photo #tuto, body.photo #progChip, body.photo #transitBox, body.photo #msgPop, body.photo #toast, body.photo #walkUI, body.photo #cineCap, body.photo #cineTitle, body.photo #juice { display: none !important; }
+#photoUI { position: fixed; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 70; display: grid; gap: 6px; justify-items: center; width: min(720px, calc(100vw - 24px)); background: rgba(8,14,20,.72); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; }
+#photoUI[hidden] { display: none; } #photoUI .ph1 { display: flex; flex-wrap: wrap; gap: 4px 10px; justify-content: center; align-items: baseline; } #photoUI .ph1 b { color: var(--amber2); font-weight: 600; } #photoUI .ph1 span { font-size: 12px; color: var(--mut); }
+#photoUI .ph2 { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; } #photoUI .ph2 button { background: none; border: 1px solid var(--line); border-radius: 6px; padding: 4px 9px; color: var(--fg); font-size: 12.5px; } #photoUI .ph2 button.on { border-color: var(--amber); color: var(--amber2); }
+#photoUI .ph3 { display: flex; gap: 8px; }
+.pflash { position: fixed; inset: 0; background: #fff; z-index: 80; pointer-events: none; animation: pfl .45s ease-out forwards; } @keyframes pfl { from { opacity: .85; } to { opacity: 0; } }
+#objMark { position: absolute; left: 0; top: 0; z-index: 12; display: grid; justify-items: center; gap: 1px; pointer-events: none; margin: -9px 0 0 -60px; width: 120px; text-align: center; }
+#objMark[hidden] { display: none; } #objMark i { width: 14px; height: 14px; border: 2px solid var(--amber2); transform-origin: 50% 50%; background: rgba(242,179,61,.25); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+#objMark.off i { clip-path: polygon(50% 0, 100% 100%, 50% 72%, 0 100%); background: var(--amber); }
+#objMark.wp i { border-color: #b9e3ff; background: rgba(120,190,255,.3); }
+#objMark b { font: 600 11.5px var(--mono, monospace); color: var(--amber2); text-shadow: 0 1px 3px #000; white-space: nowrap; max-width: 120px; overflow: hidden; text-overflow: ellipsis; } #objMark span { font: 11px var(--mono, monospace); color: #fff; text-shadow: 0 1px 3px #000; }
+body.bigtext #vhf p { font-size: 15.5px; } body.bigtext #vhf p span { font-size: 12px; } body.bigtext .objs li, body.bigtext #mission, body.bigtext #status { font-size: 15px; }
+body.bigtext .dlgx, body.bigtext #hubPanel, body.bigtext #toast, body.bigtext .pwhint, body.bigtext .whint, body.bigtext #tuto b { font-size: 15.5px; }
+body.bigtext .hl, body.bigtext #camBar button, body.bigtext #actions button { font-size: 14px; }
+@media (prefers-reduced-motion: reduce) { .pflash { animation: none; opacity: 0; } }
 </style>
 <canvas id="gl" aria-label="Vue du bâtiment"></canvas>
 <div id="bridgeFrame" hidden></div>
@@ -531,6 +552,9 @@ i.fl.dz { background: radial-gradient(circle at 52% 50%, #d21034 2.2px, transpar
 <script>
 // ===== OUTILS : hasard, bruit, maths, environnement =====
 'use strict';
+// crochet clavier prioritaire (mode photo…) : enregistré avant tous les autres gestionnaires
+const KEYHOOK = [];
+addEventListener('keydown', e => { for (const f of KEYHOOK) if (f(e)) { e.preventDefault(); e.stopImmediatePropagation(); return; } }, true);
 if (!window.THREE) { document.getElementById('loading').textContent = 'Impossible de charger le moteur 3D : une connexion internet est nécessaire au premier lancement.'; throw new Error('Three.js indisponible'); }
 const KN = 0.514444;               // 1 nœud en m/s
 const DEG = Math.PI / 180;
@@ -10261,6 +10285,197 @@ function hqAct() { const it = HQ.hint; if (!it || UI.screen !== 'port') return; 
 { const base = pwUI; pwUI = function () { base(); if (!$('hqRoom')) { const r = document.createElement('div'); r.id = 'hqRoom'; r.hidden = true; $('pwUI').appendChild(r); } }; }
 // le tutoriel suit : on entre, puis on va voir l'amirale
 if (typeof TSTEPS !== 'undefined' && TSTEPS[0]) TSTEPS[0].t = 'Entrez à l\'état-major (marchez avec Z Q S D, E devant la porte) et allez voir l\'amirale.';
+
+// ===== CONFORT DU JOUEUR : réglages, mode photo, marqueur d'objectif, sauvegarde exportable =====
+if (SET.big == null) SET.big = false;
+function applySettings() {
+  AU.vol = SET.vol; if (AU.master) AU.master.gain.value = SET.vol;
+  document.body.classList.toggle('bigtext', !!SET.big);
+}
+applySettings();
+function settingsHTML() {
+  const sw = (k, l, d) => `<div class="setr"><div><b>${l}</b><span>${d}</span></div><button class="tg ${SET[k] ? 'on' : ''}" data-act="settg" data-k="${k}" aria-pressed="${!!SET[k]}">${SET[k] ? 'Oui' : 'Non'}</button></div>`;
+  return `<div class="rowsp"><h3>Réglages</h3><button class="btn sm ghost" data-act="setclose">Fermer</button></div>
+    <h4>Son</h4>
+    <div class="setr"><div><b>Volume général</b><span id="setVol">${Math.round(SET.vol * 100)} %</span></div><input type="range" min="0" max="100" step="5" value="${Math.round(SET.vol * 100)}" data-set="vol" aria-label="Volume général"></div>
+    <div class="setr"><div><b>Voix des personnages</b><span>Synthèse vocale des messages radio</span></div><button class="tg ${VOX.on ? 'on' : ''}" data-act="setvoice" aria-pressed="${!!VOX.on}">${VOX.on ? 'Oui' : 'Non'}</button></div>
+    <h4>Jeu</h4>
+    ${sw('cine', 'Cinématiques', 'Appareillage, fin de mission, arrivée au port, traversées (Espace pour passer)')}
+    ${sw('killcam', 'Caméra de la victoire', 'Un plan sur le bâtiment adverse qui coule')}
+    ${sw('autoSlow', 'Revenir à ×1 sur alerte', 'Sinon la vitesse du jeu reste celle que vous avez choisie')}
+    ${sw('marker', 'Marqueur d\'objectif', 'Repère à l\'écran vers le prochain objectif ou le point de route')}
+    <h4>Confort</h4>
+    <div class="setr"><div><b>Sensibilité de la souris</b><span id="setSens">×${SET.sens.toFixed(1)}</span></div><input type="range" min="0.4" max="2.4" step="0.1" value="${SET.sens}" data-set="sens" aria-label="Sensibilité de la souris"></div>
+    ${sw('big', 'Texte agrandi', 'Messages, objectifs et panneaux plus lisibles')}
+    <h4>Graphismes</h4><div class="chips">${[['ultra', 'Ultra'], ['high', 'Élevés'], ['med', 'Moyens'], ['low', 'Légers']].map(([k, l]) => `<button class="${UI.quality === k ? 'on' : ''}" data-act="quality" data-v="${k}">${l}</button>`).join('')}</div>
+    <h4>Sauvegarde</h4>
+    <div class="row2" style="flex-wrap:wrap;gap:6px"><button class="btn sm" data-act="saveexport" ${CAREER && !CAREER.temp ? '' : 'disabled'}>Exporter ma carrière</button><button class="btn sm" data-act="saveimport">Importer une sauvegarde</button><button class="btn sm ghost" data-act="tutoagain">Revoir le tutoriel</button></div>
+    <p class="small">La carrière est enregistrée dans ce navigateur. L'export crée un fichier .json à garder ou à reprendre sur un autre appareil.${UI.importMsg ? ` <b>${escH(UI.importMsg)}</b>` : ''}</p>
+    ${UI.importSure ? '<div class="row2"><button class="btn sm pri" data-act="saveimportok">Remplacer ma carrière par cette sauvegarde</button><button class="btn sm ghost" data-act="saveimportno">Annuler</button></div>' : ''}
+    <h4>Mode photo</h4><p class="small">Touche <kbd>F8</kbd> ou bouton du menu : caméra libre, interface masquée, filtres, capture en PNG.</p>`;
+}
+function settingsOpen() { const el = dlgEl('setUI', 'Réglages'); if (document.pointerLockElement) document.exitPointerLock(); el.innerHTML = settingsHTML(); el.hidden = false; }
+function settingsRefresh() { const el = $('setUI'); if (el && !el.hidden) el.innerHTML = settingsHTML(); }
+addEventListener('input', e => {
+  const k = e.target.dataset && e.target.dataset.set; if (!k) return;
+  if (k === 'vol') { SET.vol = +e.target.value / 100; const s = $('setVol'); if (s) s.textContent = Math.round(SET.vol * 100) + ' %'; }
+  if (k === 'sens') { SET.sens = +e.target.value; const s = $('setSens'); if (s) s.textContent = '×' + SET.sens.toFixed(1); }
+  applySettings(); saveSettings();
+});
+Object.assign(ACT, {
+  settings: () => settingsOpen(),
+  setclose: () => { const el = $('setUI'); if (el) el.hidden = true; UI.importMsg = ''; UI.importSure = null; },
+  saveimportno: () => { UI.importSure = null; UI.importMsg = ''; settingsRefresh(); },
+  settg: d => { SET[d.k] = !SET[d.k]; applySettings(); saveSettings(); settingsRefresh(); },
+  setvoice: () => { ACT.voice(); settingsRefresh(); },
+  tutoagain: () => { const M = CAREER && !CAREER.temp && meta(); if (!M) return; M.tuto = 'on'; TUTO.on = true; TUTO.i = 0; saveCareer(); toast('Le tutoriel reprend depuis le début.'); },
+  saveexport: () => {
+    if (!CAREER || CAREER.temp) return;
+    const data = JSON.stringify({ app: 'flotte-ysmar', v: 2, date: new Date().toISOString(), career: CAREER, settings: SET }, null, 1);
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+    a.download = `flotte-ysmar-carriere-jour-${CAREER.day}.json`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    toast('Carrière exportée.');
+  },
+  saveimport: () => {
+    const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json,application/json';
+    inp.onchange = () => {
+      const f = inp.files && inp.files[0]; if (!f) return;
+      const r = new FileReader();
+      r.onload = () => {
+        let d = null; try { d = JSON.parse(r.result); } catch (e) { d = null; }
+        const c = d && (d.career || d);
+        if (!c || c.v !== 2 || !c.ships || !Array.isArray(c.crew) || typeof c.credits !== 'number') { UI.importMsg = 'Fichier non reconnu : ce n\'est pas une sauvegarde de Flotte d\'Ysmar.'; settingsRefresh(); return; }
+        UI.importSure = c; UI.importMsg = `Sauvegarde lue : jour ${c.day}, ${RANKS[rankOf(c.rep || 0)].n}, ${Object.keys(c.ships).length} bâtiment(s).`; settingsRefresh();
+      };
+      r.readAsText(f);
+    };
+    inp.click();
+  },
+  saveimportok: () => {
+    const c = UI.importSure; if (!c) return;
+    if (UI.screen === 'sea' || (MS.cur && !MS.cur.over)) { UI.importMsg = 'Rentrez d\'abord au port pour charger une autre carrière.'; settingsRefresh(); return; }
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(c)); } catch (e) { }
+    CAREER = null; UI.importSure = null; UI.importMsg = ''; loadCareer(); const el = $('setUI'); if (el) el.hidden = true;
+    if (UI.screen === 'pause') setScreen('port');
+    MS.cur = null; HUB.title = false; enterHub(false); toast(`Carrière importée : jour ${CAREER.day}, ${RANKS[rankOf(CAREER.rep)].n}.`);
+  }
+});
+// le menu pause propose les réglages et le mode photo
+{ const base = screenHTML; screenHTML = function () { let h = base(); if (UI.screen === 'pause') h = h.replace('<button class="btn pri" data-act="resume">Reprendre</button>', '<button class="btn pri" data-act="resume">Reprendre</button><button class="btn" data-act="settings">Réglages</button><button class="btn" data-act="photo">Mode photo</button>'); return h; }; }
+addEventListener('keydown', e => { const el = $('setUI'); if (el && !el.hidden && e.code === 'Escape') { el.hidden = true; e.preventDefault(); e.stopImmediatePropagation(); } }, true);
+// sensibilité de la souris : appliquée au regard à pied, au port et sur la passerelle
+{ const base = walkLook; walkLook = function (dx, dy) { base(dx * SET.sens, dy * SET.sens); }; }
+document.addEventListener('mousemove', e => { if (SET.sens === 1) return; if (PW.on && UI.screen === 'port' && document.pointerLockElement === $('gl')) { const k = SET.sens - 1; PW.yaw -= e.movementX * 0.0028 * k; PW.pitch = clamp(PW.pitch - e.movementY * 0.0024 * k, -1.0, 0.7); } });
+{ const cv = $('gl'); let last = null;
+  cv.addEventListener('pointerdown', e => { last = { x: e.clientX, y: e.clientY }; });
+  addEventListener('pointerup', () => { last = null; });
+  cv.addEventListener('pointermove', e => {
+    if (!last || SET.sens === 1 || PHOTO.on) return; const dx = e.clientX - last.x, dy = e.clientY - last.y; last = { x: e.clientX, y: e.clientY }; const k = SET.sens - 1;
+    if (UI.screen !== 'sea' || WALK.on) { if (PW.on && UI.screen === 'port' && !document.pointerLockElement) { PW.yaw -= dx * 0.005 * k; PW.pitch = clamp(PW.pitch - dy * 0.004 * k, -1.0, 0.7); } return; }
+    if (UI.cam === 'orbit') { UI.camYaw -= dx * 0.006 * k; UI.camPitch = clamp(UI.camPitch + dy * 0.004 * k, -0.05, 1.45); }
+    else if (UI.cam === 'bridge') { UI.lookYaw = clamp(UI.lookYaw - dx * 0.004 * k, -Math.PI, Math.PI); UI.lookPitch = clamp(UI.lookPitch - dy * 0.003 * k, -0.6, 0.5); }
+  });
+}
+
+// ----- mode photo : caméra libre, interface masquée, filtres, capture -----
+const PHOTO = { on: false, x: 0, y: 0, z: 0, yaw: 0, pitch: 0, fov: 55, keys: {}, filter: 'none', wasPaused: false, drag: null };
+const PFILTERS = [['none', 'Naturel', ''], ['bw', 'Noir et blanc', 'grayscale(1) contrast(1.1)'], ['sepia', 'Sépia', 'sepia(0.85) contrast(1.05)'], ['vivid', 'Éclatant', 'saturate(1.35) contrast(1.12)'], ['cold', 'Froid', 'saturate(0.8) hue-rotate(-12deg) brightness(1.05)']];
+function photoUI() {
+  let el = $('photoUI');
+  if (!el) { el = document.createElement('div'); el.id = 'photoUI'; document.body.appendChild(el); }
+  el.innerHTML = `<div class="ph1"><b>Mode photo</b><span>Z Q S D déplacer · R / F monter, descendre · souris (glisser) viser · molette zoom · Maj plus vite</span></div>
+    <div class="ph2">${PFILTERS.map(([k, l]) => `<button class="${PHOTO.filter === k ? 'on' : ''}" data-act="pfilter" data-v="${k}">${l}</button>`).join('')}</div>
+    <div class="ph3"><button class="btn sm pri" data-act="pshot">Prendre la photo</button><button class="btn sm ghost" data-act="photo">Quitter (Échap)</button></div>`;
+  el.hidden = false;
+}
+function photoStart() {
+  if (PHOTO.on || !(UI.screen === 'sea' || UI.screen === 'port' || UI.screen === 'pause')) return;
+  if (UI.screen === 'pause') setScreen(UI.pauseFrom === 'port' && !MS.cur ? 'port' : 'sea');
+  if (CINE.on) cineEnd(); if (TRANSIT.on) transitStop('Mode photo.');
+  if (document.pointerLockElement) document.exitPointerLock();
+  const e = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
+  Object.assign(PHOTO, { on: true, x: camera.position.x, y: camera.position.y, z: camera.position.z, yaw: e.y, pitch: e.x, fov: camera.fov, keys: {}, wasPaused: paused });
+  paused = true; document.body.classList.add('photo'); photoUI();
+}
+function photoStop() {
+  if (!PHOTO.on) return; PHOTO.on = false; paused = PHOTO.wasPaused; document.body.classList.remove('photo');
+  $('gl').style.filter = ''; const el = $('photoUI'); if (el) el.hidden = true; UI.camSnap = 1; if (PW.on) PW.snap = 1;
+}
+function photoCam(dt) {
+  const k = PHOTO.keys, sp = (k.ShiftLeft || k.ShiftRight ? 60 : 12) * dt, f = (k.KeyW ? 1 : 0) - (k.KeyS ? 1 : 0), s = (k.KeyD ? 1 : 0) - (k.KeyA ? 1 : 0), u = (k.KeyR || k.Space ? 1 : 0) - (k.KeyF || k.KeyC ? 1 : 0);
+  const cy = Math.cos(PHOTO.yaw), sy = Math.sin(PHOTO.yaw), cp = Math.cos(PHOTO.pitch);
+  PHOTO.x += (-sy * cp * f + cy * s) * sp; PHOTO.z += (-cy * cp * f - sy * s) * sp; PHOTO.y += (Math.sin(PHOTO.pitch) * f + u) * sp;
+  if (!HQ.on) PHOTO.y = Math.max(PHOTO.y, waveH(PHOTO.x, PHOTO.z, GFX.t) + 0.6, terrainH(PHOTO.x, PHOTO.z) + 1.2);
+  camera.position.set(PHOTO.x, PHOTO.y, PHOTO.z); camera.rotation.set(PHOTO.pitch, PHOTO.yaw, 0, 'YXZ');
+  camera.fov = PHOTO.fov; camera.updateProjectionMatrix();
+  $('bridgeFrame').hidden = true; $('bino').hidden = true;
+  const F = PFILTERS.find(p => p[0] === PHOTO.filter); $('gl').style.filter = F ? F[2] : '';
+}
+function photoShot() {
+  renderWorld();
+  const src = renderer.domElement, w = src.width, h = src.height, c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d'), F = PFILTERS.find(p => p[0] === PHOTO.filter); if (F && F[2]) g.filter = F[2]; g.drawImage(src, 0, 0);
+  g.filter = 'none'; g.font = `600 ${Math.round(h * 0.022)}px serif`; g.fillStyle = 'rgba(255,255,255,.75)'; g.textAlign = 'right'; g.fillText('Flotte d\'Ysmar', w - h * 0.03, h - h * 0.03);
+  c.toBlob(b => { if (!b) return; const a = document.createElement('a'); a.href = URL.createObjectURL(b); const d = new Date(); a.download = `flotte-ysmar-${d.toISOString().slice(0, 16).replace(/[-:T]/g, '')}.png`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); }, 'image/png');
+  const fl = document.createElement('div'); fl.className = 'pflash'; document.body.appendChild(fl); setTimeout(() => fl.remove(), 450); sfx('click');
+}
+Object.assign(ACT, { photo: () => { if (PHOTO.on) photoStop(); else photoStart(); }, pfilter: d => { PHOTO.filter = d.v; photoUI(); }, pshot: () => photoShot() });
+{ const base = cameraStep; cameraStep = function (dt) { if (PHOTO.on) { photoCam(dt); return; } base(dt); }; }
+KEYHOOK.push(e => {
+  if (e.target.matches && e.target.matches('input, textarea, select')) return false;
+  if (e.code === 'F8') { if (!e.repeat) ACT.photo(); return true; }
+  if (!PHOTO.on) return false;
+  if (e.code === 'Escape') photoStop(); else if ((e.code === 'Enter' || e.code === 'KeyP') && !e.repeat) photoShot(); else PHOTO.keys[e.code] = true;
+  return true;
+});
+addEventListener('keyup', e => { if (PHOTO.on) PHOTO.keys[e.code] = false; }, true);
+{ const cv = $('gl');
+  cv.addEventListener('pointerdown', e => { if (PHOTO.on) { PHOTO.drag = { x: e.clientX, y: e.clientY }; e.stopImmediatePropagation(); } }, true);
+  addEventListener('pointermove', e => { if (!PHOTO.on || !PHOTO.drag) return; const dx = e.clientX - PHOTO.drag.x, dy = e.clientY - PHOTO.drag.y; PHOTO.drag = { x: e.clientX, y: e.clientY }; PHOTO.yaw -= dx * 0.004 * SET.sens; PHOTO.pitch = clamp(PHOTO.pitch - dy * 0.004 * SET.sens, -1.5, 1.5); }, true);
+  addEventListener('pointerup', () => { PHOTO.drag = null; }, true);
+  cv.addEventListener('wheel', e => { if (!PHOTO.on) return; e.preventDefault(); e.stopImmediatePropagation(); PHOTO.fov = clamp(PHOTO.fov * Math.exp(e.deltaY * 0.001), 12, 90); }, { capture: true, passive: false });
+}
+{ const base = hudUpdate; hudUpdate = function (force) {
+  base(force); const cb = $('camBar'); if (!cb || !MS.cur) return;
+  if (!cb.querySelector('[data-act="photo"]')) { const b = document.createElement('button'); b.dataset.act = 'photo'; b.innerHTML = '<kbd>F8</kbd>Photo'; cb.appendChild(b); }
+}; }
+
+// ----- marqueur d'objectif : un repère à l'écran (et un faisceau lumineux sur place) vers le prochain objectif -----
+const OBJM = { beam: null, cur: null };
+function objTarget() {
+  const P = PLAYER, m = MS.cur; if (!P || !m || (m.over && !m.free)) return null;
+  if (UI.wp) return { x: UI.wp.x, z: UI.wp.z, label: 'Point de route', kind: 'wp' };
+  let best = null; const pri = { goal: 0, target: 1, zone: 2 };
+  for (const mk of m.marks) {
+    if (!(mk.kind in pri)) continue; const p = markPos(mk); if (!p) continue;
+    const d = Math.hypot(p.x - P.x, p.z - P.z), sc = pri[mk.kind] * 4000 + d;
+    if (!best || sc < best.sc) best = { x: p.x, z: p.z, label: mk.label || 'Objectif', kind: mk.kind, sc, air: mk.v && mk.v.air ? mk.v.y : null };
+  }
+  return best;
+}
+function objMarker() {
+  let el = $('objMark');
+  if (!el) { el = document.createElement('div'); el.id = 'objMark'; el.innerHTML = '<i></i><b></b><span></span>'; $('hud').appendChild(el); }
+  const T = SET.marker && UI.screen === 'sea' && !CINE.on && !PHOTO.on && !TRANSIT.on && !(WALK.on && (WALK.fly || WALK.level === 'deck' || WALK.level === 'bridge')) ? objTarget() : null;
+  // faisceau sur place, visible de loin
+  if (!OBJM.beam) { const g = new THREE.CylinderGeometry(2.2, 2.2, 220, 10, 1, true); g.translate(0, 110, 0); OBJM.beam = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: '#ffcf5a', transparent: true, opacity: 0.22, depthWrite: false, side: THREE.DoubleSide, toneMapped: false })); OBJM.beam.renderOrder = 5; scene.add(OBJM.beam); }
+  const P = PLAYER;
+  if (!T || !P) { el.hidden = true; OBJM.beam.visible = false; return; }
+  const d = Math.hypot(T.x - P.x, T.z - P.z);
+  OBJM.beam.visible = T.kind !== 'target' && d > 250; OBJM.beam.position.set(T.x, waveH(T.x, T.z, GFX.t), T.z); OBJM.beam.scale.set(1 + d / 6000, 1, 1 + d / 6000);
+  _v.set(T.x, T.air != null ? T.air : 8, T.z).project(camera);
+  const W = innerWidth, H = innerHeight, behind = _v.z > 1; let sx = (_v.x + 1) / 2 * W, sy = (1 - _v.y) / 2 * H;
+  if (behind) { sx = W - sx; sy = H - 60; }
+  const m = 46, off = behind || sx < m || sx > W - m || sy < 80 || sy > H - 120;
+  sx = clamp(sx, m, W - m); sy = clamp(sy, 80, H - 120);
+  el.hidden = false; el.classList.toggle('off', off); el.classList.toggle('wp', T.kind === 'wp');
+  el.style.transform = `translate(${sx.toFixed(0)}px, ${sy.toFixed(0)}px)`;
+  const dist = d > 1852 ? `${(d / 1852).toFixed(1).replace('.', ',')} NM` : `${Math.round(d)} m`;
+  const lb = el.querySelector('b'), ds = el.querySelector('span'); if (lb.textContent !== T.label) lb.textContent = T.label; if (ds.textContent !== dist) ds.textContent = dist;
+  if (off) { const a = Math.atan2(sy - H / 2, sx - W / 2); el.querySelector('i').style.transform = `rotate(${(a * 180 / Math.PI + 90).toFixed(0)}deg)`; } else el.querySelector('i').style.transform = '';
+}
+{ const base = renderWorld; renderWorld = function () { if (UI.screen === 'sea' || ($('objMark') && !$('objMark').hidden)) objMarker(); base(); }; }
+{ const base = clearWorldEntities; clearWorldEntities = function () { if (OBJM.beam) OBJM.beam.visible = false; base(); }; }
 
 </script>
 
