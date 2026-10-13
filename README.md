@@ -20,6 +20,13 @@ Flotte d'Ysmar puts you in command of a naval force operating in a dynamic Medit
 - **Free game speed** — Choose ×1 to ×32 at any time, even in combat. Fast transit (Shift+T) sails your ship to the objective and hands control back at the first event.
 - **Cutscenes** — Departure, end of mission, port arrival, crossings and enemy ships going down. Press Space to skip, or turn them off in the settings.
 - **Living ships and ports** — Sailors on deck, pedestrians and gulls on the quays, dolphins at sea.
+- **Service jeep** — Drive a navy jeep around the quays (up to about 66 km/h), take timed courier runs from the harbour office, and step out straight into a building.
+- **Realistic ports** — Fenders, ladders, mooring lines, lamps that light up at night, a container yard, fuel tanks, a guard post, parked cars, port trucks and forklifts, fishing boats and harbour sounds.
+- **Fleet overview** — See where each of your ships is berthed, even in another port, on the sea chart and in the "My fleet" panel (F).
+- **Commercial traffic everywhere** — Cargo ships, tankers, container ships and ferries follow real shipping lanes across the whole map.
+- **Special events at sea** — A dismasted yacht, drifting containers, a fin whale, a violent squall, smuggled bales: optional objectives with rewards.
+- **New missions** — Hydrographic survey, cable-ship protection and a ditched helicopter (survivors, then the flight recorder).
+- **Smarter characters** — Messages understand far more questions (fleet locations, weather forecast, repairs, upgrades, prices, ranks, mission tips, stories, jokes) and more ways of giving orders to allied ships.
 - **Player comfort** — Settings panel (volume, voices, mouse sensitivity, larger text), photo mode (F8), on-screen objective marker, and career export/import as a `.json` file.
 
 ## 🌊 Setting

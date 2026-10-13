@@ -514,6 +514,9 @@ body.bigtext .hl, body.bigtext #camBar button, body.bigtext #actions button { fo
 #pmap[hidden] { display: none; }
 @media (max-width: 760px) { #pmap { width: 196px; height: 92px; } }
 .lias { display: grid; gap: 6px; } .lia { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px; } .lia > div { display: grid; gap: 1px; } .lia b { font-weight: 500; font-size: 13px; } .lia span { font-size: 12px; color: var(--mut); } .lia em { font-style: normal; font-size: 11.5px; color: var(--amber2); } .lia i { font-style: normal; font-size: 12px; color: var(--ok); } .lia.done { opacity: .6; }
+/* ===== ma flotte ===== */
+#fleetMap { display: block; width: min(100%, 440px); height: auto; aspect-ratio: 900 / 820; margin-left: auto !important; margin-right: auto !important; border-radius: 8px; margin: 6px 0 8px; border: 1px solid var(--line); }
+.fleetmap .fmst { display: grid; grid-template-columns: minmax(90px, auto) 1fr 1fr; gap: 8px; align-items: center; } .fleetmap .fmst .gauge { margin: 0; }
 </style>
 <canvas id="gl" aria-label="Vue du bâtiment"></canvas>
 <div id="bridgeFrame" hidden></div>
@@ -4902,6 +4905,8 @@ function helpHTML() {
     <tr><td><kbd>Maj</kbd> <kbd>T</kbd></td><td>Transit rapide vers l'objectif ou le point de route : le bâtiment file seul et vous rend la main au moindre événement (<kbd>Espace</kbd>)</td></tr>
     <tr><td><kbd>F8</kbd></td><td>Mode photo : caméra libre, interface masquée, filtres, capture en PNG</td></tr>
     <tr><td><kbd>Échap</kbd></td><td>Menu : Réglages (son, cinématiques, sensibilité, texte agrandi, sauvegarde exportable), mode photo</td></tr>
+    <tr><td>Au port</td><td><kbd>E</kbd> devant la jeep de service pour la conduire (Z/S, Q/D, <kbd>Espace</kbd> frein à main, <kbd>H</kbd> klaxon, <kbd>E</kbd> pour descendre, directement dans un lieu si vous êtes devant). <kbd>M</kbd> plan du port, <kbd>F</kbd> « Ma flotte » : où sont stationnés vos bâtiments. Liaisons chronométrées à la capitainerie, entraînement de l'équipage au carré</td></tr>
+    <tr><td>En mer</td><td>Événements imprévus (voilier en avarie, conteneurs à la dérive, rorqual, grain, ballots de contrebande) : objectifs facultatifs et primes. La carte (<kbd>M</kbd>) montre vos bases et leurs bâtiments, et les cargos du trafic commercial</td></tr>
     <tr><td>Bases</td><td>Toulon, Ajaccio, Cagliari, Bizerte, Alger : choisissez vos bases et répartissez la flotte au bureau des affectations (état-major ou capitainerie), puis rejoignez une autre base en traversée ou en naviguant vous-même</td></tr>
     <tr><td><kbd>Y</kbd></td><td>Groupe aérien du porte-avions (ordres depuis le PCA ou le Central Opérations)</td></tr>
     <tr><td><kbd>L</kbd></td><td>Journal de bord</td></tr>
@@ -10987,6 +10992,552 @@ KEYHOOK.push(e => { if (e.code === 'KeyM' && PW.on && UI.screen === 'port' && !H
     const n = pod.list.filter(d => d.m.visible && fr.containsPoint(d.m.position) && camera.position.distanceTo(d.m.position) < 160).length;
     if (n >= 1) { pod.shot = true; const pay = 250 + n * 80; CAREER.credits += pay; if (typeof addXP === 'function') addXP(30 + n * 10, 'Observation de cétacés'); saveCareer(); setTimeout(() => pop('Belle photo !', `${n} dauphin${n > 1 ? 's' : ''} dans le cadre · le réseau d'observation vous verse ${fmtCr(pay)}`, true), 500); break; }
   }
+}; }
+
+// ===== OÙ EST MA FLOTTE ? Les bases et leurs bâtiments sur la carte marine, et un panneau « Ma flotte » au port (touche F) =====
+function fleetWhere() {
+  const C = CAREER; if (!C) return [];
+  const atSea = UI.screen === 'sea' && MS.cur && PLAYER;
+  return ALLC.filter(c => owned(c)).map(c => {
+    const pid = shipPort(c), st = C.ships[c], sea = atSea && PLAYER.cls === c;
+    return { c, n: CLASSES[c].n, cls: CLASSES[c].cls, port: pid, pn: portName(pid), sea, act: c === C.ship, hull: st.hull, fuel: st.fuel };
+  });
+}
+// sur la carte marine : un pavillon par base, avec les noms des bâtiments à quai
+{ const base = drawChart; drawChart = function (cv, cx, cz, scale, full) {
+  base(cv, cx, cz, scale, full);
+  if (!CAREER || !PORTS.length || (!full && scale > 60000)) return;
+  const r = cv.getBoundingClientRect(), k = DPR(), W = cv.width, H = cv.height, g = cv.getContext('2d'); if (W < 10 || !r.width) return;
+  const F = fleetWhere();
+  for (const p of PORTS) {
+    const here = F.filter(f => f.port === p.id && !f.sea), mine = CAREER.ports.includes(p.id);
+    if (!here.length && !mine) continue;
+    const [x, y] = w2c(p.x, p.z, cx, cz, scale, W, H); if (x < -40 || y < -40 || x > W + 40 || y > H + 40) continue;
+    g.fillStyle = mine ? '#18233a' : '#5d6772'; g.strokeStyle = '#ffd27a'; g.lineWidth = 1.5 * k;
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x, y - 16 * k); g.stroke();
+    g.fillRect(x, y - 16 * k, 12 * k, 8 * k); g.fillStyle = '#ffd27a'; g.fillRect(x + 1 * k, y - 15 * k, 4 * k, 6 * k);
+    if (!full && scale > 22000) continue;
+    const lines = [p.n.toUpperCase() + (mine ? '' : ' (escale)')].concat(here.map(f => `${f.act ? '★ ' : '· '}${f.n}`));
+    g.font = `600 ${10 * k}px "Archivo Narrow", sans-serif`; const w = Math.max(...lines.map(l => g.measureText(l).width)) + 10 * k, h = lines.length * 12 * k + 6 * k;
+    const bx = x + 15 * k, by = y - 18 * k; g.fillStyle = 'rgba(14,27,38,.82)'; g.fillRect(bx, by, w, h);
+    g.textAlign = 'left'; g.textBaseline = 'top'; lines.forEach((l, i) => { g.fillStyle = i ? '#e6eef0' : '#ffd27a'; g.font = `${i ? 400 : 700} ${10 * k}px "Archivo Narrow", sans-serif`; g.fillText(l, bx + 5 * k, by + 4 * k + i * 12 * k); });
+    g.textBaseline = 'alphabetic';
+  }
+}; }
+// ----- panneau « Ma flotte » -----
+function fleetHTML() {
+  const F = fleetWhere(), C = CAREER;
+  return `<div class="rowsp"><h3>Ma flotte</h3><button class="btn sm ghost" data-act="fleetclose">Fermer (F)</button></div>
+    <canvas id="fleetMap" aria-label="Carte des bases et des bâtiments"></canvas>
+    <div class="fleetmap">${F.map(f => `<div class="fm"><div><b>${f.act ? '★ ' : ''}${escH(f.n)}</b><span>${f.sea ? 'en mer, sous vos ordres' : `à quai à ${escH(f.pn)}`}${f.port === PORT.id && !f.sea ? ' (ici)' : ''}</span></div><div class="fmst"><span>${escH(f.cls)}</span>${gauge('Coque', f.hull, f.hull < 50)}${gauge('Gasoil', f.fuel, f.fuel < 30)}</div></div>`).join('') || '<p class="small">Aucun bâtiment.</p>'}</div>
+    <p class="small">Bases d'affectation : ${C.ports.map(id => escH(portName(id))).join(', ')}. Pour rejoindre un bâtiment, passez au bureau des affectations (état-major ou capitainerie).</p>`;
+}
+function fleetOpen() {
+  if (!CAREER) return; const el = dlgEl('fleetUI', 'Ma flotte'); if (document.pointerLockElement) document.exitPointerLock();
+  el.innerHTML = fleetHTML(); el.hidden = false;
+  const cv = $('fleetMap'); if (cv) { const T = { c: cv, g: null, t: { needsUpdate: false } }; cv.width = 900; cv.height = 820; T.g = cv.getContext('2d'); hqMap(T, false); }
+}
+Object.assign(ACT, { fleet: () => { const el = $('fleetUI'); if (el && !el.hidden) el.hidden = true; else fleetOpen(); }, fleetclose: () => { const el = $('fleetUI'); if (el) el.hidden = true; } });
+KEYHOOK.push(e => {
+  if (e.target.matches && e.target.matches('input, textarea, select')) return false;
+  const el = $('fleetUI'); if (el && !el.hidden && e.code === 'Escape') { el.hidden = true; return true; }
+  if (e.code === 'KeyF' && !e.repeat && UI.screen === 'port' && PW.on && !(typeof JEEP !== 'undefined' && JEEP.on)) { ACT.fleet(); return true; }
+  return false;
+});
+// bouton « Ma flotte » dans le bandeau du port
+{ const base = hubRender; hubRender = function () { base(); const t = $('hubTop'); if (t && UI.screen === 'port' && !HUB.title && !t.querySelector('[data-act="fleet"]')) { const m = t.querySelector('[data-act="msgs"]'); if (m) { const b = document.createElement('button'); b.className = 'btn sm'; b.dataset.act = 'fleet'; b.textContent = 'Ma flotte'; b.title = 'Où sont stationnés vos bâtiments (F)'; m.parentNode.insertBefore(b, m); } } }; }
+{ const base = setScreen; setScreen = function (s) { if (s !== 'port') { const el = $('fleetUI'); if (el) el.hidden = true; } base(s); }; }
+
+// ===== TRAFIC COMMERCIAL SUR TOUTE LA CARTE : routes maritimes réelles, navires qui apparaissent autour du joueur où qu'il soit =====
+const GTRAF = { lanes: null, list: [], t: 0, max: 10 };
+// routes (longitude, latitude) et types de navires
+const GT_LANES = [
+  { n: 'rail nord-africain', w: 3, kinds: ['cargo', 'tanker', 'box'], pts: [[1.9, 37.55], [5.0, 37.45], [7.5, 37.55], [9.6, 37.78], [11.6, 37.8]] },
+  { n: 'Marseille – Alger', w: 2, kinds: ['cargo', 'ferry', 'box'], pts: [[5.3, 43.12], [4.9, 40.5], [4.6, 39.6], [3.1, 36.95]] },
+  { n: 'Marseille – Tunis', w: 2, kinds: ['cargo', 'ferry', 'tanker'], pts: [[5.4, 43.12], [6.8, 41.5], [7.6, 39.5], [9.6, 37.8], [10.3, 37.45]] },
+  { n: 'Gênes – Cagliari', w: 1.5, kinds: ['cargo', 'box'], pts: [[7.3, 43.5], [8.15, 42.4], [7.9, 41.2], [8.0, 40.0], [8.0, 39.0], [8.9, 38.75], [9.15, 38.98]] },
+  { n: 'Toulon – Ajaccio', w: 1.2, kinds: ['ferry', 'ferry', 'cargo'], pts: [[5.95, 42.98], [8.55, 41.86]] },
+  { n: 'Marseille – Cap Corse', w: 1.2, kinds: ['ferry', 'cargo'], pts: [[5.4, 43.15], [9.4, 43.18]] },
+  { n: 'Baléares – Bonifacio', w: 1.4, kinds: ['cargo', 'tanker', 'box'], pts: [[1.9, 40.9], [8.0, 41.05]] },
+  { n: 'Cagliari – Bizerte', w: 1, kinds: ['cargo', 'ferry'], pts: [[9.2, 38.9], [9.85, 37.45]] },
+  { n: 'Alger – Ajaccio', w: 1, kinds: ['cargo', 'tanker'], pts: [[3.2, 37.0], [6.0, 39.5], [8.4, 41.75]] },
+  { n: 'Annaba – Marseille', w: 1, kinds: ['cargo', 'tanker', 'box'], pts: [[7.8, 37.08], [6.5, 40.0], [5.6, 42.95]] }
+];
+const GT_FERRIES = ['ÉTOILE DE CORSE', 'LIGURIA EXPRESS', 'CAP SAINT-FLORENT', 'L\'ALGÉROISE', 'SARDEGNA SOLE', 'CARTHAGE', 'MÉDITERRANÉE'];
+const GT_BOX = ['YSMAR HORIZON', 'MEDITRANS ALTAIR', 'NORDCARGO VEGA', 'LIGURIA STAR', 'SAHEL TRADER'];
+function gtLanes() {
+  if (GTRAF.lanes) return GTRAF.lanes;
+  GTRAF.lanes = GT_LANES.map(L => { const pts = L.pts.map(([lon, lat]) => geoXZ(lon, lat)); let len = 0; const seg = []; for (let i = 0; i < pts.length - 1; i++) { const d = Math.hypot(pts[i + 1].x - pts[i].x, pts[i + 1].z - pts[i].z); seg.push(d); len += d; } return Object.assign({}, L, { P: pts, seg, len }); });
+  return GTRAF.lanes;
+}
+function gtPoint(L, s) { for (let i = 0; i < L.seg.length; i++) { if (s <= L.seg[i] || i === L.seg.length - 1) { const t = clamp(s / L.seg[i], 0, 1), a = L.P[i], b = L.P[i + 1]; return { x: lerp(a.x, b.x, t), z: lerp(a.z, b.z, t), i }; } s -= L.seg[i]; } return null; }
+function gtSpawn(minD, maxD) {
+  const P = PLAYER; if (!P) return false;
+  const lanes = gtLanes(), tot = lanes.reduce((a, L) => a + L.w * L.len, 0);
+  for (let tries = 0; tries < 24; tries++) {
+    let u = Math.random() * tot, L = lanes[0]; for (const l of lanes) { if (u < l.w * l.len) { L = l; break; } u -= l.w * l.len; }
+    const q = gtPoint(L, Math.random() * L.len); if (!q) continue;
+    const d = Math.hypot(q.x - P.x, q.z - P.z); if (d < minD || d > maxD) continue;
+    if (Math.abs(q.x) > 31000 || Math.abs(q.z) > 31000 || gridH(q.x, q.z) > -45) continue;
+    if (VESSELS.some(v => !v.removed && Math.hypot(v.x - q.x, v.z - q.z) < 1500)) continue;
+    const dir = Math.random() < 0.5 ? 1 : -1, nxt = dir > 0 ? Math.min(q.i + 1, L.P.length - 1) : q.i, wp = L.P[nxt];
+    // pas de terre droit devant sur 3 km
+    const h = headingOf(wp.x - q.x, wp.z - q.z); let clear = true; for (let k = 1; k <= 6; k++) if (gridH(q.x + Math.sin(h) * k * 500, q.z - Math.cos(h) * k * 500) > -20) clear = false; if (!clear) continue;
+    const kind = pick(L.kinds); let v;
+    if (kind === 'ferry') { const n = pick(GT_FERRIES); v = new Vessel('ferry', buildFerry(n), q.x, q.z, h, { name: n }); v.rcs = 260; }
+    else if (kind === 'tanker') { const n = pick(TANKN); v = new Vessel('cargo', buildTanker(n), q.x, q.z, h, { name: n }); v.rcs = 500; }
+    else { const n = kind === 'box' ? pick(GT_BOX) : pick(SHIPNAMES.concat(SHIPN2)); v = new Vessel('cargo', buildCargo(n), q.x, q.z, h, { name: n }); v.rcs = 380; }
+    v.ais = true; v.ambient = true; v.gtraf = { L, i: nxt, dir, sp: v.k.vmax * rr(0.72, 0.92) }; v.u = v.gtraf.sp * 0.9;
+    GTRAF.list.push(v); return true;
+  }
+  return false;
+}
+function gtStep(dt) {
+  const P = PLAYER; if (!P || UI.screen !== 'sea' || !MS.cur) return;
+  GTRAF.list = GTRAF.list.filter(v => !v.removed);
+  for (const v of GTRAF.list) {
+    const g = v.gtraf; if (!g || v.dead || v.sinking || v.towed || v.cai) continue;
+    const wp = g.L.P[g.i]; const d = Math.hypot(wp.x - v.x, wp.z - v.z);
+    if (d < 900) { const ni = g.i + g.dir; if (ni < 0 || ni >= g.L.P.length) { g.end = true; } else g.i = ni; }
+    const tgt = g.L.P[g.i], hdg = g.end ? v.psi : headingOf(tgt.x - v.x, tgt.z - v.z);
+    steerTo(v, avoidHeading(v, hdg, Math.max(1500, v.L * 8)), g.sp, dt);
+  }
+  GTRAF.t -= dt; if (GTRAF.t > 0) return; GTRAF.t = 4;
+  // on retire les navires trop loin (ou arrivés au bout de leur route) et on en fait apparaître d'autres
+  for (const v of GTRAF.list) { const d = Math.hypot(v.x - P.x, v.z - P.z); if (d > 30000 || (v.gtraf.end && d > 9000)) { v.remove(); onVesselGone(v); } }
+  GTRAF.list = GTRAF.list.filter(v => !v.removed);
+  const max = GTRAF.max + (GFX.quality === 'low' ? -4 : 0);
+  if (GTRAF.list.length < max) gtSpawn(9000, 22000);
+}
+{ const base = simStep; simStep = function (dt) { base(dt); gtStep(dt); }; }
+{ const base = clearWorldEntities; clearWorldEntities = function () { GTRAF.list = []; GTRAF.t = 0; base(); }; }
+// au départ d'une mission ou d'une sortie, la mer est déjà animée
+function gtFill() { if (!PLAYER) return; for (let k = 0; k < GTRAF.max - 3; k++) gtSpawn(4000, 22000); }
+{ const base = startMission; startMission = function (def, opts) { const m = base(def, opts); try { gtFill(); } catch (e) { console.error(e); } return m; }; }
+{ const base = freeSail; freeSail = function (opts) { const m = base(opts); try { gtFill(); } catch (e) { console.error(e); } return m; }; }
+
+// ===== ÉVÉNEMENTS SPÉCIAUX EN MER : imprévus facultatifs pendant les missions et les sorties, avec récompense =====
+// voilier en avarie, conteneurs à la dérive, rorqual en surface, grain violent, ballots de contrebande
+const SEV = { cur: null, next: null };
+function evReward(e, pay, rep, xp, title) {
+  const C = CAREER; if (C && !C.temp) { C.credits += pay; C.rep = Math.max(0, C.rep + rep); if (typeof addXP === 'function') addXP(xp, 'Événement en mer'); saveCareer(); }
+  jingle('xp'); pop(title || 'Événement réussi', `${e.n} · ${fmtCr(pay)}${rep ? ` · réputation ${rep > 0 ? '+' : ''}${rep}` : ''}`, true);
+}
+function evPoint(min, max, depth) { const P = PLAYER, f = P.fwd; for (let k = 0; k < 30; k++) { const a = Math.atan2(f.z, f.x) + rr(-1.1, 1.1), d = rr(min, max), x = P.x + Math.cos(a) * d, z = P.z + Math.sin(a) * d; if (gridH(x, z) < -(depth || 30)) return { x, z }; } return openWaterPoint(P.x, P.z, min, max, depth || 30, 300); }
+function evMesh(e, o) { scene.add(o); (e.fx = e.fx || []).push(o); return o; }
+function floatBox(w, h, d, col) { const g = new THREE.Group(), b = box(w, h, d, col, 0.7, 0.2); g.add(b); g.userData = { L: Math.max(w, d), B: Math.min(w, d) }; return g; }
+const EVDEFS = {
+  // 1. voilier démâté, moteur noyé : lui porter assistance avec le semi-rigide
+  voilier: {
+    n: 'Voilier en avarie', setup(e) {
+      const q = evPoint(2500, 4500); if (!q) return false; e.name = pick(YACHTS);
+      const v = new Vessel('sailboat', buildSailboat(e.name), q.x, q.z, rr(0, TAU), { name: e.name }); v.ai = { mode: 'stop' }; v.ais = true; v.small = true; v.rcs = 6; e.v = v;
+      e.mark = { v, kind: 'target', label: `Voilier ${e.name}` }; e.obj = 'Porter assistance au voilier en avarie'; e.limit = 25 * 60;
+      vhf(`Voilier ${e.name}`, `Pan-pan, pan-pan, pan-pan ! Voilier ${e.name}, démâtés, moteur noyé, quatre personnes à bord, pas de blessé. Nous dérivons vers la côte, demandons assistance.`, 'alarm');
+      return true;
+    },
+    update(e) { if (e.fixed && !e.paid) { e.paid = true; return 'done'; } },
+    actions(e) { const v = e.v; if (e.sent || !v || v.removed) return []; const a = rhibAvail(v, 450); return [{ id: 'evvoil', label: 'Semi-rigide : envoyer le mécanicien au voilier', ok: a.ok, why: a.why, run: () => { e.sent = true; launchRhib({ target: v, near: 6, work: 55, say: 'Semi-rigide vers le voilier, le mécano emporte sa caisse à outils.', onWork: () => { vhf(`Voilier ${e.name}`, 'Le moteur tourne ! Merci mille fois, on rentre au port au moteur.', 'good'); const home = nearestPort(v); v.ai = { mode: 'shuttle', a: home.entrance, b: home.entrance, leg: 0 }; v.dead = false; }, doneSay: 'Semi-rigide récupéré, le voilier fait route au moteur.', onDone: () => { e.fixed = true; } }); } }]; },
+    win(e) { evReward(e, 1500, 12, 80, 'Assistance réussie'); },
+    fail(e) { vhf('CROSS Méditerranée', `La SNSM a pris en charge le voilier ${e.name}.`, 'info'); }
+  },
+  // 2. conteneurs tombés d'un porte-conteneurs : les repérer et prévenir les navigateurs
+  conteneurs: {
+    n: 'Conteneurs à la dérive', setup(e) {
+      const q = evPoint(1800, 3800); if (!q) return false; e.list = [];
+      for (let i = 0; i < 3; i++) { const x = q.x + rr(-350, 350), z = q.z + rr(-350, 350); if (gridH(x, z) > -20) continue; const m = floatBox(6.1, 2.6, 2.44, pick(['#1d5d9b', '#b8402c', '#2e6b3a', '#d9a21b'])); m.children[0].position.y = -0.4; m.children[0].rotation.z = rr(-0.3, 0.3); const v = new Vessel('raft', m, x, z, rr(0, TAU), { name: 'Conteneur à la dérive' }); v.small = true; v.rcs = 1.5; v.ghost = true; v.ais = false; v.found = false; e.list.push(v); }
+      if (e.list.length < 2) return false;
+      e.mark = { x: q.x, z: q.z, r: 700, kind: 'zone', label: 'Conteneurs signalés' }; e.obj = `Repérer les conteneurs (0/${e.list.length}) et prévenir les navigateurs`; e.limit = 22 * 60;
+      vhf('CROSS Méditerranée', `Le porte-conteneurs ${pick(GT_BOX)} a perdu ${e.list.length} conteneurs par gros roulis. Zone transmise : repérez-les et diffusez un avis aux navigateurs.`, 'alarm');
+      return true;
+    },
+    update(e) {
+      const P = PLAYER, m = MS.cur; let n = 0;
+      for (const c of e.list) {
+        if (c.removed) continue;
+        if (!c.found && (seen(c, false) && distTo(P, c) < 1600 || (P.heli && !P.heli.dead && P.heli.state !== 'deck' && Math.hypot(P.heli.x - c.x, P.heli.z - c.z) < 500))) { c.found = true; m.marks.push({ v: c, kind: 'hostile', label: 'Conteneur', ev: true }); vhf('Veille', `Conteneur en vue au ${bearingStr(headingOf(c.x - P.x, c.z - P.z))}, à moitié immergé !`, 'good'); }
+        if (hullDist(P, c.x, c.z) < P.B * 0.5 + 2.5) { hitPlayer(6, 'conteneur'); c.remove(); vhf('Passerelle', 'Choc à l\'avant : nous avons heurté un conteneur !', 'alarm'); }
+        if (c.found) n++;
+      }
+      const o = O(m, 'ev_conteneurs'); if (o) o.text = `Repérer les conteneurs (${n}/${e.list.length}) et prévenir les navigateurs`, setObj(m, 'ev_conteneurs', null, n / e.list.length * 0.8);
+      e.nFound = n; if (e.warned) return 'done';
+    },
+    actions(e) { return e.nFound >= 2 && !e.warned ? [{ id: 'evcont', label: 'Avis urgent aux navigateurs : conteneurs à la dérive', ok: true, run: () => { e.warned = true; vhf(PLAYER.C.n, 'Sécurité, sécurité, sécurité. Conteneurs à la dérive, partiellement immergés, dans la zone signalée. Veille renforcée, vitesse réduite.', 'info'); sfx('radio'); } }] : []; },
+    win(e) { evReward(e, 1200 + e.nFound * 200, 10, 90, 'Navigation sécurisée'); },
+    fail() { vhf('CROSS Méditerranée', 'Un remorqueur prend le relais pour les conteneurs.', 'info'); }
+  },
+  // 3. rorqual en surface : ralentir et respecter la zone de quiétude (et le photographier)
+  baleine: {
+    n: 'Rorqual en surface', setup(e) {
+      const q = evPoint(1400, 2600, 80); if (!q) return false;
+      const g = new THREE.Group(), mat = std('#3d464d', 0.45, 0.1), body = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 10), mat); body.scale.set(2.2, 1.6, 10); g.add(body);
+      const fin = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1.4, 6), mat); fin.position.set(0, 1.5, 4.5); fin.rotation.x = -0.5; g.add(fin);
+      const tail = new THREE.Mesh(new THREE.BoxGeometry(5, 0.25, 1.4), mat); tail.position.set(0, 0.2, 10.5); g.add(tail);
+      e.w = { m: evMesh(e, g), x: q.x, z: q.z, h: rr(0, TAU), t: 0 }; e.obj = 'Zone de quiétude : moins de 10 nœuds à moins d\'un kilomètre (0/60 s)'; e.limit = 15 * 60; e.calm = 0;
+      e.mark = { x: q.x, z: q.z, r: 1000, kind: 'zone', label: 'Rorqual' }; e.whale = e.w;
+      vhf('Veille', `Souffle au ${bearingStr(headingOf(q.x - PLAYER.x, q.z - PLAYER.z))}, à ${(Math.hypot(q.x - PLAYER.x, q.z - PLAYER.z) / 1000).toFixed(1).replace('.', ',')} km : un rorqual commun ! Le sanctuaire Pelagos demande de ralentir.`, 'alarm');
+      return true;
+    },
+    update(e, dt) {
+      const w = e.w, P = PLAYER; whaleMove(w, dt);
+      const m = MS.cur, mk = m.marks.find(k => k === e.mark); if (mk) { mk.x = w.x; mk.z = w.z; }
+      const d = Math.hypot(w.x - P.x, w.z - P.z);
+      if (d < 320 && P.speed > 12 * KN) return 'fail';
+      if (d < 1000 && P.speed <= 10 * KN) e.calm += dt;
+      const o = O(m, 'ev_baleine'); if (o) { o.text = `Zone de quiétude : moins de 10 nœuds à moins d'un kilomètre (${Math.min(60, Math.round(e.calm))}/60 s)`; o.prog = Math.min(1, e.calm / 60); }
+      if (e.calm >= 60) return 'done';
+    },
+    win(e) { evReward(e, 600, 10, 70, 'Sanctuaire Pelagos respecté'); vhf('Veille', 'Le rorqual nous longe tranquillement. Pensez à une photo (F8) : le réseau d\'observation paie bien !', 'good'); e.keepWhale = true; },
+    fail(e) { if (CAREER && !CAREER.temp) CAREER.rep = Math.max(0, CAREER.rep - 5); vhf('Veille', 'Trop vite ! Le rorqual a sondé brutalement. Le sanctuaire Pelagos signalera l\'incident.', 'alarm'); }
+  },
+  // 4. grain violent : tenir la mer sans casse
+  grain: {
+    n: 'Grain violent', any: true, setup(e) {
+      if (ENV.storm > 0.5 || ENV.wind > 15) return false;
+      e.w0 = { wind: ENV.target.wind, sea: ENV.target.sea, cloud: ENV.target.cloud, rain: ENV.target.rain, fog: ENV.target.fog, storm: ENV.target.storm };
+      e.hull0 = PLAYER.hull; e.limit = 9 * 60; e.obj = 'Traverser le grain sans avarie';
+      setWeather({ wind: Math.max(19, ENV.wind + 12), sea: Math.min(0.95, ENV.sea + 0.35), cloud: 1, rain: 0.85, fog: Math.max(ENV.fog, 0.25), storm: 0.7 });
+      vhf('Météo-France marine', `Bulletin spécial : grain violent en approche, rafales à ${Math.round(kn(ENV.wind + 14))} nœuds et averses. Durée estimée : huit minutes.`, 'alarm'); sfx('thunder');
+      return true;
+    },
+    update(e) { if (e.t > 7 * 60) return PLAYER.hull >= e.hull0 - 4 ? 'done' : 'fail'; const o = O(MS.cur, 'ev_grain'); if (o) o.prog = e.t / (7 * 60); },
+    end(e) { setWeather(e.w0); },
+    win(e) { evReward(e, 900, 6, 90, 'Grain traversé'); },
+    fail() { vhf('Second', 'Le grain nous a secoués, il faudra passer à l\'arsenal.', 'info'); }
+  },
+  // 5. ballots jetés à la mer par un go-fast : les repêcher pour les douanes
+  ballots: {
+    n: 'Ballots de contrebande', setup(e) {
+      const q = evPoint(1800, 3500); if (!q) return false; e.list = [];
+      for (let i = 0; i < 4; i++) { const x = q.x + rr(-220, 220), z = q.z + rr(-220, 220); if (gridH(x, z) > -15) continue; const m = floatBox(1.2, 0.7, 0.9, '#121212'); m.children[0].position.y = -0.15; const v = new Vessel('raft', m, x, z, rr(0, TAU), { name: 'Ballot' }); v.small = true; v.rcs = 0.4; v.ghost = true; v.ais = false; e.list.push(v); }
+      if (e.list.length < 3) return false;
+      e.got = 0; e.mark = { x: q.x, z: q.z, r: 350, kind: 'zone', label: 'Ballots' }; e.obj = `Repêcher les ballots (0/${e.list.length})`; e.limit = 25 * 60;
+      vhf('Douanes, vedette garde-côtes', 'Un go-fast vient de larguer sa cargaison avant de s\'enfuir. Les ballots flottent dans la zone transmise : récupérez-les avant qu\'un complice ne revienne.', 'alarm');
+      return true;
+    },
+    update(e) { const m = MS.cur; const o = O(m, 'ev_ballots'); if (o) { o.text = `Repêcher les ballots (${e.got}/${e.list.length})`; o.prog = e.got / e.list.length; } if (e.got >= e.list.length) return 'done'; },
+    actions(e) {
+      const P = PLAYER, left = e.list.filter(b => !b.removed && !b.taking); if (!left.length) return [];
+      const near = left.slice().sort((a, b) => distTo(P, a) - distTo(P, b))[0], d = distTo(P, near), out = [];
+      if (d < 45) out.push({ id: 'evgaff', label: 'Repêcher le ballot à la gaffe', ok: P.speed < 2 * KN, why: 'Moins de 2 nœuds pour repêcher à la gaffe.', run: () => { near.remove(); e.got++; sfx('winch'); } });
+      const a = rhibAvail(near, 500); out.push({ id: 'evbal', label: `Semi-rigide : repêcher les ballots (${left.length})`, ok: a.ok, why: a.why, run: () => { const batch = left.filter(b => Math.hypot(b.x - near.x, b.z - near.z) < 260); batch.forEach(b => { b.taking = true; }); launchRhib({ target: near, near: 5, work: 25 + batch.length * 12, say: 'Semi-rigide vers les ballots.', onWork: () => { for (const b of batch) { b.remove(); e.got++; } }, doneSay: 'Ballots à bord, sous scellés pour les douanes.' }); } });
+      return out;
+    },
+    win(e) { evReward(e, 2000, 15, 120, 'Cargaison saisie'); if (CAREER && !CAREER.temp) CAREER.stats.seized = (CAREER.stats.seized || 0) + 1; },
+    fail(e) { if (e.got) evReward(e, e.got * 350, 3, 30, 'Saisie partielle'); }
+  }
+};
+// le rorqual nage lentement, souffle en surface puis sonde
+function whaleMove(w, dt) {
+  w.t += dt; w.x += Math.sin(w.h) * 1.4 * dt; w.z -= Math.cos(w.h) * 1.4 * dt; w.h += Math.sin(w.t * 0.05) * 0.002;
+  const cyc = w.t % 48, up = cyc < 9, y = up ? -0.6 + Math.sin(cyc / 9 * Math.PI) * 1.1 : -6;
+  w.m.position.set(w.x, Math.max(y, -6) + waveH(w.x, w.z, GFX.t) * 0.6, w.z); w.m.rotation.set(up ? -Math.cos(cyc / 9 * Math.PI) * 0.15 : 0, -w.h, 0, 'YXZ'); w.m.visible = y > -5;
+  if (up && cyc < 1.2 && !w.blew) { w.blew = true; for (let i = 0; i < 30; i++) SPRAY.emit(w.x + Math.sin(w.h) * 6, 2, w.z - Math.cos(w.h) * 6, rr(-1, 1), rr(8, 14), rr(-1, 1), 1.5, 2.2, 0.6); } if (!up) w.blew = false;
+}
+function nearestPort(v) { let best = PORTS[0], bd = Infinity; for (const p of PORTS) { const d = Math.hypot(p.x - v.x, p.z - v.z); if (d < bd) { bd = d; best = p; } } return best; }
+function evStart(m) {
+  const P = PLAYER, quiet = ![...TRACKS.values()].some(t => t.ident === 'hos' && !t.ent.sinking && Math.hypot(t.x - P.x, t.z - P.z) < 15000) && !AIR.some(a => !a.dead);
+  m.evUsed = m.evUsed || [];
+  const ids = Object.keys(EVDEFS).filter(k => !m.evUsed.includes(k) && (quiet || EVDEFS[k].any)).sort(() => Math.random() - 0.5);
+  for (const id of ids) {
+    const D = EVDEFS[id], e = { id, n: D.n, t: 0 };
+    if (!D.setup(e)) continue;
+    m.evUsed.push(id); SEV.cur = e; addObj(m, 'ev_' + id, e.obj, true); if (e.mark) { e.mark.ev = true; m.marks.push(e.mark); }
+    cineTitle('Événement en mer', D.n); return true;
+  }
+  return false;
+}
+function evEnd(win) {
+  const e = SEV.cur, m = MS.cur; if (!e) return; const D = EVDEFS[e.id]; SEV.cur = null;
+  if (m) { setObj(m, 'ev_' + e.id, win ? 'done' : 'failed'); m.marks = m.marks.filter(k => !k.ev); }
+  if (D.end) D.end(e);
+  if (win) D.win(e); else if (D.fail) D.fail(e);
+  for (const v of e.list || []) if (!v.removed) v.remove();
+  if (!e.keepWhale) for (const o of e.fx || []) dropObj(o); else SEV.whale = e;
+  if (m) SEV.next = m.t + rr(600, 1100);
+}
+function evStep(dt) {
+  const m = MS.cur, P = PLAYER;
+  if (!m || !P || UI.screen !== 'sea' || m.isOp || P.sinking) return;
+  if (m.over && !m.free) { if (SEV.cur) evEnd(false); return; }
+  if (SEV.next == null || SEV.mission !== m) { SEV.mission = m; SEV.next = m.t + rr(240, 480); }
+  if (!SEV.cur) { if (m.t > SEV.next && !CINE.on) { if (!evStart(m)) SEV.next = m.t + 180; } }
+  else { const e = SEV.cur; e.t += dt; const r = EVDEFS[e.id].update(e, dt); if (r === 'done') evEnd(true); else if (r === 'fail' || e.t > e.limit) evEnd(false); }
+  if (SEV.whale && SEV.whale.w) { const w = SEV.whale.w; whaleMove(w, dt); if (Math.hypot(w.x - P.x, w.z - P.z) > 9000) { for (const o of SEV.whale.fx || []) dropObj(o); SEV.whale = null; } }
+}
+{ const base = simStep; simStep = function (dt) { base(dt); try { evStep(dt); } catch (e) { console.error(e); SEV.cur = null; } }; }
+{ const base = clearWorldEntities; clearWorldEntities = function () { const e = SEV.cur; if (e) { for (const o of e.fx || []) dropObj(o); if (EVDEFS[e.id].end) EVDEFS[e.id].end(e); } if (SEV.whale) { for (const o of SEV.whale.fx || []) dropObj(o); } SEV.cur = null; SEV.whale = null; SEV.next = null; SEV.mission = null; base(); }; }
+{ const base = genericActions; genericActions = function () { const out = base(), e = SEV.cur; if (e && UI.screen === 'sea' && EVDEFS[e.id].actions) out.unshift(...EVDEFS[e.id].actions(e)); return out; }; }
+// une photo du rorqual vaut aussi une prime
+{ const base = photoShot; photoShot = function () {
+  base(); const W = (SEV.cur && SEV.cur.w) || (SEV.whale && SEV.whale.w); if (!W || W.shot || !W.m.visible || UI.screen !== 'sea' || !CAREER || CAREER.temp) return;
+  camera.updateMatrixWorld(); const fr = new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+  if (fr.containsPoint(W.m.position) && camera.position.distanceTo(W.m.position) < 450) { W.shot = true; CAREER.credits += 500; if (typeof addXP === 'function') addXP(60, 'Photo de rorqual'); saveCareer(); setTimeout(() => pop('Photo exceptionnelle !', `Un rorqual commun · le sanctuaire Pelagos vous verse ${fmtCr(500)}`, true), 700); }
+}; }
+
+// ===== TROIS NOUVELLES MISSIONS : relevé hydrographique, protection d'un câblier, hélicoptère abîmé en mer =====
+Object.assign(MTYPES, {
+  survey: { n: 'Relevé hydrographique', ic: 'HYD', d: 'Suivre les lignes de sonde du SHOM à petite vitesse, sans s\'écarter, pour cartographier un haut-fond.' },
+  cable: { n: 'Protection d\'un câblier', ic: 'CÂB', d: 'Tenir les chalutiers et les curieux à distance d\'un navire qui pose un câble sous-marin.' },
+  helo: { n: 'Hélicoptère à la mer', ic: 'SAR', d: 'Secourir l\'équipage d\'un hélicoptère qui a amerri, puis repêcher l\'enregistreur de vol.' }
+});
+CIVIL.push('helo');
+Object.assign(MREQ, { survey: ['opv', 'corvette', 'tug', 'frigate'], cable: ['opv', 'corvette', 'frigate', 'destroyer', 'tug'], helo: ['opv', 'corvette', 'frigate', 'destroyer', 'tug'] });
+{ const base = recommendCls; recommendCls = function (def) { if (def.type === 'survey' || def.type === 'helo') return 'opv'; if (def.type === 'cable') return def.rank >= 1 ? 'corvette' : 'opv'; return base(def); }; }
+OP_PHASES[0].pool.push('survey', 'helo'); OP_PHASES[1].pool.push('cable');
+const sparBuoy = col => { const g = new THREE.Group(); g.add(at(cyl(0.18, 0.28, 3.2, col || '#e3b31f', 8), 0, 1.0, 0)); g.add(at(cyl(0.3, 0.3, 0.3, '#1b1b1b', 8), 0, 2.7, 0)); return g; };
+
+// ---------- relevé hydrographique ----------
+M_GEN.survey = (d, r, pl, rank, hard) => {
+  const P = pick(pl); d.place = P.n;
+  d.at = openWaterPoint(P.x, P.z, P.r + 1500, P.r + 3200, 22, 500, r);
+  const a = r() * TAU, ux = Math.cos(a), uz = Math.sin(a), vx = -uz, vz = ux, n = hard ? 4 : 3, Lg = hard ? 1500 : 1200, gap = 320;
+  d.pts = []; for (let k = 0; k < n; k++) { const off = (k - (n - 1) / 2) * gap, s = k % 2 ? 1 : -1; for (const e of [-s, s]) d.pts.push({ x: d.at.x + ux * e * Lg / 2 + vx * off, z: d.at.z + uz * e * Lg / 2 + vz * off }); }
+  d.pts = d.pts.map(p => gridH(p.x, p.z) < -12 ? p : wet(p, 12));
+  d.time = pick([8, 9.5, 11, 13, 15]); d.weather = { wind: rr(2, 8), sea: rr(0.1, 0.32), cloud: rr(0.1, 0.6), rain: 0, fog: rr(0, 0.15), storm: 0 };
+  d.title = `Relevé hydrographique au large ${deL(P.n)}`;
+  d.brief = `Le service hydrographique (SHOM) soupçonne un haut-fond non cartographié au large ${deL(P.n)}. Suivez les ${n} lignes de sonde, point par point : sur chaque ligne, restez sous 10 nœuds et au plus près de la route, sinon le sondeur ne vaut rien. Attention aux petits fonds et au trafic.`;
+  d.radio = 'Ici l\'état-major. Le SHOM attend un relevé propre : patience et précision, commandant.';
+  d.reward = 9000 + n * 600; d.rep = 45; d.limit = (35 + n * 5) * 60;
+};
+M_SETUP.survey = (m, d) => {
+  m.i = 0; m.good = 0; m.tot = 0; m.buoys = d.pts.map((p, i) => { const b = fxAdd(sparBuoy(i % 2 ? '#e3b31f' : '#2f8f4a')); b.position.set(p.x, 0, p.z); return b; });
+  m.mk = { x: d.pts[0].x, z: d.pts[0].z, r: 70, kind: 'goal', label: `Point de sonde 1/${d.pts.length}` }; m.marks.push(m.mk);
+  addObj(m, 'pts', `Passer aux points de sonde (0/${d.pts.length})`); addObj(m, 'q', 'Qualité du relevé : 100 %', true);
+  m.update = dt => {
+    const P = PLAYER, p = d.pts[m.i], dist = Math.hypot(p.x - P.x, p.z - P.z);
+    for (const [k, b] of m.buoys.entries()) { b.position.y = waveH(b.position.x, b.position.z, GFX.t) - 0.4; b.visible = k >= m.i; }
+    // sur une ligne de sonde (du point pair au point impair suivant), on mesure la qualité
+    if (m.i % 2 === 1) {
+      const a = d.pts[m.i - 1], ux = p.x - a.x, uz = p.z - a.z, L = Math.hypot(ux, uz) || 1, lat = Math.abs(((P.x - a.x) * uz - (P.z - a.z) * ux) / L);
+      m.tot += dt; if (P.speed <= 10.5 * KN && lat < 90) m.good += dt;
+      m.status = `Ligne de sonde ${(m.i + 1) / 2} · écart ${Math.round(lat)} m · ${kn(P.speed).toFixed(0)} nœuds${P.speed > 10.5 * KN ? ' : trop vite !' : lat >= 90 ? ' : revenez sur la ligne !' : ''}`;
+    } else m.status = `Rejoignez le point ${m.i + 1} (${Math.round(dist)} m)`;
+    const q = m.tot ? m.good / m.tot : 1; O(m, 'q').text = `Qualité du relevé : ${Math.round(q * 100)} %`; setObj(m, 'q', null, q);
+    if (dist < 80) {
+      m.i++; sfx('click'); O(m, 'pts').text = `Passer aux points de sonde (${m.i}/${d.pts.length})`; setObj(m, 'pts', null, m.i / d.pts.length);
+      if (m.i >= d.pts.length) {
+        setObj(m, 'pts', 'done'); if (q < 0.5) return endMission(false, `Relevé inexploitable : seulement ${Math.round(q * 100)} % des sondages sont bons.`);
+        setObj(m, 'q', 'done'); return endMission(true, `Relevé terminé, qualité ${Math.round(q * 100)} %. Le SHOM confirme un haut-fond à ${ri(6, 14)} mètres.`, { bonus: q > 0.9 ? 2500 : q > 0.75 ? 1000 : 0, note: q > 0.9 ? 'Relevé d\'excellente qualité' : null });
+      }
+      const n = d.pts[m.i]; m.mk.x = n.x; m.mk.z = n.z; m.mk.label = `Point de sonde ${m.i + 1}/${d.pts.length}`;
+      if (m.i % 2 === 1) vhf('Hydrographe', 'Début de ligne : sondeur en route. Moins de 10 nœuds, et droit sur le prochain point !', 'info'); else vhf('Hydrographe', 'Fin de ligne, sondeur en pause. On vire pour la suivante.', 'good');
+    }
+  };
+  m.actions = () => [];
+};
+
+// ---------- protection d'un câblier ----------
+M_GEN.cable = (d, r, pl, rank, hard) => {
+  const c = PL(rr(-6000, 6000), rr(7000, 10000)); d.at = openWaterPoint(c.x, c.z, 0, 2500, 60, 1500, r); d.hdg = r() * TAU;
+  d.dur = (hard ? 16 : 13) * 60; d.trawlers = hard ? 4 : 3; d.spy = rank >= 1 || hard; d.ship = 'ARGONAUTE';
+  d.time = pick([7, 9, 12, 15, 17.5]); d.weather = { wind: rr(4, 11), sea: rr(0.2, 0.5), cloud: rr(0.2, 0.8), rain: 0, fog: rr(0, 0.3), storm: 0 };
+  d.title = `Protection du câblier ${d.ship}`;
+  d.brief = `Le câblier ${d.ship} pose un câble sous-marin de télécommunications au large ${deP(PORT.n)}. Pendant ${Math.round(d.dur / 60)} minutes, il avance à deux nœuds et ne peut pas manœuvrer : tenez les chalutiers et tout navire curieux à plus de 400 mètres. Ordonnez-leur de s'écarter à la VHF, ou placez-vous en travers de leur route.${d.spy ? ' Un navire de recherche étranger est signalé dans le secteur.' : ''}`;
+  d.radio = 'Ici l\'état-major. Le câble est stratégique : pas un chalut ne doit s\'en approcher.';
+  d.reward = 12000; d.rep = 55; d.limit = d.dur + 12 * 60;
+};
+M_SETUP.cable = (m, d) => {
+  const cab = new Vessel('cargo', buildCargo(d.ship, { hull: '#eef0f2' }), d.at.x, d.at.z, d.hdg, { name: d.ship }); cab.ai = { mode: 'cable' }; cab.ais = true; cab.rcs = 300; cab.u = 1; m.cab = cab; m.ents.push(cab);
+  m.zone = { x: cab.x, z: cab.z, r: 400, kind: 'zone', label: 'Zone de pose' }; m.marks.push({ v: cab, kind: 'friend', label: d.ship }, m.zone);
+  m.cuts = 0; m.intr = []; m.cd = 0;
+  for (let i = 0; i < d.trawlers + (d.spy ? 1 : 0); i++) {
+    const spy = d.spy && i === d.trawlers, a = rr(0, TAU), q = wet({ x: cab.x + Math.cos(a) * rr(2300, 3300), z: cab.z + Math.sin(a) * rr(2300, 3300) }, 25);
+    const v = spy ? new Vessel('trawler', buildSpyShip(pick(VARNEN) + '-R'), q.x, q.z, 0, { name: pick(VARNEN) + '-R' }) : new Vessel('trawler', buildTrawler(pick(BOATNAMES)), q.x, q.z, 0, { name: pick(BOATNAMES) });
+    v.ai = { mode: 'cable' }; v.ais = !spy; v.spy = spy; v.delay = 20 + i * rr(70, 120); v.state = 'wait'; v.stubborn = spy || Math.random() < 0.35; v.warned = 0; m.intr.push(v); m.ents.push(v);
+  }
+  addObj(m, 'protect', `Protéger la pose du câble (${Math.round(d.dur / 60)} min)`); addObj(m, 'keep', 'Aucun navire à moins de 400 m du câblier');
+  if (d.spy) addObj(m, 'spy', 'Éloigner le navire de recherche', true);
+  m.update = dt => {
+    const P = PLAYER; m.cd = Math.max(0, m.cd - dt);
+    steerTo(cab, d.hdg, 1.0, dt); m.zone.x = cab.x; m.zone.z = cab.z;
+    const ahead = { x: cab.x + Math.sin(d.hdg) * 300, z: cab.z - Math.cos(d.hdg) * 300 };
+    for (const v of m.intr) {
+      if (v.removed) continue;
+      if (v.state === 'wait') { if (m.t > v.delay) { v.state = 'in'; if (v.spy) vhf('Central Op.', `Le navire de recherche ${v.name} fait route vers la zone de pose, AIS coupé.`, 'alarm'); } else continue; }
+      const dc = Math.hypot(v.x - cab.x, v.z - cab.z), dp = distTo(P, v);
+      if (v.state === 'in') {
+        steerTo(v, avoidHeading(v, headingOf(ahead.x - v.x, ahead.z - v.z), 400), v.spy ? 5.0 : 4.6, dt);
+        // un bâtiment de la Marine en travers de sa route le fait renoncer
+        if (dp < 280 && dp < dc && Math.abs(wrapA(headingOf(P.x - v.x, P.z - v.z) - headingOf(cab.x - v.x, cab.z - v.z))) < 0.6) { v.state = 'out'; vhf(v.name, v.spy ? 'Nous modifions notre route.' : 'D\'accord, d\'accord, on s\'écarte !', 'good'); }
+        if (dc < 400 && !v.cut) { v.cut = true; m.cuts++; setObj(m, 'keep', 'failed'); vhf(d.ship, v.spy ? `Le ${v.name} passe sur notre tracé, il a peut-être largué quelque chose !` : `Le chalutier ${v.name} a croché notre câble ! Avarie de pose !`, 'alarm'); v.state = 'out'; if (m.cuts >= 2) return endMission(false, 'Le câble a été arraché deux fois : la pose est abandonnée.'); }
+      } else if (v.state === 'out') {
+        steerTo(v, headingOf(v.x - cab.x, v.z - cab.z), 4.5, dt);
+        if (dc > 7000) { v.remove(); if (v.spy) setObj(m, 'spy', 'done'); }
+      }
+    }
+    const left = Math.max(0, d.dur - m.t); O(m, 'protect').text = `Protéger la pose du câble (${Math.floor(left / 60)} min ${String(Math.floor(left % 60)).padStart(2, '0')})`; setObj(m, 'protect', null, m.t / d.dur);
+    const close = m.intr.filter(v => !v.removed && v.state === 'in').sort((a, b) => Math.hypot(a.x - cab.x, a.z - cab.z) - Math.hypot(b.x - cab.x, b.z - cab.z))[0];
+    m.status = close ? `${close.name} à ${(Math.hypot(close.x - cab.x, close.z - cab.z) / 1000).toFixed(1).replace('.', ',')} km du câblier` : 'Zone de pose dégagée';
+    if (m.t >= d.dur) { setObj(m, 'protect', 'done'); if (!m.cuts) setObj(m, 'keep', 'done'); endMission(true, m.cuts ? 'Câble posé malgré une avarie de pose.' : 'Câble posé sans incident : du travail propre.', { bonus: m.cuts ? -3000 : 2000, note: m.cuts ? 'Une avarie de pose' : 'Aucun navire n\'a approché le câblier' }); }
+  };
+  m.actions = () => {
+    const P = PLAYER, out = [], v = m.intr.filter(x => !x.removed && x.state === 'in').sort((a, b) => distTo(P, a) - distTo(P, b))[0];
+    if (v) out.push({ id: 'cvhf', label: `VHF : ordonner au ${v.name} de s'écarter`, ok: distTo(P, v) < 3500 && m.cd <= 0, why: m.cd > 0 ? 'Laissez-lui le temps de répondre.' : 'Rapprochez-vous à moins de 2 nautiques pour la VHF.', run: () => {
+      m.cd = 20; v.warned++; vhf(P.C.n, `${v.name}, ici bâtiment de la Marine ${P.C.n}. Câblier au travail, dégagez immédiatement la zone de plus d'un mille.`, 'info');
+      if (v.stubborn && v.warned < 2) setTimeout(() => vhf(v.name, v.spy ? 'Nous sommes dans les eaux internationales. Nous poursuivons.' : 'On est sur notre zone de pêche, nous ! On continue.', 'alarm'), 1800);
+      else { setTimeout(() => vhf(v.name, v.spy ? 'Bien reçu. Nous nous éloignons.' : 'Bien compris, on vire.', 'good'), 1800); v.state = 'out'; }
+    } });
+    return out;
+  };
+};
+
+// ---------- hélicoptère abîmé en mer ----------
+function buildHeloWreck() {
+  const g = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.SphereGeometry(1, 14, 10), std('#e8e4d8', 0.5, 0.1)); body.scale.set(1.5, 1.2, 4.2); body.position.y = 0.2; g.add(body);
+  g.add(at(box(0.4, 0.5, 4.5, '#c62828'), 0, 0.6, 5.2)); g.add(at(box(0.15, 1.8, 0.9, '#c62828'), 0, 1.4, 7.2));
+  const fl = (s) => { const f = cyl(0.35, 0.35, 3.2, '#f07a22', 10); f.rotation.x = Math.PI / 2; f.position.set(s * 1.7, -0.1, 0); return f; }; g.add(fl(-1)); g.add(fl(1));
+  g.traverse(o => { if (o.isMesh) o.castShadow = true; }); const w = new THREE.Group(); w.add(g); w.userData = { L: 9, B: 3.5 }; return w;
+}
+M_GEN.helo = (d, r, pl, rank, hard) => {
+  const P = pick(pl); d.place = P.n; const c = openWaterPoint(P.x, P.z, P.r + 3500, P.r + 7000, 60, 1200, r); d.lkp = c; d.at = c;
+  d.people = ri(3, 5) + (hard ? 1 : 0); d.op = pick(['HÉLI-ÎLES', 'AZUR HÉLICO', 'TYRRHÉNIENNE SERVICES']);
+  d.time = pick([9, 12, 15, 17.8, 19.2]); d.weather = { wind: rr(6, 13), sea: rr(0.3, 0.6), cloud: rr(0.3, 0.9), rain: hard ? rr(0.2, 0.6) : 0, fog: rr(0, 0.25), storm: 0 };
+  d.title = `Hélicoptère à la mer au large ${deL(P.n)}`;
+  d.brief = `Un hélicoptère de la compagnie ${d.op} a amerri en urgence au large ${deL(P.n)} après une panne de transmission. Ses ${d.people} occupants ont gagné un radeau. Récupérez-les au semi-rigide, puis localisez l'enregistreur de vol : la carcasse va couler, mais la balise acoustique émet. Écoutez-la à petite vitesse, puis envoyez les plongeurs.`;
+  d.radio = 'Ici le CROSS Méditerranée. Dernière position transmise : radeau et carcasse à proximité. Les familles attendent des nouvelles.';
+  d.reward = 13000 + d.people * 600; d.rep = 60; d.limit = 45 * 60;
+};
+M_SETUP.helo = (m, d) => {
+  const raft = new Vessel('raft', buildLiferaft(), d.lkp.x + rr(-400, 400), d.lkp.z + rr(-400, 400), 0, { name: 'Radeau de l\'hélicoptère' }); raft.small = true; raft.rcs = 1.5; raft.people = d.people; m.raft = raft; m.ents.push(raft);
+  const wr = new Vessel('raft', buildHeloWreck(), d.lkp.x + rr(-150, 150), d.lkp.z + rr(-150, 150), rr(0, TAU), { name: 'Carcasse de l\'hélicoptère' }); wr.small = true; wr.rcs = 4; wr.ghost = true; m.wreck = wr; m.ents.push(wr);
+  m.ping = null; m.listen = 0; m.saved = 0;
+  m.marks.push({ x: d.lkp.x, z: d.lkp.z, r: 900, kind: 'zone', label: 'Dernière position' });
+  addObj(m, 'find', 'Localiser le radeau'); addObj(m, 'rescue', `Récupérer les naufragés (0/${d.people})`); addObj(m, 'ping', 'Localiser la balise de l\'enregistreur'); addObj(m, 'rec', 'Récupérer l\'enregistreur de vol');
+  m.update = dt => {
+    const P = PLAYER, H = P.heli;
+    if (O(m, 'find').state !== 'done' && !raft.removed && (seen(raft, true) && distTo(P, raft) < 2200 || (H && !H.dead && H.state !== 'deck' && Math.hypot(H.x - raft.x, H.z - raft.z) < 500))) { setObj(m, 'find', 'done'); m.marks.push({ v: raft, kind: 'target', label: 'Radeau' }); vhf('Veille', `Radeau orange en vue au ${bearingStr(headingOf(raft.x - P.x, raft.z - P.z))} ! Des gens nous font signe.`, 'good'); }
+    // la carcasse coule au bout de dix minutes ; l'enregistreur repose alors sur le fond
+    if (m.t > 600 && m.wreck && !m.wreck.removed) { const w = m.wreck; w.sinkT = (w.sinkT || 0) + dt; w.mesh.position.y -= dt * 0.5; if (w.sinkT > 20) { m.sunkAt = { x: w.x, z: w.z }; w.remove(); vhf('Veille', 'La carcasse de l\'hélicoptère a coulé. La balise de l\'enregistreur doit émettre sous nous.', 'info'); } }
+    const site = m.wreck && !m.wreck.removed ? m.wreck : m.sunkAt;
+    if (O(m, 'ping').state !== 'done' && site) {
+      const ds = Math.hypot(site.x - P.x, site.z - P.z);
+      if (ds < 1500 && P.speed < 6 * KN) { m.listen += dt * (P.gear.sonar ? 1.6 : 1); if (Math.floor(m.listen) % 10 === 0 && Math.floor(m.listen) !== m.lastPing) { m.lastPing = Math.floor(m.listen); sfx('radio'); } }
+      O(m, 'ping').text = `Localiser la balise de l'enregistreur (${Math.min(100, Math.round(m.listen / 40 * 100))} %)`; setObj(m, 'ping', null, m.listen / 40);
+      if (m.listen >= 40) { setObj(m, 'ping', 'done'); m.ping = { x: site.x + rr(-40, 40), z: site.z + rr(-40, 40) }; m.marks.push({ x: m.ping.x, z: m.ping.z, kind: 'goal', r: 60, label: 'Enregistreur de vol' }); vhf('Sonar', `Balise acoustique localisée : ${Math.round(Math.hypot(m.ping.x - P.x, m.ping.z - P.z))} mètres, fond de ${Math.round(-gridH(m.ping.x, m.ping.z))} mètres.`, 'good'); }
+    }
+    O(m, 'rescue').text = `Récupérer les naufragés (${m.saved}/${d.people})`;
+    m.status = O(m, 'ping').state !== 'done' && site ? (P.speed < 6 * KN ? 'Écoute de la balise en cours…' : 'Moins de 6 nœuds près de la carcasse pour écouter la balise') : '';
+    if (O(m, 'rec').state === 'done') { if (m.saved) endMission(true, `${m.saved} occupants sauvés et l'enregistreur de vol remis aux enquêteurs.`, { saved: m.saved, bonus: 2000 }); }
+    if (m.t > m.limit - 5 && m.saved && O(m, 'rec').state !== 'done') endMission(true, `${m.saved} occupants sauvés ; l'enregistreur sera repêché par un navire spécialisé.`, { saved: m.saved });
+  };
+  m.actions = () => {
+    const out = [];
+    if (!raft.removed && O(m, 'find').state === 'done' && !m.rhibRaft) { const a = rhibAvail(raft, 450); out.push({ id: 'hraft', label: 'Semi-rigide : récupérer les naufragés', ok: a.ok, why: a.why, run: () => { m.rhibRaft = true; launchRhib({ target: raft, near: 6, work: 30 + d.people * 8, say: 'Semi-rigide vers le radeau, couvertures de survie à bord.', onWork: () => { m.saved = raft.people; raft.remove(); setObj(m, 'rescue', 'done'); if (CAREER && !CAREER.temp) CAREER.stats.rescued = (CAREER.stats.rescued || 0) + m.saved; vhf('Infirmerie', `${m.saved} rescapés à bord, en hypothermie légère. Le pilote a une épaule luxée.`, 'good'); }, doneSay: 'Semi-rigide récupéré avec les rescapés.' }); } }); }
+    if (m.ping && O(m, 'rec').state !== 'done' && !m.rhibRec) { const a = rhibAvail(m.ping, 600); out.push({ id: 'hrec', label: 'Plongeurs : récupérer l\'enregistreur de vol', ok: a.ok, why: a.why, run: () => { m.rhibRec = true; launchRhib({ target: m.ping, near: 6, work: 90, say: 'Plongeurs à l\'eau, on descend sur la balise.', onWork: () => { setObj(m, 'rec', 'done'); vhf('Plongeurs', 'Enregistreur de vol récupéré, en bon état !', 'good'); }, doneSay: 'Plongeurs à bord avec l\'enregistreur.' }); } }); }
+    return out;
+  };
+};
+
+// ===== MESSAGERIE : les personnages comprennent beaucoup plus de choses (réponses hors ligne, tirées de l'état du jeu) =====
+const nrm = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’']/g, ' ').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+const MTIPS = {
+  rescue: 'Ralentissez dans la zone, montez à la passerelle ou aux jumelles, et lancez des fusées la nuit. L\'hélicoptère couvre vite la zone.',
+  tow: 'Approchez par l\'arrière du cargo à moins de 3 nœuds, passez la remorque, puis montez doucement en régime : une remorque trop tendue casse.',
+  intercept: 'Ne le poursuivez pas : coupez-lui la route vers la côte. Sommation radio d\'abord, puis tirs de semonce.',
+  escort: 'Restez entre le ferry et le large, projecteur prêt la nuit. Les embarcations rôdent sur l\'arrière.',
+  delivery: 'Prenez votre temps à l\'approche de la cale : moins de 2 nœuds, et le propulseur d\'étrave pour finir.',
+  pollution: 'Déployez les barrages au vent de la nappe et passez lentement dedans, en zigzag.',
+  medevac: 'Le blessé ne peut pas attendre : semi-rigide dès que vous êtes à moins de 450 m, puis cap au port.',
+  fisheries: 'Montez à bord de chaque chalutier avec l\'équipe d\'inspection ; celui qui file vers le large a quelque chose à cacher.',
+  convoy: 'Placez-vous du côté de la menace et gardez les missiles pour les vedettes ; le canon suffit pour les drones.',
+  asw: 'Sonar actif par intermittence, hélicoptère avec sonar trempé : le sous-marin aime se cacher sous le pétrolier.',
+  aaw: 'Défense rapprochée en automatique, missiles sur les pistes les plus rapides, et ne laissez rien passer au-dessus de la rade.',
+  saw: 'Identifiez d\'abord, tirez ensuite : les règles d\'engagement comptent autant que les coups au but.',
+  raid: 'Neutralisez les vedettes avant de débarquer l\'équipe de visite, et gardez le projecteur sur la plage.',
+  fire: 'Arrosez par le vent, à distance raisonnable : le pétrolier peut exploser si vous traînez trop près.',
+  suspect: 'Trouvez-le parmi les autres cargos sans AIS, stoppez-le, puis envoyez l\'équipe de visite.',
+  wildfire: 'Une plage à la fois : semi-rigide et hélicoptère ensemble, et surveillez l\'avancée des flammes.',
+  mine: 'À petite vitesse aux jumelles, puis avis urgent, puis canon à plus de 300 mètres ou plongeurs démineurs.',
+  shadow: 'Restez entre l\'espion et la zone d\'essais, à moins d\'un mille, sans vous laisser distancer.',
+  ferry: 'Prenez-le en remorque face au vent, et doucement : le mistral pousse fort vers les îles.',
+  sarex: 'Coordonnez-vous avec le patrouilleur tunisien : chacun sa zone, et l\'hélicoptère au milieu.',
+  survey: 'Sur les lignes de sonde, moins de 10 nœuds et droit sur le point suivant ; entre deux lignes, vous pouvez aller plus vite.',
+  cable: 'Ordonnez-leur de s\'écarter à la VHF ; les têtus renoncent quand vous vous placez en travers de leur route.',
+  helo: 'Les naufragés d\'abord, au semi-rigide ; ensuite, sous 6 nœuds près de la carcasse pour entendre la balise, puis les plongeurs.'
+};
+const STORIES = {
+  port: ['En 1942, la flotte s\'est sabordée dans cette rade. On voit encore des épaves par beau temps, quand l\'eau est claire.', 'Un jour de mistral, j\'ai vu un pétrolier chasser sur ses ancres jusqu\'aux Vignettes. Depuis, je ne fais confiance à aucune ancre.', 'Les pêcheurs de Porquerolles disent qu\'un mérou de deux mètres vit sous la jetée. Moi, je l\'ai vu. Une fois.'],
+  cross: ['Ma première nuit au canot de Saint-Tropez, on a sorti neuf personnes d\'un voilier retourné. Toutes vivantes. On n\'oublie pas ces nuits-là.', 'Le pire, ce sont les beaux jours : les gens partent en paddle avec un vent de terre. On les retrouve à cinq milles au large.'],
+  amirale: ['Mon premier commandement, c\'était un vieil aviso. Il fuyait de partout, mais il ne m\'a jamais lâchée.', 'On m\'a dit un jour qu\'une amirale devait être crainte. Je préfère être écoutée.'],
+  arsenal: ['J\'ai changé une ligne d\'arbre en quarante heures, une fois. Record de l\'arsenal. Personne ne m\'a dit merci.', 'Les bateaux, c\'est simple : ils vous disent tout, il suffit d\'écouter les vibrations.'],
+  second: ['À l\'école navale, j\'ai perdu un pari et j\'ai dû hisser le pavillon en chantant. Tout l\'équipage s\'en souvient encore.', 'La première fois que j\'ai pris le quart seule, un banc de dauphins nous a escortés jusqu\'à l\'aube.'],
+  meca: ['Mon grand-père était chauffeur sur un charbonnier de Brest. Lui, il savait ce que c\'était, une machine qui souffre.', 'Ces moteurs-là ont plus de vingt mille heures. Ils tiennent parce qu\'on leur parle gentiment.'],
+  bosco: ['Aux Canaries, mon père pêchait le thon à la canne. Moi, je pêche les remorques cassées.', 'Une fois, j\'ai récupéré un perroquet sur un voilier abandonné. Il jurait en trois langues.'],
+  medic: ['En mission humanitaire, j\'ai opéré une appendicite sur la table du carré, par force six. Le patient va très bien.', 'Le mal de mer touche tout le monde, même les amiraux. Surtout les amiraux.']
+};
+const JOKES = ['Pourquoi les poissons détestent l\'ordinateur ? À cause du filet.', 'Un marin ne se perd jamais : il fait juste de la navigation exploratoire.', 'Le café du bord est si fort qu\'on l\'a classé arme de défense rapprochée.', 'Il y a deux sortes de marins : ceux qui ont eu le mal de mer, et les menteurs.', 'Le bosco a demandé une augmentation. On lui a donné une glène de plus.'];
+const shipByName = s => ALLC.find(c => s.includes(nrm(CLASSES[c].n)));
+function forecastFor(day) { const r = mulberry(day * 97 + 3), w = Math.round(rr(2, 9) + (r() < 0.25 ? 9 : 0)), dirs = ['nord', 'nord-ouest (mistral)', 'est', 'sud-est', 'ouest', 'sud']; return { w, dir: dirs[Math.floor(r() * dirs.length)], sea: w > 13 ? 'forte' : w > 8 ? 'agitée' : w > 4 ? 'peu agitée' : 'belle', fog: r() < 0.15 }; }
+function smartReply(id, q) {
+  const s = ' ' + nrm(q) + ' ', C = CAREER, m = MS.cur, sea = UI.screen === 'sea' && m && !m.over && PLAYER, P = PLAYER, crewC = CAST[id] && CAST[id].crew ? crew(CAST[id].crew) : null;
+  const has = (...w) => w.some(x => s.includes(x)), A = allowedActions(id);
+  const shipSt = c => sea && P && P.cls === c ? { hull: P.hull, engine: P.engine, fuel: P.fuel, ammo: P.ammo } : C.ships[c];
+  const I = [];
+  const add = (score, f) => { if (score > 0) I.push({ score, f }); };
+  const cnt = (...w) => w.filter(x => s.includes(x)).length;
+  add(cnt(' bonjour', ' salut ', 'bonsoir', 'hello', 'coucou', ' hey'), () => { const h = ENV.time; const t = h < 5 || h > 21 ? 'Bonsoir' : 'Bonjour'; return id === 'amirale' ? `${t}, commandant. Allez droit au but, je vous écoute.` : id === 'bosco' ? `${t} commandant ! Le pont est propre, pour une fois.` : id === 'port' ? `${t} commandant. Belle journée pour sortir, ou pas, je vous le dirai.` : `${t}, commandant.`; });
+  add(cnt('ca va', 'comment allez', 'comment vas', 'la forme', 'quoi de neuf', 'vous allez bien', 'tu vas bien'), () => crewC ? (crewC.morale > 75 ? 'En pleine forme, commandant ! L\'équipage aussi.' : crewC.morale > 45 ? 'Ça va. Un peu fatigué, mais on tient.' : 'Franchement ? Pas terrible. Une permission ne serait pas de refus.') : id === 'amirale' ? 'Débordée, comme d\'habitude. Mais vos résultats m\'aident à dormir.' : id === 'arsenal' ? 'Trois bateaux sur cale, deux en attente de pièces. Donc ça va.' : 'Très bien, merci commandant.');
+  // où sont mes bâtiments
+  { const c = shipByName(s); add((c ? 2 : 0) + cnt('ou est', 'ou sont', 'flotte', 'mes navires', 'mes batiments', 'stationne', 'affect', 'a quai'), () => {
+    const F = fleetWhere(); if (!F.length) return 'Vous n\'avez encore aucun bâtiment, commandant.';
+    if (c && owned(c)) { const f = F.find(x => x.c === c); return f.sea ? `${f.n} est en mer, c'est votre bâtiment.` : `${f.n} est à quai à ${f.pn} (coque ${Math.round(f.hull)} %, gasoil ${Math.round(f.fuel)} %).`; }
+    if (c && !owned(c)) return `${CLASSES[c].n} n'est pas à vous : il est en armement à l'arsenal (${fmtCr(CLASSES[c].price)}).`;
+    return 'Votre flotte : ' + F.map(f => `${f.n} ${f.sea ? 'en mer' : 'à ' + f.pn}`).join(', ') + '. Le panneau « Ma flotte » (F au port) et la carte (M) les montrent.';
+  }); }
+  add(cnt('etat', 'coque', 'degat', 'avarie', 'repar', 'abime', 'dommage'), () => { const c = sea ? P.cls : C.ship, st = shipSt(c), cost = owned(c) && !sea ? shipCosts(c).repair : 0; return `${CLASSES[c].n} : coque ${Math.round(st.hull)} %, machine ${Math.round(st.engine)} %.${cost > 0 ? ` La remise en état coûte ${fmtCr(cost)} à l'arsenal.` : st.hull > 95 ? ' Rien à signaler.' : ''}${id === 'meca' && st.engine < 70 ? ' Mes moteurs souffrent, commandant.' : ''}`; });
+  add(cnt('gasoil', 'carburant', 'plein', 'mazout', 'fuel', 'autonomie'), () => { const c = sea ? P.cls : C.ship, st = shipSt(c); return `Gasoil à ${Math.round(st.fuel)} %.${!sea && owned(c) && shipCosts(c).fuel > 0 ? ` Le plein coûte ${fmtCr(shipCosts(c).fuel)}.` : ''}${st.fuel < 25 ? ' Il faudra penser à une escale.' : ''}`; });
+  add(cnt('munition', 'missile', 'torpille', 'obus', 'rearm', ' armes', 'canon'), () => { const c = sea ? P.cls : C.ship, st = shipSt(c), am = st.ammo || {}; const L = Object.keys(am).map(k => `${am[k]} ${AMMON[k] || k}`); return L.length ? `À bord ${deN(c)} : ${L.join(', ')}.` : `${CLASSES[c].n} n'emporte pas d'armes lourdes.`; });
+  add(cnt('amelior', 'upgrade', 'equipement', 'investir', 'moderniser') + (id === 'arsenal' && has('conseil') ? 1 : 0), () => { const L = Object.entries(UPGRADES).filter(([k, U]) => upLv(k) < U.cost.length).map(([k, U]) => ({ U, cost: U.cost[upLv(k)] })).sort((a, b) => a.cost - b.cost); if (!L.length) return 'Tout est déjà au maximum. Je n\'ai plus rien à vous vendre !'; const g = L.find(x => x.cost <= C.credits) || L[0]; return `Je vous conseille : ${g.U.n} (${fmtCr(g.cost)}). ${g.U.d}${g.cost > C.credits ? ` Il vous manque ${fmtCr(g.cost - C.credits)}.` : ''}`; });
+  add(cnt('acheter', 'acquerir', 'achat', 'nouveau batiment', 'nouveau navire', 'combien coute', ' prix', 'fregate', 'destroyer', 'corvette', 'remorqueur', 'porte avions', 'sous marin'), () => { const want = ALLC.find(c => s.includes(nrm(CLASSES[c].kind === 'frigate' ? 'fregate' : CLASSES[c].kind)) || s.includes(nrm(CLASSES[c].n))); const L = (want ? [want] : ALLC.filter(c => !owned(c))).map(c => { const K = CLASSES[c]; return `${K.n} (${K.cls.toLowerCase()}) : ${owned(c) ? 'déjà à vous' : fmtCr(K.price)}${!owned(c) && rankOf(C.rep) < K.rank ? `, grade requis ${RANKS[K.rank].n}` : ''}`; }); return L.length ? L.join(' ; ') + '.' : 'Vous possédez déjà toute la flotte.'; });
+  add(cnt('grade', 'promotion', 'avancement', 'reputation', 'galon', 'monter'), () => { const rk = rankOf(C.rep), nx = RANKS[rk + 1]; return `${RANKS[rk].n}, ${C.rep} points de réputation.${nx ? ` Encore ${nx.rep - C.rep} pour passer ${nx.n}.` : ' Vous êtes au sommet.'}`; });
+  add(cnt('argent', 'credit', 'solde', 'budget', ' sous ', 'paye', 'tresor'), () => `Vous disposez de ${fmtCr(C.credits)}.${C.credits < 5000 ? ' C\'est maigre : les liaisons au port et les missions rapportent.' : ''}`);
+  add(cnt('objectif', 'que faire', 'quoi faire', 'prochaine etape', 'ordres', 'ordre du jour', 'mission'), () => { if (sea && !m.free) { const o = m.objs.find(o => o.state === 'active'); return `${m.title} : ${o ? o.text.toLowerCase() : 'tous les objectifs sont remplis'}.${m.status ? ' ' + m.status + '.' : ''}${m.limit < 1e8 ? ` Il reste ${Math.max(0, Math.round((m.limit - m.t) / 60))} minutes.` : ''}`; } const B = C.board ? boardDefs() : []; return B.length ? `Ordres du jour : ${B.slice(0, 4).map(d => d.title).join(' ; ')}. Passez à l'état-major.` : 'Rien de neuf pour l\'instant. Revenez demain matin.'; });
+  add(sea ? cnt('ennemi', 'hostile', 'menace', 'contact', 'radar', 'piste', 'danger') : 0, () => { const T = [...TRACKS.values()], H = T.filter(t => t.ident === 'hos' && !t.ent.sinking); if (!T.length) return 'Rien au radar pour l\'instant, commandant.'; const n = H.slice().sort((a, b) => Math.hypot(a.x - P.x, a.z - P.z) - Math.hypot(b.x - P.x, b.z - P.z))[0]; return `${T.length} piste${T.length > 1 ? 's' : ''} au radar, dont ${H.length} hostile${H.length > 1 ? 's' : ''}.${n ? ` La plus proche : ${TYPEN[n.type] || 'contact'} au ${bearingStr(headingOf(n.x - P.x, n.z - P.z))}, ${(Math.hypot(n.x - P.x, n.z - P.z) / 1852).toFixed(1).replace('.', ',')} nautiques.` : ''}`; });
+  add(cnt('aide', 'astuce', 'conseil', 'comment faire', 'comment je', 'comment on', 'tuto', 'je bloque', 'galere'), () => sea && !m.free && MTIPS[m.type] ? MTIPS[m.type] : sea ? 'En sortie libre : transit rapide avec Maj+T, mode photo avec F8, et la carte (M) pour placer un point de route.' : pick(['Au port, la jeep de service va vite : prenez-la pour les liaisons de la capitainerie.', 'Entraînez l\'équipage au carré : une compétence de plus, c\'est un semi-rigide plus rapide et des réparations plus sûres.', 'Choisissez vos bases au bureau des affectations ; vos bâtiments y sont répartis.', 'Avant une grosse mission, faites le plein et le réarmement à l\'arsenal.']));
+  { const pid = PORTS.find(p => s.includes(nrm(p.n)) || (p.id === 'ajaccio' && s.includes('corse')) || (p.id === 'cagliari' && s.includes('sardaigne')) || (p.id === 'bizerte' && s.includes('tunisie')) || (p.id === 'alger' && s.includes('algerie'))); add((pid ? 2 : 0) + cnt('traversee', 'rejoindre', 'aller a', 'changer de base', 'autre port'), () => { if (!pid) return `Vous êtes affecté à ${C.ports.map(portName).join(', ')}. Les traversées se préparent au bureau des affectations.`; if (pid.id === C.port) return `Vous y êtes déjà, à ${pid.n}.`; const R = travelInfo(C.ship, pid.id); return `${pid.n} : ${R.nm} nautiques, environ ${R.h} heures à ${R.kn} nœuds, ${R.fuel} % de gasoil.${C.ports.includes(pid.id) ? ' C\'est une de vos bases : traversée au bureau des affectations.' : ' Ce n\'est pas encore une de vos bases : ajoutez-la au bureau des affectations, ou accostez-y en navigation libre.'}`; }); }
+  add(cnt('jeep', 'voiture', 'liaison', 'vehicule', 'conduire'), () => { const left = C.lia && C.lia.day === C.day && C.lia.port === PORT.id ? 4 - C.lia.done.length : 4; return `La jeep de service attend devant l'état-major : Z/S, Q/D, Espace pour le frein à main, H pour le klaxon. Il reste ${left} liaison${left > 1 ? 's' : ''} aujourd'hui à la capitainerie, avec prime de rapidité.`; });
+  add(cnt('fatigue', 'repos', 'dormir', 'permission', 'sommeil', 'epuise', 'creve'), () => { const avg = Math.round(C.crew.reduce((a, c) => a + c.morale, 0) / C.crew.length); return sea ? `Fatigue du bord : ${Math.round(FLT.fat || 0)} %. ${FLT.fat > 60 ? 'Un tour en cabine en vitesse accélérée ferait du bien.' : 'On tient le quart sans problème.'}` : `Moral moyen ${avg} %. ${avg < 60 ? 'Une permission à terre au carré remonterait tout le monde.' : 'L\'équipage est en forme.'}`; });
+  add(cnt('blesse', 'medecin', 'sante', 'malade', 'infirmerie', 'soign', 'docteur'), () => { const inj = ACTIVE_INC.some(i => i.id === 'injury'); return inj ? 'Un blessé à l\'infirmerie, je m\'en occupe. Passez si vous pouvez, ça rassure.' : sea && P.survivors ? `${P.survivors} rescapés à bord, tous stables.` : 'Infirmerie calme, personne en souffrance. Buvez de l\'eau, commandant.'; });
+  add(cnt('moteur', 'machine', 'propulsion', 'helice', 'vitesse max', 'noeuds') + (id === 'meca' && has('machine', 'moteur') ? 1 : 0), () => { const c = sea ? P.cls : C.ship, st = shipSt(c), K = KINDS[CLASSES[c].kind]; return `Machine à ${Math.round(st.engine)} %, vitesse maximale ${Math.round(K.vmax / KN)} nœuds${upLv('engine') ? ' avec les améliorations' : ''}.${id === 'meca' ? pick([' Elle tourne rond, mais je ne promets rien.', ' Ménagez-la dans la houle.']) : ''}`; });
+  add(cnt('meteo', ' vent', ' mer ', 'houle', 'prevision', 'demain', 'quel temps', 'pluie', 'brouillard', 'orage', 'mistral'), () => { const f = forecastFor(C.day + 1); return `En ce moment : vent force ${beaufort(ENV.wind)}, mer ${DOUGLAS[douglas()].toLowerCase()}. Demain : vent de ${f.dir} force ${f.w > 13 ? '6 à 7' : f.w > 8 ? '4 à 5' : '2 à 3'}, mer ${f.sea}${f.fog ? ', brumes matinales' : ''}.`; });
+  add(cnt('dauphin', 'baleine', 'rorqual', 'photo', 'cetace', 'animaux'), () => 'Quand la veille annonce des dauphins ou un rorqual, passez en mode photo (F8) : le réseau d\'observation paie pour les belles images. Et ralentissez près des rorquals, c\'est le sanctuaire Pelagos.');
+  add(cnt('histoire', 'raconte', 'anecdote', 'souvenir', 'legende'), () => pick(STORIES[id] || STORIES.second));
+  add(cnt('blague', 'drole', 'rigol', 'humour', 'marrant'), () => (id === 'amirale' ? 'Je ne suis pas payée pour ça. Mais bon : ' : '') + pick(JOKES));
+  add(cnt('quelle heure', ' heure ', 'quel jour', ' date '), () => `Il est ${clockStr(ENV.time)}, jour ${C.day} de votre affectation.`);
+  add(cnt('qui es', 'qui etes', 'presente', 'ton role', 'votre role', 'tu fais quoi', 'vous faites quoi'), () => { const k = castOf(id); return `${k.n}, ${k.role.charAt(0).toLowerCase() + k.role.slice(1)}. ${id === 'amirale' ? 'Je commande la flotte d\'Ysmar, et donc vous.' : id === 'cross' ? 'Je coordonne le sauvetage en mer sur toute la façade.' : id === 'arsenal' ? 'Je répare, j\'améliore, je râle.' : id === 'port' ? 'Je connais chaque caillou de la rade.' : 'À votre service, commandant.'}`; });
+  add(cnt('au revoir', 'bonne nuit', 'a plus', 'a bientot', 'bye', 'ciao', 'a demain'), () => id === 'amirale' ? 'À plus tard, commandant. Ramenez-moi tout le monde.' : pick(['Bonne mer, commandant !', 'À bientôt, commandant.', 'Bon quart, commandant.']));
+  add(cnt('idiot', ' nul', ' con ', 'imbecile', 'debile', 'incompetent', 'abruti'), () => id === 'amirale' ? 'Je vais faire comme si je n\'avais pas lu ça, commandant.' : 'Avec tout le respect que je vous dois, commandant : on se calme.');
+  add(cnt('helico', 'helo', 'panther', 'hélitreuil'), () => { if (!sea || !P.heli) return 'Pas d\'hélicoptère embarqué sur ce bâtiment.'; const H = P.heli; return H.dead ? 'L\'hélicoptère est perdu.' : H.state === 'deck' ? `Hélicoptère sur la plate-forme, carburant ${Math.round(H.fuel)} %. Panneau O, ligne « Hélicoptère », pour en prendre les commandes.` : `Hélicoptère en vol, carburant ${Math.round(H.fuel)} %.`; });
+  add(cnt('transit', 'vitesse du jeu', 'accelerer le temps', 'x32', 'x16', 'plus vite'), () => 'T change la vitesse du jeu (×1 à ×32), même au combat. Maj+T lance le transit rapide vers l\'objectif ou le point de route.');
+  add(cnt('escale', 'ravitaill', 'ravito', 'accoster'), () => sea ? 'Accostez le long d\'un quai de votre base, ou à la jetée de Porquerolles : l\'action « Escale » ravitaille et répare un peu.' : 'À quai, l\'arsenal fait le plein, les réparations et le réarmement.');
+  add(cnt('voilier', 'conteneur', 'ballot', 'grain', 'evenement'), () => { const e = SEV.cur; if (!e) return 'Rien de particulier en ce moment.'; return `${e.n} : ${({ voilier: 'approchez-vous et envoyez le mécanicien au semi-rigide.', conteneurs: 'repérez-les aux jumelles puis diffusez un avis aux navigateurs.', baleine: 'ralentissez sous 10 nœuds à moins d\'un kilomètre.', grain: 'réduisez la vitesse et prenez la mer de trois quarts avant.', ballots: 'repêchez-les à la gaffe ou au semi-rigide.' })[e.id]}`; });
+  if (!I.length) return null;
+  I.sort((a, b) => b.score - a.score);
+  return { text: I[0].f(), action: has('merci', 'bravo', 'bien joue', 'felicitation') && A.moral ? 'moral' : 'aucune' };
+}
+{ const base = cannedReply; cannedReply = function (id, q) {
+  const s = nrm(q), sea = UI.screen === 'sea' && MS.cur && !MS.cur.over;
+  // les demandes qui déclenchent une action restent gérées par les réponses d'origine
+  if (sea && /\b(delai|tir libre|autorisation de tir|ouvrir le feu|renseignement|intel)\b/.test(s)) return base(id, q);
+  if (/\b(merci|bravo|bien joue|felicitation|moral)\b/.test(s) && !/\b(pourquoi|comment)\b/.test(s)) { const r = base(id, q); if (r.action === 'moral' || !smartReply(id, q)) return r; }
+  try { const r = smartReply(id, q); if (r) return r; } catch (e) { console.error(e); }
+  return base(id, q);
+}; }
+// suggestions supplémentaires dans la messagerie
+{ const base = suggestions; suggestions = function (id) {
+  const S = base(id), sea = UI.screen === 'sea' && MS.cur && !MS.cur.over && !MS.cur.free; if (sea && MS.cur.isOp) return S;
+  const extra = { amirale: ['Où sont mes bâtiments ?', 'Comment obtenir une promotion ?'], cross: ['Quelle météo pour demain ?', sea ? 'Un conseil pour cette mission ?' : 'Une histoire de sauvetage ?'], arsenal: ['Combien coûte une frégate ?', 'Mes munitions ?'], port: ['Combien de temps pour aller à Ajaccio ?', 'Des liaisons pour la jeep ?'], second: [sea ? 'Des contacts au radar ?' : 'Une blague pour l\'équipage ?'], meca: ['État de la machine ?'], bosco: ['Raconte une histoire !'], medic: ['Des blessés à bord ?'] }[id] || [];
+  return S.concat(extra.filter(x => !S.includes(x))).slice(0, 5);
+}; }
+// ordres aux bâtiments du groupe : plus de façons de les formuler
+{ const base = parseOrder; parseOrder = function (txt) {
+  let s = ' ' + txt.toLowerCase() + ' ';
+  const R = [[/\b(surveill\w*|quadrill\w*|ronde|reconnaissance|eclaire\w*|éclaire\w*)\b/g, 'patrouille'], [/\b(prot[eè]g\w*|garde[- ]moi|colle[- ]moi|couvre[- ]moi|reste avec moi)\b/g, 'escorte moi'], [/\b(tire[rz]? sur|feu sur|frappe\w*|intercept\w*|neutralise[rz]?)\b/g, 'attaque'],
+    [/\b(halte|arr[eê]te[- ]toi|arr[eê]tez[- ]vous|attends|attendez|stationnaire|immobilise\w*)\b/g, 'stop'], [/\b(regroup\w*|reviens|revenez|retour vers moi|rallie\w*)\b/g, 'rejoins'], [/\b(va te ravitailler|ravitaill\w*|relâche|relache)\b/g, 'rentre']];
+  for (const [re, w] of R) s = s.replace(re, w);
+  return base(s.trim());
 }; }
 
 </script>
